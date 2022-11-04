@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Android on ykikoqAq</title>
+        <link>https://ykiko.top/categories/android/</link>
+        <description>Recent content in Android on ykikoqAq</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Thu, 05 Jul 2018 17:35:46 +0800</lastBuildDate><atom:link href="https://ykiko.top/categories/android/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Android安全和开发环境搭建</title>
+        <link>https://ykiko.top/p/android%E5%AE%89%E5%85%A8%E5%92%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</link>
+        <pubDate>Thu, 05 Jul 2018 17:35:46 +0800</pubDate>
+        
+        <guid>https://ykiko.top/p/android%E5%AE%89%E5%85%A8%E5%92%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/</guid>
+        <description>&lt;h1 id=&#34;android安全和开发环境搭建&#34;&gt;Android安全和开发环境搭建&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;补充中·····&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h4 id=&#34;java环境&#34;&gt;JAVA环境&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;JDK下载与安装。&lt;/li&gt;
+&lt;li&gt;环境变量配置&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&#34;android-studio&#34;&gt;Android Studio&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;官网下载（扶墙）&lt;/li&gt;
+&lt;li&gt;SDK&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&#34;ndkjni开发&#34;&gt;NDK（JNI）开发&lt;/h4&gt;
+&lt;ol&gt;
+&lt;li&gt;NDK下载&lt;/li&gt;
+&lt;li&gt;使用&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h4 id=&#34;eclipse-还是推荐上面的as&#34;&gt;Eclipse (还是推荐上面的AS)&lt;/h4&gt;
+&lt;p&gt;不喜欢界面，弃用。&lt;/p&gt;
+&lt;h4 id=&#34;heading&#34;&gt;&lt;/h4&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

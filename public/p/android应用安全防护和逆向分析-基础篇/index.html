@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="zh-cn" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='Android中锁屏密码加密算法分析'>
+<meta name="keywords" content="“NDK&#34;, 开发"><title>Android应用安全防护和逆向分析 基础篇①</title>
+
+<link rel='canonical' href='https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%87/'>
+
+<link rel="stylesheet" href="/scss/style.min.5be32ca3f6e1a997c75795c4359147cc6d4fbd34948c0acd51e31d237033978a.css"><meta property='og:title' content='Android应用安全防护和逆向分析 基础篇①'>
+<meta property='og:description' content='Android中锁屏密码加密算法分析'>
+<meta property='og:url' content='https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%87/'>
+<meta property='og:site_name' content='ykikoqAq'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='android安全' /><meta property='article:tag' content='读书笔记' /><meta property='article:published_time' content='2018-07-13T15:01:09&#43;08:00'/><meta property='article:modified_time' content='2018-07-13T15:01:09&#43;08:00'/>
+<meta name="twitter:title" content="Android应用安全防护和逆向分析 基础篇①">
+<meta name="twitter:description" content="Android中锁屏密码加密算法分析">
+    <link rel="shortcut icon" href="static/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="切换菜单">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar1_hua29f1bc43d7ce06db8dc6c61cd47be07_30085_300x0_resize_box_3.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+                    <span class="emoji">🍥</span>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">ykikoqAq</a></h1>
+            <h2 class="site-description">学习、吃饭、睡觉。</h2>
+        </div>
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/kuekiko'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://twitter.com/kuekiko7'
+                        target="_blank"
+                        title="Twitter"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c-.002 -.249 1.51 -2.772 1.818 -4.013z" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>主页</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/%E5%85%B3%E4%BA%8E/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>关于</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/links/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5" />
+  <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5" />
+</svg>
+
+
+
+                
+                <span>Links</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/reading/' >
+                
+                
+                
+                    <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1667582754215" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4690" width="200" height="200" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M384 210.8672c50.688 0 96 23.6288 125.3888 60.7232l2.56 3.328 2.2272-2.8928a159.744 159.744 0 0 1 119.9616-61.056L640 210.8672h179.2a83.2 83.2 0 0 1 83.2 83.2v435.2a83.2 83.2 0 0 1-83.2 83.2l-226.9952 0.0256-5.0944 3.7888a130.4576 130.4576 0 0 1-68.3008 23.5008L512 839.936a130.5344 130.5344 0 0 1-75.1104-23.68l-5.12-3.7888L204.8 812.4672a83.2 83.2 0 0 1-83.072-78.4896l-0.128-4.7104v-435.2A83.2 83.2 0 0 1 204.8 210.8672z m0 64H204.8a19.2 19.2 0 0 0-19.2 19.2v435.2c0 10.5984 8.6016 19.2 19.2 19.2l238.7968 0.0256c8.2432 0 16.1536 3.2 22.1184 8.8832a66.6112 66.6112 0 0 0 46.2848 18.5856c17.5104 0 33.8944-6.7072 46.2848-18.5856a32 32 0 0 1 22.1184-8.8832L819.2 748.4672a19.2 19.2 0 0 0 19.2-19.2v-435.2a19.2 19.2 0 0 0-19.2-19.2h-179.2a96 96 0 0 0-96 96.9216v109.824a32 32 0 0 1-63.8464 3.2512l-0.1536-3.2512v-108.9792l0.0256-0.64v-0.4352l-0.1024-4.864A96 96 0 0 0 384 274.8416z" p-id="4691" fill="#ffffff"></path></svg>
+                
+                <span>Reading</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/todo/' >
+                
+                
+                
+                    <?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg t="1667582982893" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="8303" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M227.555328 113.777664h568.889344c31.418368 0 56.88832 25.469952 56.88832 56.889344v256c0 15.70816-12.734464 28.443648-28.443648 28.443648-15.710208 0-28.444672-12.734464-28.444672-28.443648v-256H227.555328v682.665984h199.11168c15.70816 0 28.443648 12.735488 28.443648 28.444672s-12.734464 28.444672-28.443648 28.444672H227.555328c-31.418368 0-56.88832-25.469952-56.88832-56.889344V170.667008c0-31.419392 25.469952-56.889344 56.88832-56.889344z" p-id="8304" fill="#ffffff"></path><path d="M739.555328 910.222336c94.257152 0 170.667008-76.41088 170.667008-170.667008s-76.41088-170.665984-170.667008-170.665984-170.665984 76.409856-170.665984 170.665984c0 94.257152 76.409856 170.667008 170.665984 170.667008z m0 56.88832C613.879808 967.110656 512 865.230848 512 739.555328S613.879808 512 739.555328 512s227.555328 101.879808 227.555328 227.555328-101.879808 227.555328-227.555328 227.555328z" p-id="8305" fill="#ffffff"></path><path d="M711.110656 655.859712c0-15.709184 12.735488-28.444672 28.444672-28.444672S768 640.150528 768 655.859712v72.8832l55.126016 55.126016c11.108352 11.108352 11.108352 29.118464 0 40.226816-11.108352 11.108352-29.118464 11.108352-40.226816 0l-55.126016-55.126016a56.889344 56.889344 0 0 1-16.662528-40.226816v-72.8832z" p-id="8306" fill="#ffffff"></path><path d="M312.889344 284.444672h341.332992c15.709184 0 28.444672 12.734464 28.444672 28.444672 0 15.70816-12.735488 28.443648-28.444672 28.443648H312.889344c-15.710208 0-28.444672-12.734464-28.444672-28.443648 0-15.710208 12.734464-28.444672 28.444672-28.444672zM312.889344 398.222336h227.555328c15.709184 0 28.444672 12.734464 28.444672 28.444672 0 15.70816-12.735488 28.443648-28.444672 28.443648H312.889344c-15.710208 0-28.444672-12.734464-28.444672-28.443648 0-15.710208 12.734464-28.444672 28.444672-28.444672zM312.889344 512h113.77664c15.710208 0 28.444672 12.735488 28.444672 28.444672s-12.734464 28.444672-28.443648 28.444672H312.889344c-15.710208 0-28.444672-12.735488-28.444672-28.444672S297.179136 512 312.889344 512z" p-id="8307" fill="#ffffff"></path></svg>
+                
+                <span>Todo</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+                <li id="i18n-switch">  
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M4 5h7" />
+  <path d="M9 3v2c0 4.418 -2.239 8 -5 8" />
+  <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4" />
+  <path d="M12 20l4 -9l4 9" />
+  <path d="M19.1 18h-6.2" />
+</svg>
+
+
+
+                    <select name="language" onchange="window.location.href = this.selectedOptions[0].value">
+                        
+                            <option value="https://ykiko.top/en/" >English</option>
+                        
+                            <option value="https://ykiko.top/" selected>中文</option>
+                        
+                    </select>
+                </li>
+            
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>暗色模式</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">目录</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#第二章-android中ndk的开发">第二章 Android中NDK的开发</a>
+      <ol>
+        <li><a href="#1--相关环境">1.  相关环境</a></li>
+        <li><a href="#2--jni基础">2.  JNI基础</a>
+          <ol>
+            <li><a href="#21-第一行代码书上使用eclipse我使用as简单方便很多">2.1 第一行代码(书上使用Eclipse,我使用AS(简单方便很多))</a></li>
+            <li><a href="#22--jnienv类型和jobject类型">2.2  JNIEnv类型和jobject类型</a></li>
+            <li><a href="#23-jnienv类型中方法的使用">2.3 JNIEnv类型中方法的使用</a></li>
+            <li><a href="#24-创建java对象及字符串的操作方法">2.4 创建Java对象及字符串的操作方法</a></li>
+            <li><a href="#25-cc中操作java中的数组">2.5 C/C++中操作Java中的数组</a></li>
+            <li><a href="#26-cc中的引用类型和id缓存">2.6 C++/C中的引用类型和ID缓存</a></li>
+          </ol>
+        </li>
+        <li><a href="#总结">总结</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/" >
+                读书笔记
+            </a>
+        
+            <a href="/categories/android%E5%AE%89%E5%85%A8/" >
+                Android安全
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%87/">Android应用安全防护和逆向分析-基础篇④</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            so文件格式解析
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 22, 2018</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    阅读时长: 1 分钟
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="一-基础篇">一、 基础篇②</h1>
+<h2 id="第二章-android中ndk的开发">第二章 Android中NDK的开发</h2>
+<h3 id="1--相关环境">1.  相关环境</h3>
+<p>相关环境参考另外一篇文章<a class="link" href="https://naivete.cc/post/android%E5%AE%89%E5%85%A8%E5%92%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/"  target="_blank" rel="noopener"
+    >Android安全和开发环境搭建</a></p>
+<h3 id="2--jni基础">2.  JNI基础</h3>
+<h4 id="21-第一行代码书上使用eclipse我使用as简单方便很多">2.1 第一行代码(书上使用Eclipse,我使用AS(简单方便很多))</h4>
+<p>​	参考文章<a class="link" href="https://naivete.cc/post/android%E5%AE%89%E5%85%A8%E5%92%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/"  target="_blank" rel="noopener"
+    >Android安全和开发环境搭建</a>中的JNI开发章节</p>
+<h4 id="22--jnienv类型和jobject类型">2.2  JNIEnv类型和jobject类型</h4>
+<ul>
+<li><strong>AS 默认自动生成</strong></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-JAVA" data-lang="JAVA"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">native</span> <span class="n">String</span> <span class="nf">stringFromJNI</span><span class="o">();</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="n">Java_com_naivete_jni_1study_MainActivity_stringFromJNI</span><span class="o">(</span>
+</span></span><span class="line"><span class="cl">        <span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="o">,</span>
+</span></span><span class="line"><span class="cl">        <span class="n">jobject</span> <span class="cm">/* this */</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">hello</span> <span class="o">=</span> <span class="s">&#34;Hello from C++&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">NewStringUTF</span><span class="o">(</span><span class="n">hello</span><span class="o">.</span><span class="na">c_str</span><span class="o">());</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><strong>JNIEnv类型</strong></p>
+<p>通过JNIEnv* 指针就可以对Java端的代码进行操作</p>
+<p>Jni的所有函数可以查看jni.h文件</p>
+<p>下面是一些函数eg：</p>
+<ul>
+<li>
+<p>NewObject : 创建Java类中的对象。</p>
+</li>
+<li>
+<p>NewString : 创建Java类中的String对象。</p>
+</li>
+<li>
+<p>New<Type>Array : 创建类型为Type的数组对象</p>
+</li>
+<li>
+<p>Get<Type>Field: 获取型为Type的字段。</p>
+</li>
+<li>
+<p>Set<Type>Fileld: 设置类型为Type的字段的值。</p>
+</li>
+<li>
+<p>GetStatic<Type>Field: 获取类型为Type的static的字段。</p>
+</li>
+<li>
+<p>SetStatic<Type>Field:设置类型为Typede的static的字段的值。</p>
+</li>
+<li>
+<p>Call<type>Method: 调用返回类型为Type的方法。</p>
+</li>
+<li>
+<p>CallStatic<Type>Method: 调用返回值类型为Type的Static方法</p>
+<p>&hellip;..</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Jobject参数obj</strong></p>
+<p>如果native 方法不是static ,obj就代表native方法的实例。</p>
+<p>如果narive方法是static,obj 就代表native方法的类的class对象实例。</p>
+</li>
+<li>
+<p><strong>Java和C++中的基本类型的映射关系</strong>：</p>
+<p>具体查看jni.h文件的详细说明</p>
+</li>
+</ul>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th style="text-align:center">Java类型</th>
+<th style="text-align:center">本地类型</th>
+<th style="text-align:center">JNI定义的别名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">int</td>
+<td style="text-align:center">long</td>
+<td style="text-align:center">jint/jsize</td>
+</tr>
+<tr>
+<td style="text-align:center">long</td>
+<td style="text-align:center">_int64</td>
+<td style="text-align:center">jlong</td>
+</tr>
+<tr>
+<td style="text-align:center">byte</td>
+<td style="text-align:center">signed char</td>
+<td style="text-align:center">jbyte</td>
+</tr>
+<tr>
+<td style="text-align:center">boolean</td>
+<td style="text-align:center">unsigned char</td>
+<td style="text-align:center">jboolean</td>
+</tr>
+<tr>
+<td style="text-align:center">char</td>
+<td style="text-align:center">unsigned short</td>
+<td style="text-align:center">jchar</td>
+</tr>
+<tr>
+<td style="text-align:center">short</td>
+<td style="text-align:center">short</td>
+<td style="text-align:center">jshort</td>
+</tr>
+<tr>
+<td style="text-align:center">float</td>
+<td style="text-align:center">float</td>
+<td style="text-align:center">jfloat</td>
+</tr>
+<tr>
+<td style="text-align:center">double</td>
+<td style="text-align:center">double</td>
+<td style="text-align:center">jdouble</td>
+</tr>
+<tr>
+<td style="text-align:center">Object</td>
+<td style="text-align:center">_jobject*</td>
+<td style="text-align:center">jobject</td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li>
+<p><strong>jclass类型</strong></p>
+<p>jclass 表示java中的class 类：</p>
+<p>JNIEnv 类中有如下几个简单的函数可以取得jclass:</p>
+<ul>
+<li>
+<p>jclass FindClass( const char* clsName):通过类的名称来获取jclass</p>
+</li>
+<li>
+<p>jcalss GetObjectClass( jobject obj ):通过对象实例来获取jcalss,相当于java 中的getclass方法</p>
+</li>
+<li>
+<p>jclass GetSuperClass(jclass obj):通过jclass 可以获取其父类的jclass对象。</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>native中访问Java层代码</strong></p>
+<p>常见的应用就是获取类的属性和调用类的方法</p>
+<p>JNi在jni.h头文件中定义了jfieldId、jmethodID类型分别代表JAVA端的属性和方法。</p>
+<p>使用JNI的以下方法来取得相应的jfieldId、jmethodID：</p>
+<ul>
+<li>GetFieldID、GetMethodID</li>
+<li>GetStaticFieldID、GetStaticMethodID</li>
+</ul>
+<p>查看jni.h中源函数</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"> <span class="n">GetFieldID</span><span class="o">(</span><span class="n">jclass</span> <span class="n">clazz</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span><span class="o">,</span> <span class="kd">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">sig</span><span class="o">)</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>​	参数说明：</p>
+<ul>
+<li>
+<p>clazz 方法依赖的类对象的class对象</p>
+</li>
+<li>
+<p>name: 字段的名称</p>
+</li>
+<li>
+<p>sig : 字段的签名</p>
+<p>查看签名命令</p>
+<p><code> javap -s -p 字节码.class 文件</code></p>
+</li>
+</ul>
+<p>GetMethodID 也能够会的构造函数的jmethodID，创建一个Java对象是可以调用指定的构造方法，eg：</p>
+<p><code> env-&gt;GetmethodID(data_class,&quot;&lt;init&gt;&quot;,&quot;()v&quot;);</code></p>
+<p>签名的格式：</p>
+<div class="table-wrapper"><table>
+<thead>
+<tr>
+<th style="text-align:center">类型</th>
+<th>相应的签名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">boolean</td>
+<td>Z</td>
+</tr>
+<tr>
+<td style="text-align:center">byte</td>
+<td>B</td>
+</tr>
+<tr>
+<td style="text-align:center">chat</td>
+<td>C</td>
+</tr>
+<tr>
+<td style="text-align:center">short</td>
+<td>S</td>
+</tr>
+<tr>
+<td style="text-align:center">int</td>
+<td>I</td>
+</tr>
+<tr>
+<td style="text-align:center">long</td>
+<td>L</td>
+</tr>
+<tr>
+<td style="text-align:center">float</td>
+<td>F</td>
+</tr>
+<tr>
+<td style="text-align:center">double</td>
+<td>D</td>
+</tr>
+<tr>
+<td style="text-align:center">void</td>
+<td>V</td>
+</tr>
+<tr>
+<td style="text-align:center">object</td>
+<td>L用/分割包的完整类名；Ljava/lang/String;</td>
+</tr>
+<tr>
+<td style="text-align:center">Array</td>
+<td>[签名 [I [Ljava/lang/Object</td>
+</tr>
+<tr>
+<td style="text-align:center">Method</td>
+<td>(参数类型签名··· .) 返回值类型签名</td>
+</tr>
+</tbody>
+</table></div>
+<p>eg:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nn">com.naivete.jni_study</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">java.util.Date</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">Hello</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="n">property</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">function</span><span class="o">(</span><span class="kt">int</span> <span class="n">foo</span><span class="o">,</span> <span class="n">Date</span> <span class="n">date</span><span class="o">,</span><span class="kt">int</span><span class="o">[]</span> <span class="n">arr</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&#34;function&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="k">return</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">test</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="k">extern</span> <span class="s">&#34;C&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+</span></span><span class="line"><span class="cl"><span class="n">Java_com_naivete_jni_1study_Hello_test</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">instance</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// TODO
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jclass</span> <span class="n">helloclazz</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetObjectClass</span><span class="p">(</span><span class="n">instance</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jfieldID</span> <span class="n">field_prop</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetFieldID</span><span class="p">(</span><span class="n">helloclazz</span><span class="p">,</span><span class="s">&#34;property&#34;</span><span class="p">,</span><span class="s">&#34;I&#34;</span><span class="p">);</span>   <span class="c1">//取到property字段
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jmethodID</span> <span class="n">method_fun</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetMethodID</span><span class="p">(</span><span class="n">helloclazz</span><span class="p">,</span><span class="s">&#34;function&#34;</span><span class="p">,</span><span class="s">&#34;ILjava/util/Date;[I)I&#34;</span><span class="p">);</span> <span class="c1">//取到function函数
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">env</span><span class="o">-&gt;</span><span class="n">CallIntMethod</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span><span class="n">method_fun</span><span class="p">,</span><span class="mi">0L</span><span class="p">,</span><span class="nb">NULL</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>GetStaticFieldID与GetStaticMethodID这两个方法的用法大同小异。</p>
+<h4 id="23-jnienv类型中方法的使用">2.3 JNIEnv类型中方法的使用</h4>
+<ul>
+<li>在java中定义一个属性，再从C++代码中将其设置成另外的值</li>
+</ul>
+<h5 id="231-native中获取方法的id">2.3.1 native中获取方法的ID</h5>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl">    <span class="kd">private</span> <span class="kd">static</span> <span class="n">String</span> <span class="n">TAG</span> <span class="o">=</span> <span class="s">&#34;Hello&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kt">int</span> <span class="n">number</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">sayHello</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Hello</span> <span class="n">hello</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Hello</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">hello</span><span class="o">.</span><span class="na">sayHello</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">print</span><span class="o">(</span><span class="n">hello</span><span class="o">.</span><span class="na">number</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">Log</span><span class="o">.</span><span class="na">d</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&#34;&#34;</span><span class="o">+</span><span class="n">hello</span><span class="o">.</span><span class="na">number</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+</span></span><span class="line"><span class="cl"><span class="nf">Java_com_naivete_jni_1study_Hello_sayHello</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">instance</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// TODO
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jclass</span> <span class="n">helloclazz</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetObjectClass</span><span class="p">(</span><span class="n">instance</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jfieldID</span> <span class="n">id_number</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetFieldID</span><span class="p">(</span><span class="n">helloclazz</span><span class="p">,</span><span class="s">&#34;number&#34;</span><span class="p">,</span><span class="s">&#34;I&#34;</span><span class="p">);</span> <span class="c1">//获取numberID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jint</span> <span class="n">number</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetIntField</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span><span class="n">id_number</span><span class="p">);</span> <span class="c1">//获取number的值;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">number</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>  <span class="c1">//输出到控制台
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">env</span><span class="o">-&gt;</span><span class="n">SetIntField</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span><span class="n">id_number</span><span class="p">,</span><span class="mi">100L</span><span class="p">);</span> <span class="c1">//设置number的值;注意jint对应c++ long类型
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="http://my-md-1253484710.coscd.myqcloud.com/android-note-2-1.png"
+	
+	
+	
+	loading="lazy"
+	
+		alt="1"
+	
+	
+></p>
+<p>JNIEnv 还提供了许多Call<Type>Method 和CallStatic<Type>Method 还有CallNovirtual<Type>Method函数，需要通过GetMethodID来取得相应的方法的jmethodId传入到上述函数的参数中</p>
+<p>调用示例方法的三种形式如下：</p>
+<p><code>Call&lt;Type&gt;Method(jobject obj,jmethodID id,id,·······); </code> //常用的方式</p>
+<p><code>Call&lt;Type&gt;Method(jobject obj,jmethodID id,id,va_list lst);</code> //有指向参数表的va_list变量（很少使用）</p>
+<p><code>Call&lt;Type&gt;Method(jobject obj,jmethodID id,id,jvalue * v);</code> //有指向jvalue或jvalue数组指针时用的</p>
+<p>jvalue 是union联合体，定义jvalue数组传递到方法中，这样可以包含多种类型的参数：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C" data-lang="C"><span class="line"><span class="cl"><span class="k">typedef</span> <span class="k">union</span> <span class="n">jvalue</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jboolean</span> <span class="n">z</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jbytpe</span>   <span class="n">b</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jchar</span>    <span class="n">c</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jshort</span>   <span class="n">s</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jint</span>     <span class="n">i</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jlong</span>    <span class="n">j</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jfloat</span>   <span class="n">f</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jdouble</span>  <span class="n">d</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jobject</span>  <span class="n">l</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="n">jvalue</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>比如在Java中有这样一个方法：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kt">boolean</span> <span class="nf">function</span><span class="o">(</span><span class="kt">int</span> <span class="n">a</span><span class="o">,</span><span class="kt">double</span> <span class="n">b</span><span class="o">,</span><span class="kt">char</span> <span class="n">c</span><span class="o">){</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="err">·····</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>1）在C++中使用第一种方法调用function方法：</p>
+<p><code>env-&gt;CallbooleanMethod(obj,id_function,10L，3.4，L'a')</code></p>
+<p>obj:functon对象，id_function:functiond的id,10L、3.4、L&rsquo;a&rsquo;是对应的参数。</p>
+<p>L&rsquo;a&rsquo; 中的L是因为Java中的字符是Unicode双字节的，而C++中的字节是单字节的，所以要变成宽字符。</p>
+<p>2）在C++中使用第三种方法function调用：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="n">jvalue</span><span class="o">*</span> <span class="n">args</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Jvalue</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10L</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">3.22</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="sa">L</span><span class="sc">&#39;a&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">env</span><span class="o">-&gt;</span><span class="n">GetBooleanMethod</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span><span class="n">id_function</span><span class="p">,</span><span class="n">args</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="k">delete</span><span class="p">[]</span> <span class="n">args</span><span class="p">;</span>  <span class="c1">//是否指针堆内存
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h5 id="232-java和c中的多态机制">2.3.2 Java和C++中的多态机制</h5>
+<p>JNIEnv中的特殊方法CallNovirtual<type>Method。来帮助java调用Java中父类的方法。</p>
+<ul>
+<li>介绍了-C++和java多态的基础知识。</li>
+<li>步骤：
+<ul>
+<li>获取obj中对象的class 对象 GetObjectClass(obj)</li>
+<li>获取java中father字段的id GetFieldID()</li>
+<li>获取father字段的对象类型 GetObjectField</li>
+<li>获取father对象的class对象 FindClass</li>
+<li>获取father对象中function方法ID GetMethodID()</li>
+<li>调用父类中的function方法（会执行子类的方法）CallvoidMethod</li>
+<li>调用父类中的function方法（会执行父类的方法）CallNonvirtualVoidMethod()</li>
+</ul>
+</li>
+</ul>
+<h4 id="24-创建java对象及字符串的操作方法">2.4 创建Java对象及字符串的操作方法</h4>
+<h5 id="241-native中创建java对象">2.4.1 native中创建Java对象</h5>
+<p>​	两种方法：</p>
+<ul>
+<li>
+<p>第一种：</p>
+<p><code> jobject Newobject(jclass clazz,jmethodID methodID,·····)</code></p>
+<ul>
+<li>clazz 需要创建的Java对象的Class对象。</li>
+<li>methodID :传递一个方法的ID: 构造方法</li>
+<li>第三个参数：构造函数需要传入的参数值（默认不传递） 默认构造方法返回值签名始终是&quot;()V&quot;,方法的名称始终是&quot;<init>&quot;。</li>
+</ul>
+<p>在C++中构造Java中的Date对象调用方法getTime():</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="n">jclass</span> <span class="n">clazz_date</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">FindClass</span><span class="p">(</span><span class="s">&#34;java/util/Date&#34;</span><span class="p">);</span> <span class="c1">//获取date对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">jmethodID</span> <span class="n">mid_date</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetMethodID</span><span class="p">(</span><span class="n">clazz_date</span><span class="p">,</span><span class="s">&#34;&lt;init&gt;&#34;</span><span class="p">,</span><span class="s">&#34;()V&#34;</span><span class="p">);</span> <span class="c1">//获取构造方法的ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">jobject</span> <span class="n">now</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">NewObject</span><span class="p">(</span><span class="n">clazz_date</span><span class="p">,</span><span class="n">mid_date</span><span class="p">);</span> <span class="c1">//生成Date对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">jmethodID</span> <span class="n">mid_date_getTime</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetMethodID</span><span class="p">(</span><span class="n">clazz_date</span><span class="p">,</span><span class="s">&#34;getTime()&#34;</span><span class="p">,</span><span class="s">&#34;()J&#34;</span><span class="p">);</span> <span class="c1">//获取getTime的ID
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">jlong</span> <span class="n">time</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">CallLongMethod</span><span class="p">(</span><span class="n">now</span><span class="p">,</span><span class="n">mid_date_getTime</span><span class="p">);</span><span class="c1">//调用getTime返回时间
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">printf</span><span class="p">(</span><span class="s">&#34;%I64d&#34;</span><span class="p">,</span><span class="n">time</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p>第二种：</p>
+<p>用AllocObject函数创建一个对象，可以根据传入的jclass创建一个java对象，但是状态时未初始化的，在这个对象之前绝对要用CallNonvirtualVoidMethod来调用该jclass的构造函数这样可以延迟构造函数的调用。用的比较少。</p>
+<p>eg：略；</p>
+</li>
+</ul>
+<h5 id="242-native中操作java字符串">2.4.2 native中操作Java字符串</h5>
+<p>​	Java-String对象是Unicode(UTF-16)码 一个字符总是占用两个字节 可以通过JNI接口将Java中的字符串转换到C++的宽字符串（wchar_t*),或者传回一个UTF-8编码的字符串（char * )到C++ 反过来同理。</p>
+<p>JNIEnv中的一些C++方法：</p>
+<p>1）获取字符串的长度：</p>
+<p>​	<code> jsize GetStringLength(jstring j_msg)</code></p>
+<ol>
+<li>将jstring 对象拷贝到const jchar* 指针字符串：</li>
+</ol>
+<p>​	//拷贝Java字符串并以UTF-8编码传入jstr:</p>
+<p>​	<code> env-&gt;GetStringRegion(jstring j_msg.jsize start,jszie len,jchar* jstr);</code></p>
+<p>​	////拷贝Java字符串并以UTF-16编码传入jstr:</p>
+<p>​	<code> env-&gt;GetStringUTFRegion(jstring j_msg.jsize start,jszie len, char* jstr);</code></p>
+<ol start="3">
+<li>生成一个jstring 对象</li>
+</ol>
+<p>​	<code>jobject NewString(const jchar* jstr,int size);</code></p>
+<p>​	将字符串指针jstr转换成jstring。</p>
+<ol start="4">
+<li>将jstring对象转换成const jchar* 字符串指。</li>
+</ol>
+<ul>
+<li>
+<p>GetStringChars 开内存 指针指向先开的内存</p>
+<p><code>const* jchar * GetStringChars(jstring j_msg,jboolean* copied)</code></p>
+<p>返回一个UTF-16编码的宽字符串（jchar*);</p>
+<p>对应的释放内存方法：</p>
+<p><code>ReleaseStringChars(jstring j_msg,const jchar* jstr)</code></p>
+</li>
+<li>
+<p>GetStringUTFChars 不开内存直接指向Java中string的指针</p>
+<p><code> const char* GetStringUTFChars(jstring str,jboolean* copied)</code></p>
+<p>取得UTF-8编码的字符串</p>
+<p>释放：</p>
+<p><code>ReleaseStringUTFChars(jstring j_msg,const jchar* jstr)</code></p>
+</li>
+</ul>
+<ol start="5">
+<li>将jstring 对象转化成const jchar* 字符串指针：</li>
+</ol>
+<p>​	<code>const jchar* GetStringCritical(jstring j_msg,Jboolean* copied)</code></p>
+<p>​	作用:增加直接传回指向Java字符串的指针的可能性（而不是拷贝）；</p>
+<p>​	在<code>GetStringCritical/ReleaseStringCritical</code>之间的关键区域之间不能调用任何其他JNI函数。否则会造成关键区域代码执行期间垃圾回收器停止工作。任何触发垃圾回收器的的线程也将暂停。</p>
+<p>​	释放：</p>
+<p>​	<code>ReleaseStringCritical(jstring j_msg,const jchar* jstr)</code></p>
+<p>实例eg：（与书上不同,思路大概相同）</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">MainActivity</span> <span class="kd">extends</span> <span class="n">AppCompatActivity</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">EditText</span> <span class="n">et</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">TextView</span> <span class="n">tv</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">private</span> <span class="n">Button</span> <span class="n">bt</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="n">String</span> <span class="n">text</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// Used to load the &#39;native-lib&#39; library on application startup.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="kd">static</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">System</span><span class="o">.</span><span class="na">loadLibrary</span><span class="o">(</span><span class="s">&#34;native-lib&#34;</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onCreate</span><span class="o">(</span><span class="n">Bundle</span> <span class="n">savedInstanceState</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kd">super</span><span class="o">.</span><span class="na">onCreate</span><span class="o">(</span><span class="n">savedInstanceState</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">setContentView</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">layout</span><span class="o">.</span><span class="na">activity_main</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">et</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">editText</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">tv</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">tv</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bt</span> <span class="o">=</span> <span class="n">findViewById</span><span class="o">(</span><span class="n">R</span><span class="o">.</span><span class="na">id</span><span class="o">.</span><span class="na">button</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">        <span class="n">bt</span><span class="o">.</span><span class="na">setOnClickListener</span><span class="o">(</span><span class="k">new</span> <span class="n">View</span><span class="o">.</span><span class="na">OnClickListener</span><span class="o">()</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">            <span class="nd">@Override</span>
+</span></span><span class="line"><span class="cl">            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onClick</span><span class="o">(</span><span class="n">View</span> <span class="n">v</span><span class="o">)</span> <span class="o">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">text</span> <span class="o">=</span> <span class="n">et</span><span class="o">.</span><span class="na">getText</span><span class="o">().</span><span class="na">toString</span><span class="o">().</span><span class="na">trim</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="n">callCppFunction</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">                <span class="n">tv</span><span class="o">.</span><span class="na">setText</span><span class="o">(</span><span class="n">text</span><span class="o">);</span>
+</span></span><span class="line"><span class="cl">            <span class="o">}</span>
+</span></span><span class="line"><span class="cl">        <span class="o">});</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">callCppFunction</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;jni.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;algorithm&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">extern</span> <span class="s">&#34;C&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span>
+</span></span><span class="line"><span class="cl"><span class="n">Java_com_example_naivete_jnidemo_MainActivity_callCppFunction</span><span class="p">(</span><span class="n">JNIEnv</span> <span class="o">*</span><span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">instance</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="c1">// TODO
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//获取text
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jfieldID</span>  <span class="n">fid_tx</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetFieldID</span><span class="p">(</span><span class="n">env</span><span class="o">-&gt;</span><span class="n">GetObjectClass</span><span class="p">(</span><span class="n">instance</span><span class="p">),</span><span class="s">&#34;text&#34;</span><span class="p">,</span><span class="s">&#34;Ljava/lang/String;&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//获取ext对象
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jstring</span> <span class="n">j_tx</span> <span class="o">=</span> <span class="p">(</span><span class="n">jstring</span><span class="p">)</span><span class="n">env</span><span class="o">-&gt;</span><span class="n">GetObjectField</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span><span class="n">fid_tx</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//第一种方式
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="c1">//获得字符串指针：
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="n">jchar</span><span class="o">*</span> <span class="n">jstr1</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetStringChars</span><span class="p">(</span><span class="n">j_tx</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//z转换成宽字符
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">wstring</span> <span class="nf">wstr</span><span class="p">((</span><span class="k">const</span> <span class="kt">wchar_t</span><span class="o">*</span><span class="p">)</span><span class="n">jstr1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//释放指针
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">env</span><span class="o">-&gt;</span><span class="n">ReleaseStringChars</span><span class="p">(</span><span class="n">j_tx</span><span class="p">,</span><span class="n">jstr1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//第一种END
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//第二种
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="k">const</span> <span class="n">jchar</span> <span class="o">*</span> <span class="n">jstr2</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetStringCritical</span><span class="p">(</span><span class="n">j_tx</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">wstring</span> <span class="nf">wstr2</span><span class="p">((</span><span class="k">const</span> <span class="kt">wchar_t</span><span class="o">*</span><span class="p">)</span><span class="n">jstr2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">env</span><span class="o">-&gt;</span><span class="n">ReleaseStringCritical</span><span class="p">(</span><span class="n">j_tx</span><span class="p">,</span><span class="n">jstr2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//END
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//第三种
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jsize</span> <span class="n">len</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetStringLength</span><span class="p">(</span><span class="n">j_tx</span><span class="p">);</span>  <span class="c1">//获取长度
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">jchar</span> <span class="o">*</span> <span class="n">jstr3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">jchar</span><span class="p">[</span><span class="n">len</span><span class="o">+</span><span class="mi">1</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jstr3</span><span class="p">[</span><span class="n">len</span><span class="p">]</span><span class="o">=</span><span class="sa">L</span><span class="sc">&#39;\0&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//复制
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">env</span><span class="o">-&gt;</span><span class="n">GetStringRegion</span><span class="p">(</span><span class="n">j_tx</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">len</span><span class="p">,</span><span class="n">jstr3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">wstring</span> <span class="nf">wstr3</span><span class="p">((</span><span class="k">const</span> <span class="kt">wchar_t</span><span class="o">*</span><span class="p">)</span><span class="n">jstr3</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="k">delete</span><span class="p">[]</span> <span class="n">jstr3</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//End
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">    <span class="c1">//倒序
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="n">reverse</span><span class="p">(</span><span class="n">wstr</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="n">wstr</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jstring</span> <span class="n">j_new_str</span> <span class="o">=</span> <span class="n">env</span><span class="o">-&gt;</span><span class="n">NewString</span><span class="p">((</span><span class="k">const</span> <span class="n">jchar</span><span class="o">*</span><span class="p">)</span><span class="n">wstr</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),(</span><span class="n">jint</span><span class="p">)</span><span class="n">wstr</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">    <span class="n">env</span><span class="o">-&gt;</span><span class="n">SetObjectField</span><span class="p">(</span><span class="n">instance</span><span class="p">,</span><span class="n">fid_tx</span><span class="p">,</span><span class="n">j_new_str</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><img src="http://my-md-1253484710.coscd.myqcloud.com/android-note-2-2.png"
+	
+	
+	
+	loading="lazy"
+	
+	
+></p>
+<p>​</p>
+<h4 id="25-cc中操作java中的数组">2.5 C/C++中操作Java中的数组</h4>
+<p>​	在java中数组分为两种：</p>
+<ul>
+<li>
+<p>基本类型数组</p>
+</li>
+<li>
+<p>对象类型数组</p>
+<p>一个能用于两种不同类型数组的函数是：GetArrayLength(jarray array)。</p>
+</li>
+</ul>
+<h5 id="251-操作基本类型的数组">2.5.1 操作基本类型的数组</h5>
+<ol>
+<li>
+<p>Get<Type>ArrayElements方法<br>
+<code>Get&lt;Type&gt;ArrayElements(&lt;Type&gt;Array arr,jboolean* isCopide)</code></p>
+<p>把Java中的基本类型的数组转换成C++中的数组 两种方式：</p>
+<p>一是拷贝一份传回本地，另外一种是把指向Java数组的指针直接传回到本地代码中</p>
+<p>处理完后，通过Release<Type>Arrayelements 来释放数组。</p>
+</li>
+<li>
+<p>Release<Type>Arrayelement 方法<br>
+<code>Release&lt;Type&gt;Arrayelement(Type&gt;Array arr,&lt;Type&gt;* array,jint mode)</code></p>
+<p>这个函数可以选择如何处理Java和C++中的数组，是提交还是撤销····内存是否释放等等。</p>
+<p>mode的取值：</p>
+<ul>
+<li>0：对Java的数组进行更新并且释放C/C++数组</li>
+<li>JNI_COMMIT：更新但是不释放</li>
+<li>JNI_ABOUT：不更新，释放。</li>
+</ul>
+</li>
+<li>
+<p>GetPrimittiveArrayCritical方法<br>
+<code>GetPrimittiveArrayCritical(jarray arr,jboolean* isCopied)</code></p>
+</li>
+<li>
+<p>ReleasePrimittiveArrayCritical方法<br>
+<code>ReleasePrimittiveArrayCritical(jarray arr,void* array,jint mode)</code></p>
+</li>
+<li>
+<p>Get<type>ArrayRegion方法<br>
+<code>Get&lt;type&gt;ArrayRegion(&lt;Type&gt;Arryay arr,jsize strat ,jsize len,&lt;Type&gt;* buffer)</code></p>
+<p>在C++中开辟内存，拷贝数组到内存中。</p>
+</li>
+<li>
+<p>Set<type>ArrayRegion<br>
+<code>Set&lt;type&gt;ArrayRegion(&lt;Type&gt;Arryay arr,jsize strat ,jsize len,const &lt;Type&gt;* buffer)</code></p>
+<p>把Java基本类型数组中的指定范围的元素用C++数组中的元素来赋值。</p>
+</li>
+<li>
+<p><Type>ArrayNew方法<br>
+<code>&lt;Type&gt;ArrayNew&lt;Type&gt;Array(jszie sz)</code></p>
+<p>指定一个长度然后返回相应的Java基本类型的数组。</p>
+</li>
+</ol>
+<h5 id="252-操作对象数组类型">2.5.2 操作对象数组类型</h5>
+<p>​	JNI未提供把Java对象数组 直接转到C++对象数组的函数。而是通过<code>Get/SetObjectArrayaElement</code>这样的函数来对java中的对象数组进行操作。因为未拷贝 所以没有释放操作。<code>NewObjectArray</code>可以通过指定长度和初始值来创建某一个类的数组。</p>
+<p>例子：两种类型的操作：</p>
+<p>略·····</p>
+<p>​	注：书本P34-36</p>
+<h4 id="26-cc中的引用类型和id缓存">2.6 C++/C中的引用类型和ID缓存</h4>
+<h5 id="261-引用类型">2.6.1 引用类型</h5>
+<p>​	从Java创建对象传到本地C/C++代码时会产生引用，根据Java的垃圾回收机制，只要存在引用就不会触发改引用所指的Java对象垃圾回收。</p>
+<p>​	几种C/C++中的引用类型：</p>
+<ol>
+<li>
+<p>局部引用：（最常见）</p>
+<p>局部引用只在该native函数中有用，所有在该函数中产生的局部引用，都会在函数返回时自动释放，也可以使用DeleteLocalRef函数手动释放。</p>
+<p>有效期中能传递到别的本地函数中，千万不要用C++全局变量保存它，或者把它定义为C++静态局部变量。</p>
+</li>
+<li>
+<p>全局引用：</p>
+<p>可以跨越当前线程，在对个native函数中有效，需要手动释放。会阻止垃圾回收器回收这个引用所指的对象。</p>
+<p>不同于局部引用，全局引用的创建不是由JNI自动创建的，全局引用是需要调用NewGlobalRef函数，释放使用ReleaseGlobalRef函数。</p>
+</li>
+<li>
+<p>弱全局引用</p>
+<p>与全局引用相似。不一样的为不会阻止垃圾回收器回收这个引用所指对象，使用NewWeakGlobalRef和ReleaseWeakGlobalRef来产生和释放。</p>
+<p>关于引用的一些函数：</p>
+<p><code>jobject NewGlobalRef(jobject obj)</code></p>
+<p><code>jobject NewLocalRef(jobject obj)</code></p>
+<p><code>jobject New WeakGlobalRef(jobject obj)</code></p>
+<p><code>void DeleteGlobalRef(jobject obj)</code></p>
+<p><code>void DeleteLocalRef(jobject obj)</code></p>
+<p><code>void DeleteWeakGlobalRef(jobject obj)</code></p>
+<p>很容易理解上面6个函数</p>
+<p><code>jboolean IsSameObject(jobject obj1,jobject obj2)</code></p>
+<p>这个函数用来比较两个引用是否相等，但是对于弱引用有一个特别的功能，如果把NULL传入要比较的对象中就能判断弱全局引用所指的Java对象是否被回收。</p>
+<p>缓存jfieldID/jmethodID.减小查询开销。</p>
+</li>
+</ol>
+<h5 id="262-缓存方法">2.6.2 缓存方法</h5>
+<ol>
+<li>
+<p>在用的时候缓存</p>
+<p>在native代码中使用static局部变量来保存已经查询过的id,就缓存下了id。</p>
+</li>
+<li>
+<p>在Java类初始化时缓存</p>
+<p>比较好的方法，在native调用前把所有ID全部保存下来。可以让Java代码在第一次加载这个类的时候首先调用本地代码初始化所有的jfildID/jmethodID.这样可以省去多次确定ID是否存在的语句。这些jfildID/jmethodID定义在C++的全局。当java类卸载或者重新加载的时候，也会重新计算ID.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-java" data-lang="java"><span class="line"><span class="cl"><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestNative</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span><span class="o">{</span>
+</span></span><span class="line"><span class="cl">        <span class="n">initNativeIDs</span><span class="o">();</span>  <span class="c1">//静态代码块进行初始化
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="o">}</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">static</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">initNativeIDs</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="n">propInt</span> <span class="o">=</span> <span class="n">0</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="n">String</span> <span class="n">propStr</span> <span class="o">=</span> <span class="s">&#34;&#34;</span><span class="o">;</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">public</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">otherNative</span><span class="o">();</span>
+</span></span><span class="line"><span class="cl">    <span class="err">···········</span>
+</span></span><span class="line"><span class="cl"><span class="o">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-C++" data-lang="C++"><span class="line"><span class="cl"><span class="c1">//全局变量
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="n">jfieldID</span> <span class="n">g_propInt_id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">jfieldID</span> <span class="n">g_propStr_id</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span> <span class="n">Java_</span><span class="err">····</span><span class="n">init</span><span class="err">（</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span><span class="n">jobject</span> <span class="n">clazz</span><span class="err">）</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jfieldID</span> <span class="n">g_propInt_id</span> <span class="o">=</span> <span class="n">GetfieldID</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span><span class="s">&#34;propInt&#34;</span><span class="p">,</span><span class="s">&#34;I&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">jfieldID</span> <span class="n">g_propStr_id</span> <span class="o">=</span> <span class="n">GetfieldID</span><span class="p">(</span><span class="n">clazz</span><span class="p">,</span><span class="s">&#34;propStr&#34;</span><span class="p">,</span><span class="s">&#34;/Ljava/lang/String;&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="n">JNIEXPORT</span> <span class="kt">void</span> <span class="n">JNICALL</span> <span class="n">Java_</span><span class="err">····</span><span class="n">other</span><span class="err">（</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span><span class="n">jobject</span> <span class="n">clazz</span><span class="err">）</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="err">············</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div></li>
+</ol>
+<h3 id="总结">总结</h3>
+<p>​	主要是NDK开发相关。</p>
+<p>​	感觉系统的学了一遍还是感觉不错的。</p>
+<p>​	可以多找网上的例子来练习练习，加深对JNI 的了解。</p>
+<p>​</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/android%E5%AE%89%E5%85%A8/">android安全</a>
+        
+            <a href="/tags/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/">读书笔记</a>
+        
+    </section>
+
+
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
+    </footer>
+
+
+    
+        <link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css"integrity="sha256-J&#43;iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s="crossorigin="anonymous"
+            ><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js"integrity="sha256-InsNdER1b2xUewP&#43;pKCUJpkhiqwHgqiPXDlIk7GzBu4="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js"integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI="crossorigin="anonymous"
+                defer
+                >
+            </script><script>
+    window.addEventListener("DOMContentLoaded", () => {
+        renderMathInElement(document.querySelector(`.article-content`), {
+            delimiters: [
+                { left: "$$", right: "$$", display: true },
+                { left: "$", right: "$", display: false },
+                { left: "\\(", right: "\\)", display: false },
+                { left: "\\[", right: "\\]", display: true }
+            ]
+        });})
+</script>
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">相关文章</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%875-6/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Android应用安全防护和逆向分析-基础篇5-6</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%87/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Android应用安全防护和逆向分析-基础篇④</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%87/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Android应用安全防护和逆向分析 基础篇③</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%87/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Android应用安全防护和逆向分析 基础篇①</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Frida从入门到放弃_2</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+            2016 - 
+        
+        2022 ykikoqAq
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        主题 <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> 由 <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a> 设计
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>kvm on ykikoqAq</title>
+        <link>https://ykiko.top/tags/kvm/</link>
+        <description>Recent content in kvm on ykikoqAq</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Fri, 24 Jul 2020 22:47:12 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/kvm/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>WSL2开启kvm</title>
+        <link>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</link>
+        <pubDate>Fri, 24 Jul 2020 22:47:12 +0800</pubDate>
+        
+        <guid>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</guid>
+        <description>&lt;h3 id=&#34;0x00-前言&#34;&gt;0x00 前言&lt;/h3&gt;
+&lt;p&gt;之前想着用wsl2去跑qemu，发现很多内核pwn题给的环境需要开启&lt;code&gt;-enable-kvm&lt;/code&gt;选项，还有自己编译的内核也没法，然而wsl2没法开启kvm，解决办法就是去把hype-v给关了，老老实实用vmware/vmbox开个虚拟机，这样每次都要切来切去很麻烦。&lt;/p&gt;
+&lt;p&gt;直到看到vmware和vmbox都可以与hype-v并存，以为看到了曙光，没想到是没法开启虚拟化选项的。&lt;/p&gt;
+&lt;p&gt;后来看到WSL上这个&lt;a class=&#34;link&#34; href=&#34;https://github.com/microsoft/WSL/issues/4193&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Issues&lt;/a&gt;，当时也没这么多评论，不过暂且能用&lt;a class=&#34;link&#34; href=&#34;https://gist.github.com/offlinehacker/b1d96515f87a47bd0b0bea574eab5583&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;脚本&lt;/a&gt;实现。不过还是很麻烦。&lt;/p&gt;
+&lt;p&gt;最后看了这篇&lt;a class=&#34;link&#34; href=&#34;https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;文章&lt;/a&gt;，跟着试了一遍，一直没报错，最后还是不行。某天又去看了看issuse，发现这个办法要最新阅览版。更新后一个新的发现就是wsl2速度明显变快了。。&lt;/p&gt;
+&lt;h3 id=&#34;0x01-环境&#34;&gt;0x01 环境&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;Windows 10 2004 20175.1000&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Windows Feature Experience Pack 120.18201.0.0&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;wsl2 - Ubuntu 20&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Intel  i7-8550U&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;WSL-Linux-kernel: &lt;a class=&#34;link&#34; href=&#34;https://github.com/microsoft/WSL2-Linux-Kernel/releases/tag/4.19.121-microsoft-standard&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;4.19.121-microsoft-standard &lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;qemu 5.0&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;0x02-编译kernel&#34;&gt;0x02 编译Kernel&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo apt -y install build-essential libncurses-dev bison flex libssl-dev libelf-dev cpu-checker qemu-kvm
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;tar -xf WSL2-Linux-Kernel-4.19.121-microsoft-standard.tar.gz
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; WSL2-Linux-Kernel-4.19.104-microsoft-standard/
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;## cp Microsoft/config-wsl .config 有bug 使用最新版commit已修复&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;make menuconfig
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;&lt;code&gt;.config&lt;/code&gt;文件用&lt;a class=&#34;link&#34; href=&#34;https://github.com/microsoft/WSL/files/4830946/config.txt&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;这个&lt;/a&gt; 或者&lt;a class=&#34;link&#34; href=&#34;https://github.com/microhobby/WSL2-Linux-Kernel/blob/5e3fa9a98ea1ac05b397e0acd5bf08ce0e60bd3e/Microsoft/config-wsl&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;这个&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;确保里面的选项kvm的选项。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://my-md-1253484710.file.myqcloud.com/20200724222001.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;这里可选的编译为&amp;lt; M &amp;gt; 模块或者&amp;lt; * &amp;gt; 内置，建议内置吗模块的话后续每次重启都得自己加载一次。&lt;/p&gt;
+&lt;p&gt;确保Linux guest support enable选项。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://my-md-1253484710.file.myqcloud.com/20200724221933.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;退出保存。&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;make -j8
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;waitting&amp;hellip;&amp;hellip;&amp;hellip;&amp;hellip;&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-Bash&#34; data-lang=&#34;Bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cp arch/x86/boot/bzImage /mnt/c/Users/&amp;lt;username&amp;gt;/bzImage
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nano /mnt/c/Users/&amp;lt;username&amp;gt;/.wslconfig
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;### 如果是 &amp;lt;M&amp;gt; 模块编译&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sudo make modules_install
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-Toml&#34; data-lang=&#34;Toml&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;[&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;wsl2&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;nestedVirtualization&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;kernel&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;C&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;:\\&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;Users&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;\\&amp;lt;&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;username&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&amp;gt;\\&lt;/span&gt;&lt;span class=&#34;nx&#34;&gt;bzImage&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;debugConsole&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt;  &lt;span class=&#34;c&#34;&gt;##可选&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nx&#34;&gt;pageReporting&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;kc&#34;&gt;true&lt;/span&gt; &lt;span class=&#34;c&#34;&gt;##可选&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wsl.exe --shutdown Ubuntu
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wsl.exe -d Ubuntu
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;nano /etc/modprobe.d/kvm-nested.conf
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;mod加载的话还要写入：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;options kvm-intel &lt;span class=&#34;nv&#34;&gt;nested&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;options kvm-intel &lt;span class=&#34;nv&#34;&gt;enable_shadow_vmcs&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;options kvm-intel &lt;span class=&#34;nv&#34;&gt;enable_apicv&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;options kvm-intel &lt;span class=&#34;nv&#34;&gt;ept&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;&lt;span class=&#34;m&#34;&gt;1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;之前模块编译的有bug版本的图 mount无法挂载。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://my-md-1253484710.file.myqcloud.com/20200724214713.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;成功的图 可以挂载。。无需手动加载mod&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://my-md-1253484710.file.myqcloud.com/20200724223913.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;要先配置界面以及GPU支持可以参考这篇&lt;a class=&#34;link&#34; href=&#34;https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;文章&lt;/a&gt;后续的部分，没这个需求。。&lt;/p&gt;
+&lt;h3 id=&#34;issuse&#34;&gt;issuse&lt;/h3&gt;
+&lt;p&gt;还是会遇到奇奇怪怪的坑。&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;An error occurred mounting one of your file systems. Please run &#39;dmesg&#39; for more details.&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;报错信息：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.268879&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; init: &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; ERROR: MountPlan9WithRetry:282: mount drvfs on /mnt/c &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;cache&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mmap,noatime,msize&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;262144,trans&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;virtio,aname&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;drvfs&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;C:&lt;span class=&#34;se&#34;&gt;\;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;uid&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;gid&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;symlinkroot&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/mnt/
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.268880&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; failed: &lt;span class=&#34;m&#34;&gt;22&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.277772&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; 9pnet: Could not find request transport: virtio
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.280962&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; init: &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;1&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; ERROR: MountPlan9WithRetry:282: mount drvfs on /mnt/d &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;cache&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;mmap,noatime,msize&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;262144,trans&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;virtio,aname&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;drvfs&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;path&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;D:&lt;span class=&#34;se&#34;&gt;\;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;uid&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;gid&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;0&lt;span class=&#34;p&#34;&gt;;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;symlinkroot&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;=&lt;/span&gt;/mnt/
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.280964&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; failed: &lt;span class=&#34;m&#34;&gt;22&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.305491&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; init: &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;8&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; ERROR: CreateProcessParseCommon:874: Failed to translate D:&lt;span class=&#34;se&#34;&gt;\o&lt;/span&gt;penSRC&lt;span class=&#34;se&#34;&gt;\W&lt;/span&gt;SL2-Linux-Kernel-4.19.121-microsoft-standard
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.312584&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; init: &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;8&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; ERROR: UtilTranslatePathList:2624: Failed to translate D:&lt;span class=&#34;se&#34;&gt;\L&lt;/span&gt;ife_Tools&lt;span class=&#34;se&#34;&gt;\S&lt;/span&gt;ys_Tools&lt;span class=&#34;se&#34;&gt;\c&lt;/span&gt;mder&lt;span class=&#34;se&#34;&gt;\b&lt;/span&gt;in
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;o&#34;&gt;[&lt;/span&gt;    2.319445&lt;span class=&#34;o&#34;&gt;]&lt;/span&gt; init: &lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;8&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt; ERROR: UtilTranslatePathList:2624: Failed to translate D:&lt;span class=&#34;se&#34;&gt;\L&lt;/span&gt;ife_Tools&lt;span class=&#34;se&#34;&gt;\S&lt;/span&gt;ys_Tools&lt;span class=&#34;se&#34;&gt;\c&lt;/span&gt;mder&lt;span class=&#34;se&#34;&gt;\v&lt;/span&gt;endor&lt;span class=&#34;se&#34;&gt;\b&lt;/span&gt;in
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这是内核的问题，很坑的地方。是官网没切换新的config文件造成的，换成新的重新编译即可。具体看着这个&lt;a class=&#34;link&#34; href=&#34;https://github.com/microsoft/WSL/issues/5481&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;issuse&lt;/a&gt;  &lt;a class=&#34;link&#34; href=&#34;https://github.com/microsoft/WSL2-Linux-Kernel/pull/146/commits/5e3fa9a98ea1ac05b397e0acd5bf08ce0e60bd3e&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;修复&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;重新编译内核。&lt;/p&gt;
+&lt;h4 id=&#34;参考&#34;&gt;参考&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/microsoft/WSL/issues/4193&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/microsoft/WSL/issues/4193&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

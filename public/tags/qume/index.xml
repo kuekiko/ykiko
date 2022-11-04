@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>QUME on ykikoqAq</title>
+        <link>https://ykiko.top/tags/qume/</link>
+        <description>Recent content in QUME on ykikoqAq</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Thu, 09 Aug 2018 19:34:34 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/qume/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>QEMU的安装使用</title>
+        <link>https://ykiko.top/p/qemu%E7%9A%84%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</link>
+        <pubDate>Thu, 09 Aug 2018 19:34:34 +0800</pubDate>
+        
+        <guid>https://ykiko.top/p/qemu%E7%9A%84%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/</guid>
+        <description>&lt;h1 id=&#34;qemu的安装使用&#34;&gt;QEMU的安装使用&lt;/h1&gt;
+&lt;h3 id=&#34;安装&#34;&gt;安装&lt;/h3&gt;
+&lt;p&gt;WIndows：https://qemu.weilnetz.de/w64/ 下载exe安装就行&lt;/p&gt;
+&lt;p&gt;MACOS:&lt;code&gt;brew install qemu&lt;/code&gt;  or &lt;code&gt;sudo port install qemu&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;LINUX：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Arch:&lt;/strong&gt; &lt;code&gt;pacman -S qemu&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Debian/Ubuntu:&lt;/strong&gt; &lt;code&gt;apt-get install qemu&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Fedora:&lt;/strong&gt; &lt;code&gt;dnf install @virtualization&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Gentoo:&lt;/strong&gt; &lt;code&gt;emerge --ask app-emulation/qemu&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;RHEL/CentOS:&lt;/strong&gt; &lt;code&gt;yum install qemu-kvm&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;SUSE:&lt;/strong&gt; &lt;code&gt;zypper install qemu&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;源码安装：https://download.qemu.org/&lt;/p&gt;
+&lt;p&gt;wget&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-fallback&#34; data-lang=&#34;fallback&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;wget https://download.qemu.org/qemu-3.0.0-rc1.tar.xz
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;tar xvJf qemu-3.0.0-rc1.tar.xz
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;cd qemu-3.0.0-rc1
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;./configure
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;make
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;git&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-v&#34; data-lang=&#34;v&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;git&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;clone&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;git&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;&lt;span class=&#34;c1&#34;&gt;//git.qemu.org/qemu.git
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;c1&#34;&gt;&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;cd&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;qemu&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;git&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;submodule&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;init&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;git&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;submodule&lt;/span&gt; &lt;span class=&#34;nv&#34;&gt;update&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;--&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;recursive&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;p&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;nv&#34;&gt;configure&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nv&#34;&gt;make&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;最新的开发发生在主分支上。稳定的树位于名为“稳定x”的分支中。YY分支,X。YY是发布版本。&lt;/p&gt;
+&lt;h3 id=&#34;树莓派内核制作在windows上&#34;&gt;树莓派内核制作（在windows上)&lt;/h3&gt;
+&lt;p&gt;下载树莓派系统：http://downloads.raspberrypi.org/raspbian/images/&lt;/p&gt;
+&lt;p&gt;下载qume 的树莓派内核： &lt;a class=&#34;link&#34; href=&#34;https://github.com/dhruvvyas90/qemu-rpi-kernel&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;https://github.com/dhruvvyas90/qemu-rpi-kernel&lt;/a&gt;   改名为kernel-qemu放在和系统镜像同目录下&lt;/p&gt;
+&lt;p&gt;放在了raspbia目录下&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;qemu-system-arm.exe -kernel kernel-qemu -cpu arm1176 -m 512 -M versatilepb -dtbversatile-pb.dtb -no-reboot -append &amp;quot;root=/dev/sda2 panic=1rootfstype=ext4 rw&amp;quot; -net nic -net user,hostfwd=tcp::5022-:22 -hda 2018-06-27-raspbian-stretch.img &lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;注意自己下载的镜像版本&lt;/p&gt;
+&lt;h3 id=&#34;linux上&#34;&gt;Linux上&lt;/h3&gt;
+&lt;p&gt;待补充。。。&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>

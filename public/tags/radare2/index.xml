@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>radare2 on ykikoqAq</title>
+        <link>https://ykiko.top/tags/radare2/</link>
+        <description>Recent content in radare2 on ykikoqAq</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>zh-cn</language>
+        <lastBuildDate>Wed, 02 Jan 2019 20:39:26 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/radare2/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>radare2&#43;cutter使用指南</title>
+        <link>https://ykiko.top/p/radare2-cutter%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/</link>
+        <pubDate>Wed, 02 Jan 2019 20:39:26 +0800</pubDate>
+        
+        <guid>https://ykiko.top/p/radare2-cutter%E4%BD%BF%E7%94%A8%E6%8C%87%E5%8D%97/</guid>
+        <description>&lt;h3 id=&#34;0x00-介绍&#34;&gt;0x00 介绍&lt;/h3&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/radare/radare2&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;radare2&lt;/a&gt; 一个很实用的二进制分析和调试工具&lt;/p&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://github.com/radareorg/cutter&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;cutter&lt;/a&gt; 是r2的GUI版。&lt;/p&gt;
+&lt;h3 id=&#34;0x01-安装&#34;&gt;0x01 安装&lt;/h3&gt;
+&lt;p&gt;支持的平台有如下：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Windows (since XP), GNU/Linux, OS X, [Net|Free|Open]BSD,
+Android, iOS, OSX, QNX, Solaris, Haiku, FirefoxOS.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;Linux平台下直接&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;git clone https://github.com/radare/radare2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;nb&#34;&gt;cd&lt;/span&gt; radare2
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;sys/install.sh //&lt;span class=&#34;o&#34;&gt;(&lt;/span&gt;or sys/user.sh&lt;span class=&#34;o&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;Windows下可以下载二进制安装包安装。官网&lt;a class=&#34;link&#34; href=&#34;https://www.radare.org/r/&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;下载&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Windows用户推荐使用Windows下的linux（wsl）来使用， win下更新慢。还是linux下用得舒服（方便，快捷）。&lt;/p&gt;
+&lt;h3 id=&#34;0x03-工具介绍&#34;&gt;0x03 工具介绍&lt;/h3&gt;
+&lt;p&gt;r2常用的包含有一下组件：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;rax2 用于数值转换&lt;/li&gt;
+&lt;li&gt;rasm2  反汇编和汇编&lt;/li&gt;
+&lt;li&gt;rabin2   查看文件格式&lt;/li&gt;
+&lt;li&gt;radiff2 对文件进行 diff&lt;/li&gt;
+&lt;li&gt;ragg2/ragg2­cc  开发shellcode工具&lt;/li&gt;
+&lt;li&gt;rahash2  各种密码算法， hash算法&lt;/li&gt;
+&lt;li&gt;radare2 整合了所有工具&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;使用帮助直接&lt;code&gt;-h&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;rax2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123153746.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;rasm2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123153901.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://ykiko.top/E:%5c%e7%ac%94%e8%ae%b0%5cTypora%5c%e5%ad%a6%e4%b9%a0%e6%97%a5%e8%ae%b0%5cassets%5c1542959275318.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+		alt=&#34;1542959275318&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;rabin2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123154355.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;eg: (&lt;code&gt;-I&lt;/code&gt;)&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123154422.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;radiff2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123154448.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ragg2/ragg2­cc&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123154514.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;rahash2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123154604.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;radare2 (最常用) 可缩写为r2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123155156.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;h3 id=&#34;0x04-r2-实战学习&#34;&gt;0x04 r2 实战学习&lt;/h3&gt;
+&lt;p&gt;challenge来源于：http://reversing.kr&lt;/p&gt;
+&lt;p&gt;先查看一下文件信息：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123155334.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;GUI?:&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123155444.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;用r2载入，自动分析&lt;code&gt;aaa&lt;/code&gt;命令：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123155649.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;vv&lt;/code&gt; 命令查看界面：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123160028.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;注意0x00401080 调用了GetDlgItemTextA&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123160457.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;s 调到main函数，查看main的汇编代码：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123160744.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123160818.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pdc&lt;/code&gt;查看伪代码：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123161145.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;大写的&lt;code&gt;VV&lt;/code&gt;命令查看图形界面 使用hijk来进行界面移动。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123161242.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;看到调用地址0x401020，s跳过去 ；发现没解析 可使用af来解析。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123162026.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;看到GetDlgTemTextA调用：&lt;/p&gt;
+&lt;p&gt;函数调用&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123162157.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;http://my-md-1253484710.coscd.myqcloud.com/20181123162302.png&#34;
+	
+	
+	
+	loading=&#34;lazy&#34;
+	
+	
+&gt;&lt;/p&gt;
+&lt;p&gt;差不多逻辑就是一直比对字符串，从第二位开始比最后第一位&lt;/p&gt;
+&lt;p&gt;得到&lt;code&gt;Ea5yR3versing&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;命令记不住或者想知道有些什么命令可以用就可以加个？号查询&lt;/p&gt;
+&lt;h3 id=&#34;0x05-cutter的使用&#34;&gt;0x05 Cutter的使用&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;多图待补&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a class=&#34;link&#34; href=&#34;https://legacy.gitbook.com/book/radare/radare2book/details&#34;  target=&#34;_blank&#34; rel=&#34;noopener&#34;
+    &gt;Radare2 Book&lt;/a&gt;&lt;/p&gt;
+</description>
+        </item>
+        
+    </channel>
+</rss>
