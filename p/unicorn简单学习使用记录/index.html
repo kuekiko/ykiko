@@ -1,0 +1,411 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="Unicorn简单学习使用记录，小工具"><title>Unicorn简单学习使用记录</title><link rel=canonical href=https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/><link rel=stylesheet href=/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css><meta property="og:title" content="Unicorn简单学习使用记录"><meta property="og:description" content="Unicorn简单学习使用记录，小工具"><meta property="og:url" content="https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/"><meta property="og:site_name" content="ykikoqAq"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="Unicorn"><meta property="article:tag" content="fuzzing"><meta property="article:published_time" content="2020-04-17T19:01:19+08:00"><meta property="article:modified_time" content="2020-04-17T19:01:19+08:00"><meta name=twitter:title content="Unicorn简单学习使用记录"><meta name=twitter:description content="Unicorn简单学习使用记录，小工具"><link rel="shortcut icon" href=static/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/avatar1_hua29f1bc43d7ce06db8dc6c61cd47be07_30085_300x0_resize_box_3.png width=300 height=300 class=site-logo loading=lazy alt=Avatar></a>
+<span class=emoji>🍥</span></figure><div class=site-meta><h1 class=site-name><a href=/>ykikoqAq</a></h1><h2 class=site-description>学习、吃饭、睡觉。</h2></div></header><ol class=social-menu><li><a href=https://github.com/kuekiko target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com/kuekiko7 target=_blank title=Twitter rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>主页</span></a></li><li><a href=/%E5%85%B3%E4%BA%8E/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>关于</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/links/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>Links</span></a></li><li><a href=/reading/><!doctype html><svg t="1667582754215" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" p-id="4690" width="200" height="200" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M384 210.8672c50.688.0 96 23.6288 125.3888 60.7232l2.56 3.328 2.2272-2.8928a159.744 159.744.0 01119.9616-61.056L640 210.8672h179.2a83.2 83.2.0 0183.2 83.2v435.2a83.2 83.2.0 01-83.2 83.2l-226.9952.0256-5.0944 3.7888a130.4576 130.4576.0 01-68.3008 23.5008L512 839.936a130.5344 130.5344.0 01-75.1104-23.68l-5.12-3.7888H204.8a83.2 83.2.0 01-83.072-78.4896l-.128-4.7104v-435.2a83.2 83.2.0 0183.2-83.2zm0 64H204.8a19.2 19.2.0 00-19.2 19.2v435.2c0 10.5984 8.6016 19.2 19.2 19.2l238.7968.0256c8.2432.0 16.1536 3.2 22.1184 8.8832A66.6112 66.6112.0 00512 775.9616c17.5104.0 33.8944-6.7072 46.2848-18.5856a32 32 0 0122.1184-8.8832L819.2 748.4672a19.2 19.2.0 0019.2-19.2v-435.2a19.2 19.2.0 00-19.2-19.2H640a96 96 0 00-96 96.9216v109.824a32 32 0 01-63.8464 3.2512L480 481.6128V372.6336l.0256-.64v-.4352l-.1024-4.864A96 96 0 00384 274.8416z" p-id="4691" fill="#fff"/></svg><span>Reading</span></a></li><li><a href=/todo/><!doctype html><svg t="1667582982893" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" p-id="8303" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><path d="M227.555328 113.777664h568.889344c31.418368.0 56.88832 25.469952 56.88832 56.889344v256c0 15.70816-12.734464 28.443648-28.443648 28.443648-15.710208.0-28.444672-12.734464-28.444672-28.443648v-256H227.555328v682.665984h199.11168c15.70816.0 28.443648 12.735488 28.443648 28.444672s-12.734464 28.444672-28.443648 28.444672H227.555328c-31.418368.0-56.88832-25.469952-56.88832-56.889344V170.667008c0-31.419392 25.469952-56.889344 56.88832-56.889344z" p-id="8304" fill="#fff"/><path d="M739.555328 910.222336c94.257152.0 170.667008-76.41088 170.667008-170.667008s-76.41088-170.665984-170.667008-170.665984S568.889344 645.2992 568.889344 739.555328c0 94.257152 76.409856 170.667008 170.665984 170.667008zm0 56.88832C613.879808 967.110656 512 865.230848 512 739.555328S613.879808 512 739.555328 512s227.555328 101.879808 227.555328 227.555328-101.879808 227.555328-227.555328 227.555328z" p-id="8305" fill="#fff"/><path d="M711.110656 655.859712c0-15.709184 12.735488-28.444672 28.444672-28.444672S768 640.150528 768 655.859712v72.8832l55.126016 55.126016c11.108352 11.108352 11.108352 29.118464.0 40.226816s-29.118464 11.108352-40.226816.0l-55.126016-55.126016a56.889344 56.889344.0 01-16.662528-40.226816v-72.8832z" p-id="8306" fill="#fff"/><path d="M312.889344 284.444672h341.332992c15.709184.0 28.444672 12.734464 28.444672 28.444672.0 15.70816-12.735488 28.443648-28.444672 28.443648H312.889344c-15.710208.0-28.444672-12.734464-28.444672-28.443648.0-15.710208 12.734464-28.444672 28.444672-28.444672zm0 113.777664h227.555328c15.709184.0 28.444672 12.734464 28.444672 28.444672.0 15.70816-12.735488 28.443648-28.444672 28.443648H312.889344c-15.710208.0-28.444672-12.734464-28.444672-28.443648.0-15.710208 12.734464-28.444672 28.444672-28.444672zm0 113.777664h113.77664c15.710208.0 28.444672 12.735488 28.444672 28.444672s-12.734464 28.444672-28.443648 28.444672H312.889344c-15.710208.0-28.444672-12.735488-28.444672-28.444672S297.179136 512 312.889344 512z" p-id="8307" fill="#fff"/></svg><span>Todo</span></a></li><div class=menu-bottom-section><li id=i18n-switch><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h7"/><path d="M9 3v2c0 4.418-2.239 8-5 8"/><path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"/><path d="M12 20l4-9 4 9"/><path d="M19.1 18h-6.2"/></svg><select name=language onchange="window.location.href=this.selectedOptions[0].value"><option value=https://ykiko.top/en/>English</option><option value=https://ykiko.top/ selected>中文</option></select></li><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><ol><li><a href=#0x00-介绍>0x00 介绍</a></li><li><a href=#0x01-安装>0x01 安装</a></li><li><a href=#0x02-简单使用>0x02 简单使用</a></li><li><a href=#0x03-一些基于unicorn的项目简单使用>0x03 一些基于unicorn的项目简单使用</a><ol><li><a href=#androidnativeemuhttpsgithubcomp4nda0sandroidnativeemu><a href=https://github.com/P4nda0s/AndroidNativeEmu>AndroidNativeEmu</a></a></li><li><a href=#unicorefuzzhttpsgithubcomfgsectunicorefuzz><a href=https://github.com/fgsect/unicorefuzz>unicorefuzz</a></a></li><li><a href=#参考>参考</a></li></ol></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/unicorn/>Unicorn</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/>Unicorn简单学习使用记录</a></h2><h3 class=article-subtitle>Unicorn简单学习使用记录，小工具</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>Apr 17, 2020</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 4 分钟</time></div></footer></div></header><section class=article-content><h3 id=0x00-介绍>0x00 介绍</h3><p>Unicorn是一个轻量级, 多平台, 多架构的CPU模拟器框架，基于qemu开发，它可以代替CPU模拟代码的执行，常用于恶意代码分析，Fuzz等。</p><h3 id=0x01-安装>0x01 安装</h3><ol><li><p>官网有编译好不同平台的<a class=link href=http://www.unicorn-engine.org/download/ target=_blank rel=noopener>二进制包</a>，直接安装就行。但是看了一下时间2017年的，qemu已经升级好几个版本了。api也比较老旧。</p></li><li><p>去github看了一下是否有在更新，发现一直有在更新，不过好像也没更新啥，只是修复一些bug，下载git源码，自己编译。目前最新1.0.2rc</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>git clone https://github.com/unicorn-engine/unicorn.git
+</span></span><span class=line><span class=cl><span class=nb>cd</span> unicorn
+</span></span><span class=line><span class=cl><span class=c1># UNICORN_ARCHS=&#34;arm aarch64 x86&#34; ./make.sh # 设置要编译的架构 可选 默认6种全编译 (Arm, Arm64, M68K, Mips, Sparc, &amp; X86)</span>
+</span></span><span class=line><span class=cl>./make.sh
+</span></span><span class=line><span class=cl>sudo ./make.sh install
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># python 绑定</span>
+</span></span><span class=line><span class=cl><span class=nb>cd</span> bindings/python
+</span></span><span class=line><span class=cl>sudo python3 setup.py install
+</span></span></code></pre></td></tr></table></div></div><p>还有更多交叉编译选项参考 <a class=link href=https://github.com/unicorn-engine/unicorn/blob/master/docs/COMPILE-NIX.md target=_blank rel=noopener>文档</a></p></li></ol><h3 id=0x02-简单使用>0x02 简单使用</h3><p>C :</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;unicorn/unicorn.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=c1>// 要模拟的指令
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define X86_CODE32 &#34;\x41\x4a&#34; </span><span class=c1>// INC ecx; DEC edx
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=c1>// 起始地址
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=cp>#define ADDRESS 0x1000000
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=k>const</span> <span class=o>*</span><span class=n>argv</span><span class=p>[]){</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 设置engine
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=n>uc_engine</span> <span class=o>*</span><span class=n>uc</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>uc_err</span> <span class=n>err</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>//设置寄存器
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>int</span> <span class=n>r_ecx</span> <span class=o>=</span> <span class=mh>0x1234</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=kt>int</span> <span class=n>r_edx</span> <span class=o>=</span> <span class=mh>0x5678</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Emulate i386 code</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// x86 32bit 初始化
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=n>err</span> <span class=o>=</span> <span class=n>uc_open</span><span class=p>(</span><span class=n>UC_ARCH_X86</span><span class=p>,</span> <span class=n>UC_MODE_32</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>uc</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>err</span> <span class=o>!=</span> <span class=n>UC_ERR_OK</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Failed on uc_open() with error returned: %u</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>err</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 给模拟器申请 2MB 内存
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=n>uc_mem_map</span><span class=p>(</span><span class=n>uc</span><span class=p>,</span> <span class=n>ADDRESS</span><span class=p>,</span> <span class=mi>2</span> <span class=o>*</span> <span class=mi>1024</span> <span class=o>*</span> <span class=mi>1024</span><span class=p>,</span> <span class=n>UC_PROT_ALL</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 将要模拟的指令写入内存
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>if</span> <span class=p>(</span><span class=n>uc_mem_write</span><span class=p>(</span><span class=n>uc</span><span class=p>,</span> <span class=n>ADDRESS</span><span class=p>,</span> <span class=n>X86_CODE32</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>X86_CODE32</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>)){</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Failed to write emulation code to memory, quit!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 初始化寄存器
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=n>uc_reg_write</span><span class=p>(</span><span class=n>uc</span><span class=p>,</span> <span class=n>UC_X86_REG_ECX</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>r_ecx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>uc_reg_write</span><span class=p>(</span><span class=n>uc</span><span class=p>,</span> <span class=n>UC_X86_REG_EDX</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>r_edx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;&gt;&gt;&gt; ECX = 0x%x</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>r_ecx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;&gt;&gt;&gt; EDX = 0x%x</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>r_edx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=c1>// 模拟代码
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=n>err</span> <span class=o>=</span> <span class=n>uc_emu_start</span><span class=p>(</span><span class=n>uc</span><span class=p>,</span> <span class=n>ADDRESS</span><span class=p>,</span> <span class=n>ADDRESS</span> <span class=o>+</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>X86_CODE32</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span><span class=n>err</span><span class=p>){</span>
+</span></span><span class=line><span class=cl>    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Failed on uc_emu_start() with error returned %u: %s</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>           <span class=n>err</span><span class=p>,</span> <span class=n>uc_strerror</span><span class=p>(</span><span class=n>err</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=c1>// 打印寄存器值
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Emulation done. Below is the CPU context</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>uc_reg_read</span><span class=p>(</span><span class=n>uc</span><span class=p>,</span> <span class=n>UC_X86_REG_ECX</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>r_ecx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>uc_reg_read</span><span class=p>(</span><span class=n>uc</span><span class=p>,</span> <span class=n>UC_X86_REG_EDX</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>r_edx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;&gt;&gt;&gt; ECX = 0x%x</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>r_ecx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>printf</span><span class=p>(</span><span class=s>&#34;&gt;&gt;&gt; EDX = 0x%x</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>r_edx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=n>uc_close</span><span class=p>(</span><span class=n>uc</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://my-md-1253484710.file.myqcloud.com/20200411000429.png loading=lazy></p><p>官方给了很多测试<a class=link href=https://github.com/unicorn-engine/unicorn/tree/master/samples target=_blank rel=noopener>案例</a></p><p>python3:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>from</span> <span class=nn>__future__</span> <span class=kn>import</span> <span class=n>print_function</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>unicorn</span> <span class=kn>import</span> <span class=o>*</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>unicorn.x86_const</span> <span class=kn>import</span> <span class=o>*</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>X86_CODE32</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x41\x4a</span><span class=s2>&#34;</span> <span class=c1>#INC ecx; DEC edx</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>ADDRESS</span> <span class=o>=</span> <span class=mh>0x1000000</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Emulate i386 code&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1>## 初始化模拟器为x86 32bit</span>
+</span></span><span class=line><span class=cl>    <span class=n>mu</span> <span class=o>=</span> <span class=n>Uc</span><span class=p>(</span><span class=n>UC_ARCH_X86</span><span class=p>,</span><span class=n>UC_MODE_32</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># mu = Uc(UC_ARCH_ARM64,UC_MODE_64)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>## 2MB 的memory</span>
+</span></span><span class=line><span class=cl>    <span class=n>mu</span><span class=o>.</span><span class=n>mem_map</span><span class=p>(</span><span class=n>ADDRESS</span><span class=p>,</span><span class=mi>2</span><span class=o>*</span><span class=mi>1024</span><span class=o>*</span><span class=mi>1024</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>## </span>
+</span></span><span class=line><span class=cl>    <span class=n>mu</span><span class=o>.</span><span class=n>mem_write</span><span class=p>(</span><span class=n>ADDRESS</span><span class=p>,</span><span class=n>X86_CODE32</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>##</span>
+</span></span><span class=line><span class=cl>    <span class=n>mu</span><span class=o>.</span><span class=n>reg_write</span><span class=p>(</span><span class=n>UC_X86_REG_ECX</span><span class=p>,</span><span class=mh>0x1234</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>mu</span><span class=o>.</span><span class=n>reg_write</span><span class=p>(</span><span class=n>UC_X86_REG_EDX</span><span class=p>,</span><span class=mh>0x7890</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1>##</span>
+</span></span><span class=line><span class=cl>    <span class=n>mu</span><span class=o>.</span><span class=n>emu_start</span><span class=p>(</span><span class=n>ADDRESS</span><span class=p>,</span> <span class=n>ADDRESS</span> <span class=o>+</span> <span class=nb>len</span><span class=p>(</span><span class=n>X86_CODE32</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Emulation done. Below is the CPU context&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>r_ecx</span> <span class=o>=</span> <span class=n>mu</span><span class=o>.</span><span class=n>reg_read</span><span class=p>(</span><span class=n>UC_X86_REG_ECX</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>r_edx</span> <span class=o>=</span> <span class=n>mu</span><span class=o>.</span><span class=n>reg_read</span><span class=p>(</span><span class=n>UC_X86_REG_EDX</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;&gt;&gt;&gt; ECX = 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span><span class=n>r_ecx</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;&gt;&gt;&gt; EDX = 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span><span class=n>r_edx</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>except</span> <span class=n>UcError</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;ERROR: </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span><span class=n>e</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=0x03-一些基于unicorn的项目简单使用>0x03 一些基于unicorn的项目简单使用</h3><h4 id=androidnativeemuhttpsgithubcomp4nda0sandroidnativeemu><a class=link href=https://github.com/P4nda0s/AndroidNativeEmu target=_blank rel=noopener>AndroidNativeEmu</a></h4><p>AndroidNativeEmu 让你能够跨平台模拟Android Native库函数，比如JNI_OnLoad、Java_XXX_XX等函数</p><p>这是看雪无名侠大佬二次修改一个版本，真的太强了。</p><ol><li><p>安装报错解决</p><p>安装有些坑。。</p><p>首先要求使用python3.7。之后</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>git https://github.com/AeonLucid/AndroidNativeEmu.git
+</span></span><span class=line><span class=cl>pip install -r requirements.txt 
+</span></span><span class=line><span class=cl><span class=nb>cd</span> samples
+</span></span><span class=line><span class=cl><span class=c1># 运行python example.py开始报错。。</span>
+</span></span></code></pre></td></tr></table></div></div><p>在win上先搞定<code>keystone-engine</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash></code></pre></td></tr></table></div></div></li></ol><p>git clone <a class=link href=https://github.com/keystone-engine/keystone target=_blank rel=noopener>https://github.com/keystone-engine/keystone</a>
+cd keystone/bindings/python
+python setup.py install</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-v data-lang=v><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=p>[</span><span class=na>下载</span><span class=p>](</span><span class=nv>http</span><span class=p>:</span><span class=c1>//www.keystone-engine.org/download/) `Windows - Core engine` x64
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=nv>解压找到</span><span class=sc>`keystone.dll`</span> <span class=nv>放到</span><span class=sc>`X:</span><span class=err>\</span><span class=sc>location_to_python</span><span class=err>\</span><span class=sc>Lib</span><span class=err>\</span><span class=sc>site-packages</span><span class=err>\</span><span class=sc>keystone</span><span class=se>\`</span><span class=sc>
+</span></span></span><span class=line><span class=cl><span class=sc>
+</span></span></span><span class=line><span class=cl><span class=sc>还有可能报`</span><span class=nv>fail</span> <span class=nv>to</span> <span class=nv>load</span> <span class=nv>the</span> <span class=nv>dynamic</span> <span class=nv>library</span><span class=p>.</span><span class=sc>`
+</span></span></span><span class=line><span class=cl><span class=sc>
+</span></span></span><span class=line><span class=cl><span class=sc>下载 [vcredist_x64](https://www.microsoft.com/en-gb/download/details.aspx?id=40784) 安装。
+</span></span></span><span class=line><span class=cl><span class=sc>
+</span></span></span><span class=line><span class=cl><span class=sc>之后直接`</span><span class=nv>python</span> <span class=nv>example</span><span class=p>.</span><span class=nv>py</span><span class=sc>` 继续报`</span><span class=nc>ModuleNotFoundError</span><span class=p>:</span> <span class=nc>No</span> <span class=kn>module</span> <span class=nv>named</span> <span class=s1>&#39;androidemu&#39;</span><span class=sc>`
+</span></span></span><span class=line><span class=cl><span class=sc>
+</span></span></span><span class=line><span class=cl><span class=sc>加入代码
+</span></span></span><span class=line><span class=cl><span class=sc>
+</span></span></span><span class=line><span class=cl><span class=sc>```</span> <span class=nv>python</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nv>sys</span>
+</span></span><span class=line><span class=cl><span class=nv>sys</span><span class=p>.</span><span class=nv>path</span><span class=p>.</span><span class=nf>append</span><span class=p>(</span><span class=s1>&#39;../&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=err>······</span>
+</span></span></code></pre></td></tr></table></div></div><p>又报<code>FileNotFoundError: [Errno 2] No such file or directory: 'samples/example_binaries/libc.so'</code></p><p>删掉代码里的 <code>samples/example_binaries/libc.so</code>的<code>samples/</code></p><p>能跑起来但是报错<code>unicorn.unicorn.UcError: Invalid instruction (UC_ERR_INSN_INVALID)</code></p><p>改成<code>emulator.load_library("example_binaries/libc.so", do_init=False)</code></p><p>就成功运行</p><p><img src=https://my-md-1253484710.file.myqcloud.com/20200413002530.png loading=lazy></p><ol start=2><li>使用</li></ol><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=kn>import</span> <span class=nn>logging</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>posixpath</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>sys</span>
+</span></span><span class=line><span class=cl><span class=n>sys</span><span class=o>.</span><span class=n>path</span><span class=o>.</span><span class=n>append</span><span class=p>(</span><span class=s1>&#39;../&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>unicorn</span> <span class=kn>import</span> <span class=n>UcError</span><span class=p>,</span> <span class=n>UC_HOOK_CODE</span><span class=p>,</span> <span class=n>UC_HOOK_MEM_UNMAPPED</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>unicorn.arm_const</span> <span class=kn>import</span> <span class=o>*</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>androidemu.emulator</span> <span class=kn>import</span> <span class=n>Emulator</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>androidemu.java.java_class_def</span> <span class=kn>import</span> <span class=n>JavaClassDef</span>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>androidemu.java.java_method_def</span> <span class=kn>import</span> <span class=n>java_method_def</span>
+</span></span><span class=line><span class=cl><span class=kn>import</span> <span class=nn>debug_utils</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>class</span> <span class=nc>MainActivity</span><span class=p>(</span><span class=n>metaclass</span><span class=o>=</span><span class=n>JavaClassDef</span><span class=p>,</span> <span class=n>jvm_name</span><span class=o>=</span><span class=s1>&#39;com/example/debugdemo/MainActivity&#39;</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=fm>__init__</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nd>@java_method_def</span><span class=p>(</span><span class=n>name</span><span class=o>=</span><span class=s1>&#39;stringFromJNI&#39;</span><span class=p>,</span> <span class=n>signature</span><span class=o>=</span><span class=s1>&#39;()Ljava/lang/String;&#39;</span><span class=p>,</span> <span class=n>native</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>string_from_jni</span><span class=p>(</span><span class=bp>self</span><span class=p>,</span> <span class=n>mu</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>def</span> <span class=nf>test</span><span class=p>(</span><span class=bp>self</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=k>pass</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Configure logging</span>
+</span></span><span class=line><span class=cl><span class=n>logging</span><span class=o>.</span><span class=n>basicConfig</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>    <span class=n>stream</span><span class=o>=</span><span class=n>sys</span><span class=o>.</span><span class=n>stdout</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=n>level</span><span class=o>=</span><span class=n>logging</span><span class=o>.</span><span class=n>DEBUG</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>    <span class=nb>format</span><span class=o>=</span><span class=s2>&#34;</span><span class=si>%(asctime)s</span><span class=s2> </span><span class=si>%(levelname)7s</span><span class=s2> </span><span class=si>%(name)34s</span><span class=s2> | </span><span class=si>%(message)s</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>logger</span> <span class=o>=</span> <span class=n>logging</span><span class=o>.</span><span class=n>getLogger</span><span class=p>(</span><span class=vm>__name__</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 先创建java class</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 初始化emulater</span>
+</span></span><span class=line><span class=cl><span class=n>emulator</span> <span class=o>=</span> <span class=n>Emulator</span><span class=p>(</span>
+</span></span><span class=line><span class=cl>  <span class=n>vfs_root</span><span class=o>=</span><span class=n>posixpath</span><span class=o>.</span><span class=n>join</span><span class=p>(</span><span class=n>posixpath</span><span class=o>.</span><span class=n>dirname</span><span class=p>(</span><span class=vm>__file__</span><span class=p>),</span><span class=s2>&#34;vfs&#34;</span><span class=p>),</span>
+</span></span><span class=line><span class=cl>  <span class=n>vfp_inst_set</span><span class=o>=</span><span class=kc>True</span>
+</span></span><span class=line><span class=cl><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## 注册 java class</span>
+</span></span><span class=line><span class=cl><span class=n>emulator</span><span class=o>.</span><span class=n>java_classloader</span><span class=o>.</span><span class=n>add_class</span><span class=p>(</span><span class=n>MainActivity</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>## load libraries</span>
+</span></span><span class=line><span class=cl><span class=n>emulator</span><span class=o>.</span><span class=n>load_library</span><span class=p>(</span><span class=s2>&#34;example_binaries/libdl.so&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>emulator</span><span class=o>.</span><span class=n>load_library</span><span class=p>(</span><span class=s2>&#34;example_binaries/libc.so&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>emulator</span><span class=o>.</span><span class=n>load_library</span><span class=p>(</span><span class=s2>&#34;example_binaries/libstdc++.so&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>emulator</span><span class=o>.</span><span class=n>load_library</span><span class=p>(</span><span class=s2>&#34;example_binaries/libm.so&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>tar_lib</span> <span class=o>=</span> <span class=n>emulator</span><span class=o>.</span><span class=n>load_library</span><span class=p>(</span><span class=s2>&#34;example_binaries/libtest.so&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># Show loaded modules.</span>
+</span></span><span class=line><span class=cl><span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;Loaded modules:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>module</span> <span class=ow>in</span> <span class=n>emulator</span><span class=o>.</span><span class=n>modules</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;=&gt; 0x</span><span class=si>%08x</span><span class=s2> - </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=p>(</span><span class=n>module</span><span class=o>.</span><span class=n>base</span><span class=p>,</span> <span class=n>module</span><span class=o>.</span><span class=n>filename</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=c1>## Run JNI_OnLoad.</span>
+</span></span><span class=line><span class=cl>    <span class=n>emulator</span><span class=o>.</span><span class=n>call_symbol</span><span class=p>(</span><span class=n>tar_lib</span><span class=p>,</span> <span class=s1>&#39;JNI_OnLoad&#39;</span><span class=p>,</span> <span class=n>emulator</span><span class=o>.</span><span class=n>java_vm</span><span class=o>.</span><span class=n>address_ptr</span><span class=p>,</span> <span class=mh>0x00</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>emulator</span><span class=o>.</span><span class=n>mu</span><span class=o>.</span><span class=n>hook_add</span><span class=p>(</span><span class=n>UC_HOOK_MEM_UNMAPPED</span><span class=p>,</span> <span class=n>debug_utils</span><span class=o>.</span><span class=n>hook_unmapped</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Do native stuff.</span>
+</span></span><span class=line><span class=cl>    <span class=n>emulator</span><span class=o>.</span><span class=n>mu</span><span class=o>.</span><span class=n>hook_add</span><span class=p>(</span><span class=n>UC_HOOK_CODE</span><span class=p>,</span> <span class=n>debug_utils</span><span class=o>.</span><span class=n>hook_code</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>main_activity</span> <span class=o>=</span> <span class=n>MainActivity</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;Response from JNI call: </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>main_activity</span><span class=o>.</span><span class=n>string_from_jni</span><span class=p>(</span><span class=n>emulator</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># Dump natives found.</span>
+</span></span><span class=line><span class=cl>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;Exited EMU.&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;Native methods registered to MainActivity:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>method</span> <span class=ow>in</span> <span class=n>MainActivity</span><span class=o>.</span><span class=n>jvm_methods</span><span class=o>.</span><span class=n>values</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>method</span><span class=o>.</span><span class=n>native</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=n>logger</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=s2>&#34;- [0x</span><span class=si>%08x</span><span class=s2>] </span><span class=si>%s</span><span class=s2> - </span><span class=si>%s</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=p>(</span><span class=n>method</span><span class=o>.</span><span class=n>native_addr</span><span class=p>,</span> <span class=n>method</span><span class=o>.</span><span class=n>name</span><span class=p>,</span> <span class=n>method</span><span class=o>.</span><span class=n>signature</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>except</span> <span class=n>UcError</span> <span class=k>as</span> <span class=n>e</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;Exit at </span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>emulator</span><span class=o>.</span><span class=n>mu</span><span class=o>.</span><span class=n>reg_read</span><span class=p>(</span><span class=n>UC_ARM_REG_PC</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=k>raise</span>
+</span></span></code></pre></td></tr></table></div></div><ul><li>samples 文件夹下几个具体的实例</li></ul><h4 id=unicorefuzzhttpsgithubcomfgsectunicorefuzz><a class=link href=https://github.com/fgsect/unicorefuzz target=_blank rel=noopener>unicorefuzz</a></h4><p>合并到<a class=link href>AFL系列总结</a></p><h4 id=参考>参考</h4><ul><li>中文文档https://github.com/kabeor/Micro-Unicorn-Engine-API-Documentation</li><li><a class=link href=https://github.com/unicorn-engine/unicorn target=_blank rel=noopener>https://github.com/unicorn-engine/unicorn</a></li><li><a class=link href=https://github.com/P4nda0s/AndroidNativeEmu target=_blank rel=noopener>https://github.com/P4nda0s/AndroidNativeEmu</a></li><li><a class=link href=https://app.yinxiang.com/fx/a6cc6633-a93f-4111-a06a-cccd5fa39e0f target=_blank rel=noopener>https://app.yinxiang.com/fx/a6cc6633-a93f-4111-a06a-cccd5fa39e0f</a></li><li><a class=link href=https://github.com/fgsect/unicorefuzz target=_blank rel=noopener>https://github.com/fgsect/unicorefuzz</a></li></ul></section><footer class=article-footer><section class=article-tags><a href=/tags/unicorn/>Unicorn</a>
+<a href=/tags/fuzzing/>Fuzzing</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section></footer><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css integrity="sha256-J+iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s=" crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js integrity="sha256-InsNdER1b2xUewP+pKCUJpkhiqwHgqiPXDlIk7GzBu4=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI=" crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}]})})</script></article><div class=disqus-container><div id=disqus_thread></div><script type=application/javascript>window.disqus_config=function(){},function(){if(["localhost","127.0.0.1"].indexOf(window.location.hostname)!=-1){document.getElementById("disqus_thread").innerHTML="Disqus comments not available by default when the website is previewed locally.";return}var t=document,e=t.createElement("script");e.async=!0,e.src="//hugo-theme-stack.disqus.com/embed.js",e.setAttribute("data-timestamp",+new Date),(t.head||t.body).appendChild(e)}()</script><noscript>Please enable JavaScript to view the <a href=https://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript><a href=https://disqus.com class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a></div><style>.disqus-container{background-color:var(--card-background);border-radius:var(--card-border-radius);box-shadow:var(--shadow-l1);padding:var(--card-padding)}</style><script>window.addEventListener("onColorSchemeChange",e=>{typeof DISQUS=="object"&&DISQUS.reset({reload:!0})})</script><footer class=site-footer><section class=copyright>&copy;
+2016 -
+2022 ykikoqAq</section><section class=powerby>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.16.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script>
+<script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

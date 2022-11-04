@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Frida on ykikoqAq</title><link>https://ykiko.top/tags/frida/</link><description>Recent content in Frida on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sat, 02 Feb 2019 20:39:26 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/frida/index.xml" rel="self" type="application/rss+xml"/><item><title>Frida从入门到放弃_2</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2/</link><pubDate>Sat, 02 Feb 2019 20:39:26 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2/</guid><description>&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>复习一下Android安装frida命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">adb root
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb push frida-server /data/local/tmp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb shell &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb shell &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>常用Frida 命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">frida-ps -U &lt;span class="c1">#列出USB设备运行ing的进程&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -Ua &lt;span class="c1">#列出运行中的应用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -Uai &lt;span class="c1">#列出已安装的应用列表&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -D xxx &lt;span class="c1">#连接指定的设备&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -R
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在Safari中跟踪recv*和send* API&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -i &lt;span class="s2">&amp;#34;recv*&amp;#34;&lt;/span> -i &lt;span class="s2">&amp;#34;send&amp;#34;&lt;/span> Safari
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在Safari中跟踪ObjC方法调用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -m &lt;span class="s2">&amp;#34;-[NSView drawRect:]&amp;#34;&lt;/span> Safari
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在iPhone上启动SnapChat，跟踪加密API调用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -U -f com.app.testing -I &lt;span class="s2">&amp;#34;libcommonCrypto*&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#当程序启动时，frida跟踪所有open function&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -U -i open com.app.testing
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下面通过自己创建一个Android APP来学习Frida在Android上的一般用法。&lt;/p>
+&lt;h3 id="0x01-简单用例">0x01 简单用例&lt;/h3>
+&lt;p>Frida常用的两种启动方式：&lt;/p>
+&lt;ol>
+&lt;li>python 绑定启动&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">frida&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">sys&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="nn">os&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## package name&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pkg_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;com.example.xxx&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">js_hook_file&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;xxx.js&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">on_message&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">message&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;type&amp;#39;&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s1">&amp;#39;send&amp;#39;&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;[*] &lt;/span>&lt;span class="si">{0}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">format&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;payload&amp;#39;&lt;/span>&lt;span class="p">]))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 插入js代码 or 加载js文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">jscode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">process&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">frida&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_usb_device&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">attach&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pkg_name&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">with&lt;/span> &lt;span class="nb">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">js_hook_file&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;r&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">as&lt;/span> &lt;span class="n">f&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">script&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">create_script&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">f&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">on&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;message&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">on_message&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sys&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">stdin&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-js" data-lang="js">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Script loaded successfully &amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">perform&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kd">function&lt;/span> &lt;span class="nx">x&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//hook代码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">});&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>直接命令加载脚本启动&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">frida -U -l xxx.js com.example.xxx
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x02-app源码">0x02 App源码&lt;/h3>
+&lt;p>java层&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>native层&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x03-java层hook">0x03 Java层hook&lt;/h3>
+&lt;p>HOOK代码&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x04-native层hook">0x04 Native层hook&lt;/h3>
+&lt;p>native层代码&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x05-总结">0x05 总结&lt;/h3>
+&lt;p>源代码地址：&lt;/p>
+&lt;h3 id="0x06-参考">0x06 参考&lt;/h3>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://www.freebuf.com/articles/system/190565.html" target="_blank" rel="noopener"
+>https://www.freebuf.com/articles/system/190565.html&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://blog.csdn.net/jiangwei0910410003/article/details/80372118" target="_blank" rel="noopener"
+>https://blog.csdn.net/jiangwei0910410003/article/details/80372118&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/dweinstein/awesome-frida" target="_blank" rel="noopener"
+>https://github.com/dweinstein/awesome-frida&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>Frida从入门到放弃_1</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1/</link><pubDate>Tue, 22 Jan 2019 20:39:26 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1/</guid><description>&lt;h3 id="0x00-frida">0x00 Frida&lt;/h3>
+&lt;p>Frida 官网：https://www.frida.re/&lt;/p>
+&lt;p>github: &lt;a class="link" href="https://github.com/frida/frida" target="_blank" rel="noopener"
+>https://github.com/frida/frida&lt;/a>&lt;/p>
+&lt;p>Dynamic instrumentation toolkit for developers, reverse-engineers, and security
+researchers.&lt;/p>
+&lt;ul>
+&lt;li>Scriptable&lt;/li>
+&lt;li>Portable&lt;/li>
+&lt;li>Free&lt;/li>
+&lt;li>Battle-tested&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-安装">0x01 安装&lt;/h3>
+&lt;h5 id="二进制安装-推荐">二进制安装 (推荐)&lt;/h5>
+&lt;p>pip install frida-tools 就一个命令搞定&lt;/p>
+&lt;blockquote>
+&lt;p>Failed to load the Frida native extension: DLL load failed: 找不到指定的模块&lt;/p>
+&lt;p>报了这个错 查了大半天 原来我用的版本是基于python3.7编译的。我现在用的3.6.。。。。&lt;/p>
+&lt;/blockquote>
+&lt;p>绑定：二选一就行&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">pip install frida &lt;span class="c1"># Python bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm install frida &lt;span class="c1"># Node.js bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h5 id="手动编译">手动编译&lt;/h5>
+&lt;p>依赖：&lt;/p>
+&lt;p>&lt;code>pip3 install colorama prompt-toolkit pygments&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>Linux&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>make&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>MacOS and iOS&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">MAC_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">IOS_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>Windows&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">frida.sln &lt;span class="c1">#VS2017&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x02-android环境">0x02 Android环境&lt;/h3>
+&lt;p>设备：小米mix2 运行Android9.0 MIUI10开发版已解锁root&lt;/p>
+&lt;p>frida-server: 用的arm64版本&lt;/p>
+&lt;p>&lt;a class="link" href="https://github.com/frida/frida/releases" target="_blank" rel="noopener"
+>server文件下载&lt;/a>&lt;/p>
+&lt;p>下载好对应的 frida-server 然后adb push 进去&lt;/p>
+&lt;p>&lt;code>adb push frida-server /data/local/tmp&lt;/code>&lt;/p>
+&lt;p>然后&lt;code>chomd 755 frida-server&lt;/code>修改权限&lt;/p>
+&lt;p>运行&lt;code>./frida-server&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133452.png"
+loading="lazy"
+alt="frida-server"
+>&lt;/p>
+&lt;p>这几个命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">root&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">push&lt;/span> &lt;span class="nb">frida-server&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">local&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>查看架构：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616145105.png"
+loading="lazy"
+alt="aarch64"
+>&lt;/p>
+&lt;h3 id="0x03-简单测试">0x03 简单测试&lt;/h3>
+&lt;p>命令行运行&lt;code>frida-ps -U&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133604.png"
+loading="lazy"
+alt="frida-ps"
+>&lt;/p>
+&lt;p>有显示就是连接成功&lt;/p>
+&lt;p>接下来对浏览器进行简单测试&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150349.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i open com.android.browser&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150506.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>随便点一下浏览器&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150623.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>测试Diva&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151039.jpg"
+loading="lazy"
+>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151307.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i &amp;quot;open*&amp;quot; jakhar.aseem.diva&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151432.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>进行Hook login.class checkout函数&lt;/p>
+&lt;p>逆向过程略&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151826.png"
+loading="lazy"
+>&lt;/p>
+&lt;p>HOOK脚本：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">perfrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;######&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">var&lt;/span> &lt;span class="nx">logActivity&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">use&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;jakhar.aseem.diva.LogActivity&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">logActivity&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">checkout&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">implementation&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Hook&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>命令行载入脚本运行&lt;/p>
+&lt;p>&lt;code>frida -U jakhar.aseem.diva -l diva1.js --no-pause&lt;/code>&lt;/p>
+&lt;p>进入logging关卡 点击check out，成功hook到checkout函数。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616153553.png"
+loading="lazy"
+>&lt;/p>
+&lt;h3 id="0x04-总结">0x04 总结&lt;/h3>
+&lt;hr>
+&lt;p>算是简单的入门了frida。&lt;/p>
+&lt;p>frida还有很多厉害的功能。多读读官方文档，收货会更多。&lt;/p></description></item></channel></rss>
