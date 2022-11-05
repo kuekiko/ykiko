@@ -2,7 +2,7 @@
 title: 关于
 menu:
     main: 
-        weight: -90
+        weight: 20
         params:
             icon: user
 ---
@@ -10,9 +10,9 @@ menu:
 ### About me
 --- 
 
-- 正在学移动安全的菜鸡    
+- 移动安全、IoT安全、车联网安全。    
 
-- 正在努力变强 充电中  ---   
+- 正在努力变强 充电中 - - - - - -  
 
 - tcl
 
@@ -21,10 +21,10 @@ menu:
 #### Links
 
 - email:  [kuekiko7@gmail.com](kuekiko7@gmail.com)
-- Twitter: [kuekiko](https://twitter.com/kuekiko7)
-- Telegram: [Vorblock](https://t.me/Vorblock)
+- Twitter: [ykikoqAq](https://twitter.com/kuekiko7)
+- Telegram: [ykikoqAq](https://t.me/Vorblock)
 - github: [gayhub](https://github.com/kuekiko)
-- weibo: [Vorblock](https://weibo.com/u/2952658161)
+- weibo: [keams_v](https://weibo.com/u/2952658161)
 - bilibili: [Bili](https://space.bilibili.com/6477559)
 - 知乎: [知乎](https://www.zhihu.com/people/vorblock/activities)
 

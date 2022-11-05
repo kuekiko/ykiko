@@ -10,25 +10,30 @@ license: CC BY-NC-ND
 lastmod: '2020-10-09'
 menu:
     main: 
-        weight: -90
+        weight: 20
         params:
             icon: user
 ---
 
-Written in Go, Hugo is an open source static site generator available under the [Apache Licence 2.0.](https://github.com/gohugoio/hugo/blob/master/LICENSE) Hugo supports TOML, YAML and JSON data file types, Markdown and HTML content files and uses shortcodes to add rich content. Other notable features are taxonomies, multilingual mode, image processing, custom output formats, HTML/CSS/JS minification and support for Sass SCSS workflows.
+### About me
+--- 
 
-Hugo makes use of a variety of open source projects including:
+- 移动安全、IoT安全、车联网安全。    
 
-* https://github.com/yuin/goldmark
-* https://github.com/alecthomas/chroma
-* https://github.com/muesli/smartcrop
-* https://github.com/spf13/cobra
-* https://github.com/spf13/viper
+- 正在努力变强 充电中 - - - - - -  
 
-Hugo is ideal for blogs, corporate websites, creative portfolios, online magazines, single page applications or even a website with thousands of pages.
+- tcl
 
-Hugo is for people who want to hand code their own website without worrying about setting up complicated runtimes, dependencies and databases.
+- ヾ(◍°∇°◍)ﾉﾞ
 
-Websites built with Hugo are extremelly fast, secure and can be deployed anywhere including, AWS, GitHub Pages, Heroku, Netlify and any other hosting provider.
+#### Links
 
-Learn more and contribute on [GitHub](https://github.com/gohugoio).
+- email:  [kuekiko7@gmail.com](kuekiko7@gmail.com)
+- Twitter: [ykikoqAq](https://twitter.com/kuekiko7)
+- Telegram: [ykikoqAq](https://t.me/Vorblock)
+- github: [gayhub](https://github.com/kuekiko)
+- weibo: [keams_v](https://weibo.com/u/2952658161)
+- bilibili: [Bili](https://space.bilibili.com/6477559)
+- 知乎: [知乎](https://www.zhihu.com/people/vorblock/activities)
+
+![ppp](https://as2.bitinn.net/uploads/w5/cjrr6b2e9002h1t8hi9at4hw5.1080p.jpg)

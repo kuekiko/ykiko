@@ -2,9 +2,9 @@
 title: Reading
 menu:
     main: 
-        weight: 80
+        weight: 40
         params:
-            icon: reading
+            icon: read
 ---
 
 <center><h2>
