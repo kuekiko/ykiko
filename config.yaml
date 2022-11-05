@@ -67,7 +67,7 @@ params:
 
     comments:
         enabled: true
-        provider: disqus
+        provider: vssue
 
         disqusjs:
             shortname:
@@ -88,11 +88,11 @@ params:
 
         vssue:
             platform:
-            owner:
-            repo:
-            clientId:
-            clientSecret:
-            autoCreateIssue: false
+            owner: kuekiko
+            repo: ykiko
+            clientId: 95aae0b36f5f8169a39b
+            clientSecret: b26f68955b1da8bc4fd0e24b27a6a055d15a5267
+            autoCreateIssue: true
 
         # Waline client configuration see: https://waline.js.org/en/reference/component.html
         waline:
