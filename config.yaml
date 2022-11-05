@@ -51,7 +51,7 @@ params:
 
     sidebar:
         emoji: 🌈
-        subtitle: 学习、吃饭、睡觉。
+        subtitle: 学习、吃饭、睡觉、活着。
         avatar:
             enabled: true
             local: true
@@ -87,7 +87,7 @@ params:
             locale:
 
         vssue:
-            platform:
+            platform: github
             owner: kuekiko
             repo: ykiko
             clientId: 95aae0b36f5f8169a39b
