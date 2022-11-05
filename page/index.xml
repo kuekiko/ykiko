@@ -1,4 +1,123 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Pages on ykikoqAq</title><link>https://ykiko.top/page/</link><description>Recent content in Pages on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 28 May 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/page/index.xml" rel="self" type="application/rss+xml"/><item><title>日记</title><link>https://ykiko.top/%E6%97%A5%E8%AE%B0/</link><pubDate>Mon, 06 Aug 2018 11:13:06 +0800</pubDate><guid>https://ykiko.top/%E6%97%A5%E8%AE%B0/</guid><description>&lt;h2 id="乱七八糟的日记">乱七八糟的日记&lt;/h2>
+&lt;h3 id="2019">2019&lt;/h3>
+&lt;h4 id="04-28-天">04-28 天&lt;/h4>
+&lt;ul>
+&lt;li>补课&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-27-六-阴雨">04-27 六 阴+雨&lt;/h4>
+&lt;ul>
+&lt;li>*CTF2019 一个人打，tcl，放弃看pwn去了。&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-26-五-热30傍晚大雨">04-26 五 热30+傍晚大雨&lt;/h4>
+&lt;ul>
+&lt;li>UAF利用练习&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-25-四-热30">04-25 四 热30+&lt;/h4>
+&lt;ul>
+&lt;li>上课+看了一整天Android内核安全基础知识。&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-24-三-热30">04-24 三 热30°&lt;/h4>
+&lt;ul>
+&lt;li>看了国赛逆向的逆向题strange_int &lt;a class="link" href="https://www.52pojie.cn/thread-936377-1-1.html" target="_blank" rel="noopener"
+>https://www.52pojie.cn/thread-936377-1-1.html&lt;/a>&lt;/li>
+&lt;li>想写一篇关于MBR逆向的文章做个记录！&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-23-二-热">04-23 二 热&lt;/h4>
+&lt;ul>
+&lt;li>复现国赛 看了部分逆向和PWN、Crypto。&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-22-一-热">04-22 一 热&lt;/h4>
+&lt;ul>
+&lt;li>闲鱼的生活(睡懒觉+看权力的游戏+下自走棋)&lt;/li>
+&lt;li>打算明天继续进入正轨的学习&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-20-21-周末-暴雨打雷六-大太阳日">04-20-21 周末 暴雨打雷（六）+ 大太阳（日）&lt;/h4>
+&lt;ul>
+&lt;li>打国赛的两天。感觉自己tcl。&lt;/li>
+&lt;li>pwn基本都不会做。。。第二天的re是真的难啊。。。&lt;/li>
+&lt;li>总结：
+&lt;ul>
+&lt;li>加强基础知识的掌握，感觉自己密码学学的真的是糟糕，不管是数学的密码学还是逆向的密码学都很差。&lt;/li>
+&lt;li>汇编也是很多时候缕不清整个流程。C看多了也会看懵逼。&lt;/li>
+&lt;li>PWN还真的是菜鸡状态。&lt;/li>
+&lt;li>脑筋很多时候转不过来，果然还是看的太少，练的太少。&lt;/li>
+&lt;li>做事还是不专一，看东西经常没耐心，容易半途而废，理解得太浅。&lt;/li>
+&lt;li>希望很多事情从现在看是改正还不算太晚吧。&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-19-五-热-没太阳">04-19 五 热 没太阳&lt;/h4>
+&lt;ul>
+&lt;li>早起去上最后一节移动终端安全的课。发现去了也白去。。Java-Web开发也不应该去。&lt;/li>
+&lt;li>国赛成功报上了。感谢组委会。晚上继续跑步。&lt;/li>
+&lt;li>下午看了一些Linux内核调试的基础文章。&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-18-四-热">04-18 四 热&lt;/h4>
+&lt;ul>
+&lt;li>
+&lt;p>运动会继续放假。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>从早上开始忙国赛报名的事情。最终组委会还是同意补报。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>面试aaaa:感觉凉了。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>面试：有的忘记了，大概就这些&lt;/p>
+&lt;ul>
+&lt;li>你最熟悉的项目：巴拉巴拉。。&lt;/li>
+&lt;li>开发相关：不想做开发，说的模模糊糊。。&lt;/li>
+&lt;li>会前端？后端？用什么写的后端？&lt;/li>
+&lt;li>做过什么大的app?&lt;/li>
+&lt;li>Android art原理&lt;/li>
+&lt;li>逆向过程中遇到的问题，如何解决？&lt;/li>
+&lt;li>apk install的整个过程&lt;/li>
+&lt;li>Android内核知道多少&lt;/li>
+&lt;li>rop原理&lt;/li>
+&lt;li>运维遇到的问题？解决？问题出在哪儿？&lt;/li>
+&lt;li>调过的CVE?&lt;/li>
+&lt;li>CTF pwn?&lt;/li>
+&lt;li>Linux内核了解不？&lt;/li>
+&lt;li>读大几？什么能来上班？&lt;/li>
+&lt;li>还有什么你觉得没问到的？&lt;/li>
+&lt;li>你还想问些什么？&lt;/li>
+&lt;li>··· ···&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-17-三">04-17 三&lt;/h4>
+&lt;ul>
+&lt;li>学校开运动会，放假，看面试的一些基础知识。&lt;/li>
+&lt;li>(⊙o⊙)…面试改到明天，发现国赛没报上，心烦意乱，约人去跑步。然后一整天就只看了一些Android Hook的基础原理。&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-16-二">04-16 二&lt;/h4>
+&lt;ul>
+&lt;li>找实习+复习知识点。&lt;/li>
+&lt;li>只怪自己太菜了，实习真难找。。。&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-15-一">04-15 一&lt;/h4>
+&lt;ul>
+&lt;li>复习之前学的数据结构、操作系统相关。&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-14">04-14&lt;/h4>
+&lt;ul>
+&lt;li>堆相关练习&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-13">04-13&lt;/h4>
+&lt;ul>
+&lt;li>深入理解堆&lt;/li>
+&lt;/ul>
+&lt;h4 id="04-12">04-12&lt;/h4>
+&lt;ul>
+&lt;li>JIT编程-方法内联&lt;/li>
+&lt;li>Android HOOK 之 YAHFA原理&lt;/li>
+&lt;li>&lt;a class="link" href="https://github.com/iqiyi/xHook/blob/master/docs/overview/android_plt_hook_overview.zh-CN.md" target="_blank" rel="noopener"
+>PLT Hook&lt;/a>&lt;/li>
+&lt;li>Inline Hook&lt;/li>
+&lt;/ul>
+&lt;h3 id="long-long-ago">Long long ago&lt;/h3>
+&lt;p>&lt;a class="link" href="" >只剩回忆&lt;/a> 已删除&lt;/p>
 &lt;h3 id="七天国庆死肥宅的日常修炼">七天国庆，死肥宅的日常修炼&lt;/h3>
 &lt;h5 id="101">10.1&lt;/h5>
 &lt;p>昨晚大约3天才睡，第二天更是没精神。学了一个晚上Linux提权。&lt;/p>
@@ -434,157 +553,10 @@ alt="img"
 &lt;p>彩蛋就是。。。。。&lt;/p>
 &lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180809205115.jpg"
 loading="lazy"
->&lt;/p></description></item><item><title>Archives</title><link>https://ykiko.top/archives/</link><pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate><guid>https://ykiko.top/archives/</guid><description/></item><item><title>Daily</title><link>https://ykiko.top/daily/</link><pubDate>Mon, 02 Oct 2017 21:49:20 +0200</pubDate><guid>https://ykiko.top/daily/</guid><description>&lt;!-- tags = ["Daily"] -->
-&lt;!-- categories = ["Daily"] -->
-&lt;h2 id="daily-summary">Daily summary&lt;/h2>
-&lt;h3 id="2019">2019&lt;/h3>
-&lt;h4 id="04-28-天">04-28 天&lt;/h4>
-&lt;ul>
-&lt;li>补课&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-27-六-阴雨">04-27 六 阴+雨&lt;/h4>
-&lt;ul>
-&lt;li>*CTF2019 一个人打，tcl，放弃看pwn去了。&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-26-五-热30傍晚大雨">04-26 五 热30+傍晚大雨&lt;/h4>
-&lt;ul>
-&lt;li>UAF利用练习&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-25-四-热30">04-25 四 热30+&lt;/h4>
-&lt;ul>
-&lt;li>上课+看了一整天Android内核安全基础知识。&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-24-三-热30">04-24 三 热30°&lt;/h4>
-&lt;ul>
-&lt;li>看了国赛逆向的逆向题strange_int &lt;a class="link" href="https://www.52pojie.cn/thread-936377-1-1.html" target="_blank" rel="noopener"
->https://www.52pojie.cn/thread-936377-1-1.html&lt;/a>&lt;/li>
-&lt;li>想写一篇关于MBR逆向的文章做个记录！&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-23-二-热">04-23 二 热&lt;/h4>
-&lt;ul>
-&lt;li>复现国赛 看了部分逆向和PWN、Crypto。&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-22-一-热">04-22 一 热&lt;/h4>
-&lt;ul>
-&lt;li>闲鱼的生活(睡懒觉+看权力的游戏+下自走棋)&lt;/li>
-&lt;li>打算明天继续进入正轨的学习&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-20-21-周末-暴雨打雷六-大太阳日">04-20-21 周末 暴雨打雷（六）+ 大太阳（日）&lt;/h4>
-&lt;ul>
-&lt;li>打国赛的两天。感觉自己tcl。&lt;/li>
-&lt;li>pwn基本都不会做。。。第二天的re是真的难啊。。。&lt;/li>
-&lt;li>总结：
-&lt;ul>
-&lt;li>加强基础知识的掌握，感觉自己密码学学的真的是糟糕，不管是数学的密码学还是逆向的密码学都很差。&lt;/li>
-&lt;li>汇编也是很多时候缕不清整个流程。C看多了也会看懵逼。&lt;/li>
-&lt;li>PWN还真的是菜鸡状态。&lt;/li>
-&lt;li>脑筋很多时候转不过来，果然还是看的太少，练的太少。&lt;/li>
-&lt;li>做事还是不专一，看东西经常没耐心，容易半途而废，理解得太浅。&lt;/li>
-&lt;li>希望很多事情从现在看是改正还不算太晚吧。&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-19-五-热-没太阳">04-19 五 热 没太阳&lt;/h4>
-&lt;ul>
-&lt;li>早起去上最后一节移动终端安全的课。发现去了也白去。。Java-Web开发也不应该去。&lt;/li>
-&lt;li>国赛成功报上了。感谢组委会。晚上继续跑步。&lt;/li>
-&lt;li>下午看了一些Linux内核调试的基础文章。&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-18-四-热">04-18 四 热&lt;/h4>
-&lt;ul>
-&lt;li>
-&lt;p>运动会继续放假。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>从早上开始忙国赛报名的事情。最终组委会还是同意补报。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>面试aaaa:感觉凉了。&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>面试：有的忘记了，大概就这些&lt;/p>
-&lt;ul>
-&lt;li>你最熟悉的项目：巴拉巴拉。。&lt;/li>
-&lt;li>开发相关：不想做开发，说的模模糊糊。。&lt;/li>
-&lt;li>会前端？后端？用什么写的后端？&lt;/li>
-&lt;li>做过什么大的app?&lt;/li>
-&lt;li>Android art原理&lt;/li>
-&lt;li>逆向过程中遇到的问题，如何解决？&lt;/li>
-&lt;li>apk install的整个过程&lt;/li>
-&lt;li>Android内核知道多少&lt;/li>
-&lt;li>rop原理&lt;/li>
-&lt;li>运维遇到的问题？解决？问题出在哪儿？&lt;/li>
-&lt;li>调过的CVE?&lt;/li>
-&lt;li>CTF pwn?&lt;/li>
-&lt;li>Linux内核了解不？&lt;/li>
-&lt;li>读大几？什么能来上班？&lt;/li>
-&lt;li>还有什么你觉得没问到的？&lt;/li>
-&lt;li>你还想问些什么？&lt;/li>
-&lt;li>··· ···&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-17-三">04-17 三&lt;/h4>
-&lt;ul>
-&lt;li>学校开运动会，放假，看面试的一些基础知识。&lt;/li>
-&lt;li>(⊙o⊙)…面试改到明天，发现国赛没报上，心烦意乱，约人去跑步。然后一整天就只看了一些Android Hook的基础原理。&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-16-二">04-16 二&lt;/h4>
-&lt;ul>
-&lt;li>找实习+复习知识点。&lt;/li>
-&lt;li>只怪自己太菜了，实习真难找。。。&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-15-一">04-15 一&lt;/h4>
-&lt;ul>
-&lt;li>复习之前学的数据结构、操作系统相关。&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-14">04-14&lt;/h4>
-&lt;ul>
-&lt;li>堆相关练习&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-13">04-13&lt;/h4>
-&lt;ul>
-&lt;li>深入理解堆&lt;/li>
-&lt;/ul>
-&lt;h4 id="04-12">04-12&lt;/h4>
-&lt;ul>
-&lt;li>JIT编程-方法内联&lt;/li>
-&lt;li>Android HOOK 之 YAHFA原理&lt;/li>
-&lt;li>&lt;a class="link" href="https://github.com/iqiyi/xHook/blob/master/docs/overview/android_plt_hook_overview.zh-CN.md" target="_blank" rel="noopener"
->PLT Hook&lt;/a>&lt;/li>
-&lt;li>Inline Hook&lt;/li>
-&lt;/ul>
-&lt;h3 id="long-long-ago">Long long ago&lt;/h3>
-&lt;p>&lt;a class="link" href="" >只剩回忆&lt;/a> 已删除&lt;/p></description></item><item><title>img</title><link>https://ykiko.top/img/</link><pubDate>Mon, 02 Oct 2017 21:49:20 +0200</pubDate><guid>https://ykiko.top/img/</guid><description>&lt;center>
+>&lt;/p></description></item><item><title>Archives</title><link>https://ykiko.top/archives/</link><pubDate>Tue, 28 May 2019 00:00:00 +0000</pubDate><guid>https://ykiko.top/archives/</guid><description/></item><item><title>img</title><link>https://ykiko.top/img/</link><pubDate>Mon, 02 Oct 2017 21:49:20 +0200</pubDate><guid>https://ykiko.top/img/</guid><description>&lt;center>
 &lt;p>WeChat: &lt;img src="http://my-md-1253484710.coscd.myqcloud.com/MyWeChat.png" alt="WeChat" width="200px"/>
 公众号: &lt;img src="http://my-md-1253484710.coscd.myqcloud.com/myandroidsec.jpg" alt="公众号" width="200px"/>&lt;/p>
-&lt;center/></description></item><item><title>Links</title><link>https://ykiko.top/links/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/links/</guid><description>&lt;p>To use this feature, add &lt;code>links&lt;/code> section to frontmatter.&lt;/p>
-&lt;p>This page&amp;rsquo;s frontmatter:&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;span class="lnt">8
-&lt;/span>&lt;span class="lnt">9
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">links&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">title&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">GitHub&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">description&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">GitHub is the world&amp;#39;s largest software development platform.&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">website&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://github.com&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">title&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">TypeScript&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">description&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">TypeScript is a typed superset of JavaScript that compiles to plain JavaScript.&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">website&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://www.typescriptlang.org&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">image&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ts-logo-128.jpg&lt;/span>&lt;span class="w">
-&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;code>image&lt;/code> field accepts both local and external images.&lt;/p></description></item><item><title>Reading</title><link>https://ykiko.top/reading/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/reading/</guid><description>&lt;center>&lt;h2>
+&lt;center/></description></item><item><title>Reading</title><link>https://ykiko.top/reading/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/reading/</guid><description>&lt;center>&lt;h2>
 个人书单and个人总结
 &lt;/h2>&lt;/center>
 &lt;blockquote>
@@ -660,8 +632,13 @@ loading="lazy"
 >https://www.anquanquan.info/shudan.html&lt;/a>&lt;/li>
 &lt;li>&lt;a class="link" href="https://www.zhihu.com/question/21390646" target="_blank" rel="noopener"
 >https://www.zhihu.com/question/21390646&lt;/a>&lt;/li>
-&lt;/ul></description></item><item><title>Search</title><link>https://ykiko.top/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/search/</guid><description/></item><item><title>Todo</title><link>https://ykiko.top/todo/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/todo/</guid><description>&lt;h3 id="拖延症晚期患者治疗记录">拖延症晚期患者治疗记录&lt;/h3>
-&lt;hr>
+&lt;/ul></description></item><item><title>Search</title><link>https://ykiko.top/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/search/</guid><description/></item><item><title>Todo</title><link>https://ykiko.top/todo/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/todo/</guid><description>&lt;hr>
+&lt;p>&lt;strong>漏洞复现记录&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>重新汇总到 &lt;a class="link" href="https://www.notion.so/kuekiko/dad1e7fc2b7041b19d8b86885ad597ac?v=b113aee153f540babc9a50ef120f3175" target="_blank" rel="noopener"
+>新链接&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="拖延症晚期患者治疗记录">拖延症晚期患者治疗记录&lt;/h3>
 &lt;ul>
 &lt;li>
 &lt;p>保持更新&lt;/p>
@@ -670,22 +647,25 @@ loading="lazy"
 &lt;p>日常记录&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>CVE学习&lt;/p>
+&lt;p>CVE学习——Android、Linux内核、IoT&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>Fritoo 工具开发&lt;/p>
+&lt;p>Fritoo、notobg工具开发&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>改Fuzzing&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>车联网安全学习中。。&lt;/p>
 &lt;/li>
 &lt;/ul></description></item><item><title>关于</title><link>https://ykiko.top/%E5%85%B3%E4%BA%8E/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/%E5%85%B3%E4%BA%8E/</guid><description>&lt;h3 id="about-me">About me&lt;/h3>
 &lt;hr>
 &lt;ul>
 &lt;li>
-&lt;p>正在学移动安全的菜鸡&lt;/p>
+&lt;p>移动安全、IoT安全、车联网安全。&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>正在努力变强 充电中 &amp;mdash;&lt;/p>
+&lt;p>正在努力变强 充电中 - - - - - -&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>tcl&lt;/p>
@@ -698,13 +678,13 @@ loading="lazy"
 &lt;ul>
 &lt;li>email: &lt;a class="link" href="kuekiko7@gmail.com" >kuekiko7@gmail.com&lt;/a>&lt;/li>
 &lt;li>Twitter: &lt;a class="link" href="https://twitter.com/kuekiko7" target="_blank" rel="noopener"
->kuekiko&lt;/a>&lt;/li>
+>ykikoqAq&lt;/a>&lt;/li>
 &lt;li>Telegram: &lt;a class="link" href="https://t.me/Vorblock" target="_blank" rel="noopener"
->Vorblock&lt;/a>&lt;/li>
+>ykikoqAq&lt;/a>&lt;/li>
 &lt;li>github: &lt;a class="link" href="https://github.com/kuekiko" target="_blank" rel="noopener"
 >gayhub&lt;/a>&lt;/li>
 &lt;li>weibo: &lt;a class="link" href="https://weibo.com/u/2952658161" target="_blank" rel="noopener"
->Vorblock&lt;/a>&lt;/li>
+>keams_v&lt;/a>&lt;/li>
 &lt;li>bilibili: &lt;a class="link" href="https://space.bilibili.com/6477559" target="_blank" rel="noopener"
 >Bili&lt;/a>&lt;/li>
 &lt;li>知乎: &lt;a class="link" href="https://www.zhihu.com/people/vorblock/activities" target="_blank" rel="noopener"
@@ -713,4 +693,517 @@ loading="lazy"
 &lt;p>&lt;img src="https://as2.bitinn.net/uploads/w5/cjrr6b2e9002h1t8hi9at4hw5.1080p.jpg"
 loading="lazy"
 alt="ppp"
->&lt;/p></description></item></channel></rss>
+>&lt;/p></description></item><item><title>环境记录</title><link>https://ykiko.top/%E7%8E%AF%E5%A2%83%E8%AE%B0%E5%BD%95/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/%E7%8E%AF%E5%A2%83%E8%AE%B0%E5%BD%95/</guid><description>&lt;h3 id="about-me">About me&lt;/h3>
+&lt;hr>
+&lt;blockquote>
+&lt;p>用来不时记录平时所用环境配置，以及遇到的各种问题以及解决办法。主要是为了防丢失，以及总是和空气斗志斗勇。&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="win10">Win10&lt;/h3>
+&lt;blockquote>
+&lt;p>日常使用&lt;/p>
+&lt;/blockquote>
+&lt;h5 id="wsl">WSL&lt;/h5>
+&lt;p>默认不是root 设置默认root用户。&lt;code>ubuntu config --default-user root&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>on my zsh 装上&lt;/p>
+&lt;p>&lt;a class="link" href="https://github.com/robbyrussell/oh-my-zsh" target="_blank" rel="noopener"
+>官方github&lt;/a>&lt;/p>
+&lt;p>需要先安装&lt;a class="link" href="https://github.com/robbyrussell/oh-my-zsh/wiki/Installing-ZSH" target="_blank" rel="noopener"
+>ZSH&lt;/a>。&lt;/p>
+&lt;p>安装on my zsh:&lt;/p>
+&lt;p>via curl：&lt;code>sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&amp;quot;&lt;/code>&lt;/p>
+&lt;p>via wget: &lt;code>sh -c &amp;quot;$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)&amp;quot;&lt;/code>&lt;/p>
+&lt;p>然后配置喜欢的 插件+主题。&lt;code>vi ~/.zshrc&lt;/code> 修改&lt;code>plugins&lt;/code>属性&lt;/p>
+&lt;p>必备插件git、autojump、zsh-autosuggestions。&lt;a class="link" href="https://github.com/robbyrussell/oh-my-zsh/wiki/Themes" target="_blank" rel="noopener"
+>主题&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GDB装上+pwndbg+peda+gef&lt;/p>
+&lt;p>wsl的ubuntu不支持x86，所以主要只能调试x64的程序，而且可能会出现莫名其妙的错误。&lt;/p>
+&lt;p>不过可以使用qemu来运行x86的程序，调试还是不行会出错。&lt;a class="link" href="https://github.com/Microsoft/WSL/issues/2468" target="_blank" rel="noopener"
+>参考&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">sudo apt update
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo apt install qemu-user-static
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo update-binfmts --install i386 /usr/bin/qemu-i386-static --magic &lt;span class="s1">&amp;#39;\x7fELF\x01\x01\x01\x03\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x03\x00\x01\x00\x00\x00&amp;#39;&lt;/span> --mask &lt;span class="s1">&amp;#39;\xff\xff\xff\xff\xff\xff\xff\xfc\xff\xff\xff\xff\xff\xff\xff\xff\xf8\xff\xff\xff\xff\xff\xff\xff&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 运行下面的一条命令就行跑x86 不过每次打开wsl都得运行一次，很麻烦，可以写脚本自动开启。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo service binfmt-support start
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>pwndbg+peda+gef&lt;/p>
+&lt;p>三个都可能用到，三个工具特性不一样。各有强项，所以三个都装，使用脚本&lt;code>gdb.sh&lt;/code>启动选项&lt;/p>
+&lt;p>安装pwndbg:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">git clone https://github.com/pwndbg/pwndbg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> pwndbg
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./setup.sh
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>peda:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">git clone https://github.com/longld/peda.git ~/peda
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="s2">&amp;#34;source ~/peda/peda.py&amp;#34;&lt;/span> &amp;gt;&amp;gt; ~/.gdbinit
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>gef:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># via the install script&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ wget -q -O- https://github.com/hugsy/gef/raw/master/scripts/gef.sh &lt;span class="p">|&lt;/span> sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># manually&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ wget -O ~/.gdbinit-gef.py -q https://github.com/hugsy/gef/raw/master/gef.py
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ &lt;span class="nb">echo&lt;/span> &lt;span class="nb">source&lt;/span> ~/.gdbinit-gef.py &amp;gt;&amp;gt; ~/.gdbinit
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>gdb.sh 把该文件放在&lt;code>/usr/local/sbin&lt;/code> 参考&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#!/bin/bash
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">function&lt;/span> Mode_change &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">gdbinitfile&lt;/span>&lt;span class="o">=&lt;/span>~/.gdbinit &lt;span class="c1">#这个路径按照你的实际情况修改&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># gdbinitfile=/root/Desktop/mode&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">#路径按照你的实际情况修改&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">peda&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;source ~/peda/peda.py&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">gef&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;source ~/.gdbinit-gef.py&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">pwndbg&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;source /home/pwndbg/gdbinit.py&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">sign&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="k">$(&lt;/span>cat &lt;span class="nv">$gdbinitfile&lt;/span> &lt;span class="p">|&lt;/span> grep -n &lt;span class="s2">&amp;#34;#this place is controled by user&amp;#39;s shell&amp;#34;&lt;/span>&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">#此处上面的查找内容要和你自己的保持一致&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">pattern&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;:#this place is controled by user&amp;#39;s shell&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">number&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">sign&lt;/span>&lt;span class="p">%&lt;/span>&lt;span class="nv">$pattern&lt;/span>&lt;span class="si">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">location&lt;/span>&lt;span class="o">=&lt;/span>$&lt;span class="o">[&lt;/span>number+2&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">parameter_add&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">location&lt;/span>&lt;span class="si">}&lt;/span>i
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">parameter_del&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="si">${&lt;/span>&lt;span class="nv">location&lt;/span>&lt;span class="si">}&lt;/span>d
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nv">message&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;TEST&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="nv">$name&lt;/span> -eq &lt;span class="s2">&amp;#34;1&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$parameter_del&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="nv">$gdbinitfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$parameter_add&lt;/span>&lt;span class="s2"> &lt;/span>&lt;span class="nv">$peda&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="nv">$gdbinitfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> -e &lt;span class="s2">&amp;#34;Please enjoy the peda!\n&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">elif&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="nv">$name&lt;/span> -eq &lt;span class="s2">&amp;#34;2&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$parameter_del&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="nv">$gdbinitfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$parameter_add&lt;/span>&lt;span class="s2"> &lt;/span>&lt;span class="nv">$gef&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="nv">$gdbinitfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> -e &lt;span class="s2">&amp;#34;Please enjoy the gef!\n&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$parameter_del&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="nv">$gdbinitfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> sed -i &lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$parameter_add&lt;/span>&lt;span class="s2"> &lt;/span>&lt;span class="nv">$pwndbg&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="nv">$gdbinitfile&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> -e &lt;span class="s2">&amp;#34;Please enjoy the pwndbg!\n&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> -e &lt;span class="s2">&amp;#34;Please choose one mode of GDB?\n1.peda 2.gef 3.pwndbg&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">read&lt;/span> -p &lt;span class="s2">&amp;#34;Input your choice:&amp;#34;&lt;/span> num
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="nv">$num&lt;/span> -eq &lt;span class="s2">&amp;#34;1&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Mode_change &lt;span class="nv">$num&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">elif&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="nv">$num&lt;/span> -eq &lt;span class="s2">&amp;#34;2&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Mode_change &lt;span class="nv">$num&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">elif&lt;/span> &lt;span class="o">[&lt;/span> &lt;span class="nv">$num&lt;/span> -eq &lt;span class="s2">&amp;#34;3&amp;#34;&lt;/span> &lt;span class="o">]&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="k">then&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Mode_change &lt;span class="nv">$num&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">echo&lt;/span> -e &lt;span class="s2">&amp;#34;Error!\nPleasse input right number!&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">fi&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gdb &lt;span class="nv">$1&lt;/span> &lt;span class="nv">$2&lt;/span> &lt;span class="nv">$3&lt;/span> &lt;span class="nv">$4&lt;/span> &lt;span class="nv">$5&lt;/span> &lt;span class="nv">$6&lt;/span> &lt;span class="nv">$7&lt;/span> &lt;span class="nv">$8&lt;/span> &lt;span class="nv">$9&lt;/span>&lt;span class="c1">#&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>r2全家桶 （逆向调试神器）&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">git clone https://github.com/radare/radare2.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> radare2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sys/install.sh &lt;span class="c1">#Install / Update&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>gcc arm aarch aarch64&lt;/p>
+&lt;p>&lt;code>sudo apt install gcc-arm-linux-gnueabi&lt;/code> 使用命令&lt;code>arm-linux-gnueabi-gcc&lt;/code>&lt;/p>
+&lt;p>&lt;code>sudo apt install gcc-aarch64-linux-gnu&lt;/code> 使用命令&lt;code>aarch64-linux-gnu-gcc&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>clang+llvm&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>方法一，手动编译安装，费时费力&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>方法二 apt&lt;/p>
+&lt;p>完整方法这个&lt;a class="link" href="http://apt.llvm.org/" target="_blank" rel="noopener"
+>地址&lt;/a>&lt;/p>
+&lt;p>只写ubuntu 18,04&lt;/p>
+&lt;ol>
+&lt;li>编辑 /etc/apt/sources.list，添加源&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># i386 not available&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 8&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb-src http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="2">
+&lt;li>添加证书&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key&lt;span class="p">|&lt;/span>sudo apt-key add -
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Fingerprint: 6084 F3CF 814B 57C1 CF12 EFD5 15CF 4D18 AF4F 7421 &lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="3">
+&lt;li>安装 版本8&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># LLVM&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt-get install libllvm-8-ocaml-dev libllvm8 llvm-8 llvm-8-dev llvm-8-doc llvm-8-examples llvm-8-runtime
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Clang and co&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt-get install clang-8 clang-tools-8 clang-8-doc libclang-common-8-dev libclang-8-dev libclang1-8 clang-format-8 python-clang-8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># libfuzzer&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt-get install libfuzzer-8-dev
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># lldb&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt-get install lldb-8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># lld (linker)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt-get install lld-8
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># libc++&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt-get install libc++-8-dev libc++abi-8-dev
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># OpenMP&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt-get install libomp-8-dev
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>python3+pip&lt;/p>
+&lt;p>&lt;code>apt install python3 python3-pip、python-pip&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>python库&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>frida （hook) 同win下使用&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>pwntools (py2)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>gmpy2 (py2-3)&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>r2Frida&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Brida&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h5 id="vscode-666">vscode （666）&lt;/h5>
+&lt;blockquote>
+&lt;p>主要是各种插件&lt;/p>
+&lt;/blockquote>
+&lt;ul>
+&lt;li>zh-ch （汉化包）&lt;/li>
+&lt;li>background （右下角小萌人）&lt;/li>
+&lt;li>&lt;/li>
+&lt;/ul>
+&lt;h5 id="cmderhttpscmdernet-win下强大的终端工具">&lt;a class="link" href="https://cmder.net/" target="_blank" rel="noopener"
+>cmder&lt;/a> (Win下强大的终端工具)&lt;/h5>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://cmder.net/" target="_blank" rel="noopener"
+>官网&lt;/a>下载安装&lt;/li>
+&lt;li>简单配置：&lt;/li>
+&lt;li>wsl vim 无法使用上下左右键解决&lt;/li>
+&lt;/ul>
+&lt;h5 id="py2-py3">py2-py3&lt;/h5>
+&lt;p>&lt;a class="link" href="https://www.python.org/" target="_blank" rel="noopener"
+>官网&lt;/a>找想要的包下载，同时装两个版本。&lt;/p>
+&lt;p>修改环境变量，日常使用py3,把py3的环境变量放在前面，去py2的安装目录复制一份python.exe 更名为python2.exe，就可以使用python2作为命令输入。&lt;/p>
+&lt;p>pip配置为国内源会快很多&lt;/p>
+&lt;h5 id="java8jdk最新">Java8+jdk最新&lt;/h5>
+&lt;p>&lt;a class="link" href="https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="noopener"
+>官网下载安装&lt;/a>&lt;/p>
+&lt;p>下个jdk最新版防止部分工具需要。&lt;/p>
+&lt;p>可能有时候还需要配置环境变量JAVA_HOME为JDK路径。&lt;/p>
+&lt;h5 id="golang">Golang&lt;/h5>
+&lt;p>也是只需&lt;a class="link" href="https://golang.google.cn/" target="_blank" rel="noopener"
+>下载&lt;/a>安装就ok.&lt;/p>
+&lt;h5 id="nodejs">NodeJS&lt;/h5>
+&lt;p>也是只需&lt;a class="link" href="https://nodejs.org/en/" target="_blank" rel="noopener"
+>下载安装&lt;/a>就ok. 推荐稳定版。&lt;/p>
+&lt;p>会默认安装npm，然而下载速度实在太慢，使用淘宝镜像&lt;a class="link" href="https://npm.taobao.org/" target="_blank" rel="noopener"
+>cnpm&lt;/a> ,用法相同&lt;/p>
+&lt;p>&lt;code>npm install -g cnpm --registry=https://registry.npm.taobao.org&lt;/code>&lt;/p>
+&lt;h5 id="git">git&lt;/h5>
+&lt;p>&lt;a class="link" href="https://git-scm.com/" target="_blank" rel="noopener"
+>官网&lt;/a>下载安装完事&lt;/p>
+&lt;h5 id="yarn">Yarn&lt;/h5>
+&lt;p>&lt;a class="link" href="https://www.yarnpkg.com/zh-Hant/" target="_blank" rel="noopener"
+>官网&lt;/a>下载安装完事&lt;/p>
+&lt;h5 id="cmake">CMake&lt;/h5>
+&lt;p>&lt;a class="link" href="https://cmake.org/download/" target="_blank" rel="noopener"
+>下载&lt;/a>安装ok&lt;/p>
+&lt;h5 id="hugo-博客工具">hugo (博客工具)&lt;/h5>
+&lt;p>&lt;a class="link" href="https://github.com/gohugoio/hugo" target="_blank" rel="noopener"
+>下载exe&lt;/a>到本地，配置环境变量&lt;/p>
+&lt;h5 id="haskell-stack">Haskell Stack&lt;/h5>
+&lt;p>&lt;a class="link" href="https://docs.haskellstack.org/en/stable/README/#how-to-install" target="_blank" rel="noopener"
+>官方文档&lt;/a>、win直接下载安装&lt;/p>
+&lt;h5 id="startlsback-win下的美化工具">StartlsBack (win下的美化工具)&lt;/h5>
+&lt;p>&lt;a class="link" href="http://www.cnbigger.com/330.html" target="_blank" rel="noopener"
+>下载安装&lt;/a> 配置底部透明和居中&lt;/p>
+&lt;h5 id="notepad-轻便的编辑器">Notepad++ (轻便的编辑器)&lt;/h5>
+&lt;p>&lt;a class="link" href="https://notepad-plus-plus.org/" target="_blank" rel="noopener"
+>下载安装&lt;/a>&lt;/p>
+&lt;h5 id="android-sdk-配置">Android SDK 配置&lt;/h5>
+&lt;ul>
+&lt;li>adb工具 在目录&lt;code>platform-tools&lt;/code>&lt;/li>
+&lt;li>emulator、monitor 在&lt;code>tools&lt;/code>下&lt;/li>
+&lt;li>NDK-build 在&lt;code>ndk-bundle&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;h5 id="flutter-google-跨平台框架">flutter (Google 跨平台框架)&lt;/h5>
+&lt;p>有&lt;a class="link" href="https://flutter.dev/" target="_blank" rel="noopener"
+>官网&lt;/a>了&lt;/p>
+&lt;p>下载&lt;a class="link" href="https://flutter.dev/docs/development/tools/sdk/releases#windows" target="_blank" rel="noopener"
+>SDK&lt;/a>-&amp;gt;配置环境变量&lt;code> flutter\bin&lt;/code> 。添加名为”PUB_HOSTED_URL”和”FLUTTER_STORAGE_BASE_URL”的条目。&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Andorid Studio设置&lt;/p>
+&lt;p>安装插件&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>Flutter&lt;/code>插件： 支持Flutter开发工作流 (运行、调试、热重载等).&lt;/li>
+&lt;li>&lt;code>Dart&lt;/code>插件： 提供代码分析 (输入代码时进行验证、代码补全等).&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>VScode设置&lt;/p>
+&lt;p>安装插件&lt;/p>
+&lt;ul>
+&lt;li>&lt;code>flutter&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h5 id="genymotion逍遥android-android-模拟器">Genymotion+逍遥Android (Android 模拟器)&lt;/h5>
+&lt;p>下载安装ok&lt;/p>
+&lt;h5 id="cuda-n卡xxx">CUDA （N卡xxx)&lt;/h5>
+&lt;ul>
+&lt;li>根据自己的显卡官网&lt;a class="link" href="https://developer.nvidia.com/cuda-downloads" target="_blank" rel="noopener"
+>下载包&lt;/a>&lt;/li>
+&lt;li>根据需求安装。&lt;/li>
+&lt;/ul>
+&lt;p>有个坑，如果为pytorch 或TensorFlow做前提 先看看这两支持的版本再安装相应的版本。&lt;/p>
+&lt;h5 id="pytorch">pytorch&lt;/h5>
+&lt;ul>
+&lt;li>需求前置环境也得装好&lt;/li>
+&lt;/ul>
+&lt;p>&lt;a class="link" href="https://pytorch.org/get-started/locally/" target="_blank" rel="noopener"
+>官方&lt;/a>有很方便的安装方法 根据不同平台和环境&lt;/p>
+&lt;h5 id="tensorflowhttpwwwbaiducomlinkurlaofeaqzsb4aqhwkb6uuy47eeb5qmtcf0_8xfizfoj8isah2g4usrjsxcv1lxp2nx">&lt;a class="link" href="http://www.baidu.com/link?url=AOFeAQZSb4aqHWKb6uUy47eeb5qMTcf0_8xfIZfoJ8iSah2g4UsrjsXcv1lXP2NX" target="_blank" rel="noopener"
+>TensorFlow&lt;/a>&lt;/h5>
+&lt;ul>
+&lt;li>前置环境查官网&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># GPU版本 py3&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip3 install tensorflow-gpu &lt;span class="c1"># stable&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip3 install tf-nightly-gpu &lt;span class="c1"># preview&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip3 install tensorflow-gpu&lt;span class="o">==&lt;/span>2.0.0-alpha0 &lt;span class="c1">##TensorFlow 2.0 Alpha&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># CPU 版本&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip3 install --user --upgrade tensorflow
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>tensorflow&lt;/code> - 仅支持 CPU 的最新稳定版（建议新手使用）&lt;/p>
+&lt;p>&lt;code>tensorflow-gpu&lt;/code> - &lt;a class="link" href="https://tensorflow.google.cn/install/gpu" target="_blank" rel="noopener"
+>支持 GPU&lt;/a> 的最新稳定版（适用于 Ubuntu 和 Windows）&lt;/p>
+&lt;p>&lt;code>tf-nightly&lt;/code> - 仅支持 CPU 的预览每夜版（不稳定）&lt;/p>
+&lt;p>&lt;code>tf-nightly-gpu&lt;/code> - &lt;a class="link" href="https://tensorflow.google.cn/install/gpu" target="_blank" rel="noopener"
+>支持 GPU&lt;/a> 的预览每夜版（不稳定，适用于 Ubuntu 和 Windows）&lt;/p>
+&lt;p>&lt;code>tensorflow==2.0.0-alpha0&lt;/code> - 仅支持 CPU 的预览 TF 2.0 Alpha 版（不稳定）&lt;/p>
+&lt;p>&lt;code>tensorflow-gpu==2.0.0-alpha0&lt;/code> - &lt;a class="link" href="https://tensorflow.google.cn/install/gpu" target="_blank" rel="noopener"
+>支持 GPU&lt;/a> 的预览 TF 2.0 Alpha 版（不稳定，Ubuntu 和 Windows）&lt;/p>
+&lt;h5 id="vmware-pro-虚拟机">VMware pro （虚拟机）&lt;/h5>
+&lt;ul>
+&lt;li>装MacOS记录&lt;/li>
+&lt;/ul>
+&lt;h5 id="vbox-虚拟机">VBox （虚拟机）&lt;/h5>
+&lt;ul>
+&lt;li>安装拓展包&lt;/li>
+&lt;/ul>
+&lt;h5 id="xshellxftp-free-for-homeschool">Xshell、Xftp (free for Home/School)&lt;/h5>
+&lt;p>free 的要去&lt;a class="link" href="https://www.netsarang.com/zh/free-for-home-school/" target="_blank" rel="noopener"
+>官网下载&lt;/a> 填写信息，邮箱打开链接下载。&lt;/p>
+&lt;h5 id="teamviewer-远程连接">TeamViewer (远程连接)&lt;/h5>
+&lt;h5 id="各种ide集成环境-只记录">各种IDE、集成环境 只记录&lt;/h5>
+&lt;ul>
+&lt;li>Visual Studio 2019&lt;/li>
+&lt;li>Pycharm&lt;/li>
+&lt;li>IDEA&lt;/li>
+&lt;li>微信web开发工具&lt;/li>
+&lt;li>phpStudy&lt;/li>
+&lt;li>Android Studio (风扇~~ ~~)&lt;/li>
+&lt;/ul>
+&lt;h5 id="other">Other&lt;/h5>
+&lt;p>不做记录&lt;/p>
+&lt;h3 id="ubuntu-1804">Ubuntu 18.04&lt;/h3>
+&lt;blockquote>
+&lt;p>一般用来调代码。 大部分配置同上面WSL,只记录不做过多介绍&lt;/p>
+&lt;/blockquote>
+&lt;h5 id="on-my-zsh">on my zsh&lt;/h5>
+&lt;h5 id="gdbpwndbgpedagef">gdb+pwndbg+peda+gef&lt;/h5>
+&lt;h5 id="美化">美化&lt;/h5>
+&lt;h3 id="manjaro">manjaro&lt;/h3>
+&lt;p>很喜欢的Linux发行版。基于&lt;strong>ArchLinux&lt;/strong>，软件多，好看又好用。&lt;/p>
+&lt;h3 id="mac-m2-没法用-放弃-等等">Mac m2 没法用 放弃 等等&lt;/h3>
+&lt;blockquote>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190519150336.jpg"
+loading="lazy"
+alt="穷"
+>&lt;/p>
+&lt;/blockquote></description></item><item><title>友链</title><link>https://ykiko.top/%E5%8F%8B%E9%93%BE/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/%E5%8F%8B%E9%93%BE/</guid><description>&lt;p>欢迎各位dalao互链。&lt;/p></description></item></channel></rss>
