@@ -39,7 +39,7 @@ params:
         - post
     featuredImageField: image
     rssFullContent: true
-    favicon: static/favicon.ico  # e.g.: favicon placed in `static/favicon.ico` of your site folder, then set this field to `/favicon.ico` (`/` is necessary)
+    favicon: /favicon.ico  # e.g.: favicon placed in `static/favicon.ico` of your site folder, then set this field to `/favicon.ico` (`/` is necessary)
 
     footer:
         since: 2016
@@ -50,6 +50,7 @@ params:
         lastUpdated: 2006-08-02 15:04 MST
 
     sidebar:
+        compact: false
         emoji: 🌈
         subtitle: 学习、吃饭、睡觉、活着。
         avatar:
@@ -158,16 +159,16 @@ params:
             - type: toc
 
     opengraph:
-        twitter:
+        twitter: 
             # Your Twitter username
-            site:
+            site: ykikoqAq
 
             # Available values: summary, summary_large_image
             card: summary_large_image
 
     defaultImage:
         opengraph:
-            enabled: false
+            enabled: enable
             local: false
             src:
 
