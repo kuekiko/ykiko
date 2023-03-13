@@ -9,22 +9,22 @@ menu:
 
 ----
 
-**漏洞复现记录**
+**持续进行的漏洞复现记录**
 
-- 重新汇总到 [新链接](https://www.notion.so/kuekiko/dad1e7fc2b7041b19d8b86885ad597ac?v=b113aee153f540babc9a50ef120f3175)
+- 重新汇总到 [Notion新链接](https://kuekiko.notion.site/0370489a3e95497aaac3cda68b895576?v=190923209288492a99fa7e1a89f6aa34)
 
 ### 拖延症晚期患者治疗记录
-
+s
 - 保持更新
 
 - 日常记录
 
 - CVE学习——Android、Linux内核、IoT
 
-- Fritoo、notobg工具开发
+- 小工具开发
 
-- 改Fuzzing
+- 持续学习Fuzzing
 
-- 车联网安全学习中。。
+- 车联网安全学习中...
 
 ![fail](https://my-md-1253484710.file.myqcloud.com/20200630012525.png)

@@ -7,9 +7,7 @@ menu:
             icon: read
 ---
 
-<center><h2>
-    个人书单and个人总结
-    </h2></center>
+<center><h2>个人技术书单</h2></center>
 
 > 大多数都是已买已看&已买未看&白嫖电子书&PDFx版
 
@@ -29,7 +27,7 @@ menu:
 - 程序员的自我修养-链接、装载与库
 - 编译原理
 - Linux内核分析
-- 
+-
 
 ### 逆向&漏洞利用
 
@@ -66,18 +64,8 @@ menu:
 - 代码整洁之道-程序员的职业素养
 - 信息隐藏技术
 
-### 小说&&
-
-- 三体（三部曲）
-- 盗墓笔记（完整）
-- 龙族（完整）
-- 鬼吹灯（部分）
-- 态度
-- 简明英语写作手册
-
 #### 参考链接
 
-- https://github.com/riusksk/secbook
-- https://www.anquanquan.info/shudan.html
-- https://www.zhihu.com/question/21390646
-
+- <https://github.com/riusksk/secbook>
+- <https://www.anquanquan.info/shudan.html>
+- <https://www.zhihu.com/question/21390646>
