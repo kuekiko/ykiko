@@ -1,10 +1,5 @@
 ---
 title: Reading
-menu:
-    main: 
-        weight: 40
-        params:
-            icon: read
 ---
 
 <center><h2>个人技术书单</h2></center>
@@ -27,7 +22,6 @@ menu:
 - 程序员的自我修养-链接、装载与库
 - 编译原理
 - Linux内核分析
--
 
 ### 逆向&漏洞利用
 

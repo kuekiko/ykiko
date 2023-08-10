@@ -14,7 +14,7 @@ menu:
 - 重新汇总到 [Notion新链接](https://kuekiko.notion.site/0370489a3e95497aaac3cda68b895576?v=190923209288492a99fa7e1a89f6aa34)
 
 ### 拖延症晚期患者治疗记录
-s
+
 - 保持更新
 
 - 日常记录
