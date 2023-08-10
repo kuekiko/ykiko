@@ -1922,9 +1922,9 @@ python setup.py install&lt;/p>
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-v" data-lang="v">&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="err">下载&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="nv">http&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="c1">//www.keystone-engine.org/download/) `Windows - Core engine` x64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="na">下载&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="nv">http&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="c1">//www.keystone-engine.org/download/) `Windows - Core engine` x64
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">解压找到&lt;/span>&lt;span class="sc">`keystone.dll`&lt;/span> &lt;span class="err">放到&lt;/span>&lt;span class="sc">`X:&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">location_to_python&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">Lib&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">site-packages&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">keystone&lt;/span>&lt;span class="se">\`&lt;/span>&lt;span class="sc">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">解压找到&lt;/span>&lt;span class="sc">`keystone.dll`&lt;/span> &lt;span class="nv">放到&lt;/span>&lt;span class="sc">`X:&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">location_to_python&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">Lib&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">site-packages&lt;/span>&lt;span class="err">\&lt;/span>&lt;span class="sc">keystone&lt;/span>&lt;span class="se">\`&lt;/span>&lt;span class="sc">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sc">
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sc">还有可能报`&lt;/span>&lt;span class="nv">fail&lt;/span> &lt;span class="nv">to&lt;/span> &lt;span class="nv">load&lt;/span> &lt;span class="nv">the&lt;/span> &lt;span class="nv">dynamic&lt;/span> &lt;span class="nv">library&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="sc">`
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="sc">
@@ -2536,7 +2536,7 @@ loading="lazy"
 loading="lazy"
 >&lt;/p>
 &lt;p>查看单个run的详情：&lt;/p>
-&lt;p>&lt;img src="https://ykiko.top/D:%5cProject%5cBLOG%5cblog%5ccontent%5cpost%5cimg%5cimage-20200403023549875.png"
+&lt;p>&lt;img src="D:%5cProject%5cBLOG%5cblog%5ccontent%5cpost%5cimg%5cimage-20200403023549875.png"
 loading="lazy"
 alt="image-20200403023549875"
 >&lt;/p>
@@ -5147,7 +5147,7 @@ loading="lazy"
 &lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20181123153901.png"
 loading="lazy"
 >&lt;/p>
-&lt;p>&lt;img src="https://ykiko.top/E:%5c%e7%ac%94%e8%ae%b0%5cTypora%5c%e5%ad%a6%e4%b9%a0%e6%97%a5%e8%ae%b0%5cassets%5c1542959275318.png"
+&lt;p>&lt;img src="E:%5c%e7%ac%94%e8%ae%b0%5cTypora%5c%e5%ad%a6%e4%b9%a0%e6%97%a5%e8%ae%b0%5cassets%5c1542959275318.png"
 loading="lazy"
 alt="1542959275318"
 >&lt;/p>
@@ -5410,8 +5410,8 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="mi">20&lt;/span> &lt;span class="err">$&lt;/span>&lt;span class="n">esp&lt;/span> &lt;span class="c1">//查看内存中开始的20个数
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">ni&lt;/span> &lt;span class="err">单步执行不进入&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">si&lt;/span> &lt;span class="err">单步执行并进入&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">disas&lt;/span> &lt;span class="n">addr&lt;/span> &lt;span class="err">对地址&lt;/span>&lt;span class="n">addr&lt;/span>&lt;span class="err">处的指令进行反汇编，&lt;/span>&lt;span class="n">addr&lt;/span>&lt;span class="err">可以是函数名&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">checksec&lt;/span> &lt;span class="err">查看&lt;/span>&lt;span class="n">elf&lt;/span>&lt;span class="err">编译的保护选项。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">disas&lt;/span> &lt;span class="n">addr&lt;/span> &lt;span class="err">对地址&lt;/span>&lt;span class="n">addr处的指令进行反汇编&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="n">addr可以是函数名&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">checksec&lt;/span> &lt;span class="err">查看&lt;/span>&lt;span class="n">elf编译的保护选项&lt;/span>&lt;span class="err">。&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h4 id="查壳">查壳&lt;/h4>
@@ -5936,7 +5936,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">size&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//当前chunk的大小
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">getHeaderSize&lt;/span>&lt;span class="o">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">4&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">4&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="nf">toString&lt;/span>&lt;span class="o">(){&lt;/span>
@@ -5983,7 +5983,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">getHeaderSize&lt;/span>&lt;span class="o">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getHeaderSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getHeaderSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
@@ -6038,8 +6038,8 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">stringCount&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//字符串的个数
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">styleCount&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//字符串样式的个数
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">SORTED_FLAG&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">UTF8_FLAG&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">&amp;lt;&amp;lt;&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">SORTED_FLAG&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">1&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">UTF8_FLAG&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">&amp;lt;&amp;lt;&lt;/span>&lt;span class="n">8&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">flags&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//字符串的属性,可取值包括0x000(UTF-16),0x001(字符串经过排序)、0X100(UTF-8)和他们的组合值
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">stringsStart&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//字符串内容块相对于其头部的距离
@@ -6050,7 +6050,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">getHeaderSize&lt;/span>&lt;span class="o">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getHeaderSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getHeaderSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
@@ -6099,7 +6099,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">ResChunkHeader&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//Chunk的头部信息数据结构
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">id&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//包的ID,等于Package Id,一般用户包的值Package Id为0X7F,系统资源包的Package Id为0X01；
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="mi">128&lt;/span>&lt;span class="o">];&lt;/span> &lt;span class="c1">//包名
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">128&lt;/span>&lt;span class="o">];&lt;/span> &lt;span class="c1">//包名
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">typeStrings&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//类型字符串资源池相对头部的偏移
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">lastPublicType&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//最后一个导出的Public类型字符串在类型字符串资源池中的索引，目前这个值设置为类型字符串资源池的元素个数。在解析的过程中没发现他的用途
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">keyStrings&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//资源项名称字符串相对头部的偏移
@@ -6152,7 +6152,7 @@ loading="lazy"
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">class&lt;/span> &lt;span class="nc">ResTableTypeSpec&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">SPEC_PUBLIC&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x40000000&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">SPEC_PUBLIC&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x40000000&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">ResChunkHeader&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//Chunk的头部信息结构
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">byte&lt;/span> &lt;span class="n">id&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//标识资源的Type ID,Type ID是指资源的类型ID。资源的类型有animator、anim、color、drawable、layout、menu、raw、string和xml等等若干种，每一种都会被赋予一个ID。
@@ -6213,7 +6213,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">ResChunkHeader&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//Chunk的头部信息结构
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">NO_ENTRY&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0xFFFFFFFF&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">NO_ENTRY&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0xFFFFFFFF&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">byte&lt;/span> &lt;span class="n">id&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//标识资源的Type ID
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">byte&lt;/span> &lt;span class="n">res0&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//保留,始终为0
@@ -6229,7 +6229,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">getSize&lt;/span>&lt;span class="o">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getHeaderSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">header&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getHeaderSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">2&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
@@ -6271,8 +6271,8 @@ loading="lazy"
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">class&lt;/span> &lt;span class="nc">ResTableEntry&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">FLAG_COMPLEX&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x0001&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">FLAG_PUBLIC&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x0002&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">FLAG_COMPLEX&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x0001&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">FLAG_PUBLIC&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x0002&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">short&lt;/span> &lt;span class="n">size&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">short&lt;/span> &lt;span class="n">flags&lt;/span>&lt;span class="o">;&lt;/span>
@@ -6284,7 +6284,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">getSize&lt;/span>&lt;span class="o">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getSize&lt;/span>&lt;span class="o">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">2&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">key&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getSize&lt;/span>&lt;span class="o">();&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
@@ -6331,7 +6331,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">getSize&lt;/span>&lt;span class="o">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kd">super&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">parent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="kd">super&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">parent&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getSize&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
@@ -6585,44 +6585,44 @@ loading="lazy"
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">class&lt;/span> &lt;span class="nc">ResValue&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//dataType字段使用的常量
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_NULL&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x00&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_REFERENCE&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x01&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_ATTRIBUTE&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x02&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_STRING&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x03&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FLOAT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x04&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_DIMENSION&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x05&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FRACTION&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x06&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FIRST_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x10&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_DEC&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x10&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_HEX&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x11&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_BOOLEAN&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x12&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FIRST_COLOR_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1c&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_ARGB8&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1c&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_RGB8&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1d&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_ARGB4&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1e&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_RGB4&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1f&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_LAST_COLOR_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1f&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_LAST_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1f&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_NULL&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x00&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_REFERENCE&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x01&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_ATTRIBUTE&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x02&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_STRING&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x03&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FLOAT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x04&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_DIMENSION&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x05&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FRACTION&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x06&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FIRST_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x10&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_DEC&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x10&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_HEX&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x11&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_BOOLEAN&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x12&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_FIRST_COLOR_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x1c&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_ARGB8&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x1c&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_RGB8&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x1d&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_ARGB4&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x1e&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_INT_COLOR_RGB4&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x1f&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_LAST_COLOR_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x1f&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">TYPE_LAST_INT&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0x1f&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_PX&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_DIP&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_SP&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_PT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_IN&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_MM&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_SHIFT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_MASK&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">15&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_FRACTION&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_FRACTION_PARENT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_23p0&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_16p7&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_8p15&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_0p23&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_SHIFT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_MASK&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_MANTISSA_SHIFT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mi">8&lt;/span>&lt;span class="o">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_MANTISSA_MASK&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="mh">0xFFFFFF&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_PX&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_DIP&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_SP&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">2&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_PT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">3&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_IN&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">4&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_MM&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">5&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_SHIFT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_MASK&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">15&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_FRACTION&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_UNIT_FRACTION_PARENT&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_23p0&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_16p7&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_8p15&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">2&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_0p23&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">3&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_SHIFT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">4&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_RADIX_MASK&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">3&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_MANTISSA_SHIFT&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">8&lt;/span>&lt;span class="o">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">COMPLEX_MANTISSA_MASK&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">0xFFFFFF&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">short&lt;/span> &lt;span class="n">size&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//ResValue的头部大小
@@ -6631,7 +6631,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">//数据对应的索引
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">getSize&lt;/span>&lt;span class="o">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">2&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">1&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">4&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="nf">getTypeStr&lt;/span>&lt;span class="o">(){&lt;/span>
@@ -6696,7 +6696,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">String&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">format&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;0x%08X&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">dataType&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">TYPE_INT_BOOLEAN&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="o">!=&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">?&lt;/span>&lt;span class="s">&amp;#34;true&amp;#34;&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="s">&amp;#34;false&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="o">!=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">?&lt;/span>&lt;span class="s">&amp;#34;true&amp;#34;&lt;/span>&lt;span class="o">:&lt;/span>&lt;span class="s">&amp;#34;false&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">dataType&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">TYPE_DIMENSION&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">Float&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">toString&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">complexToFloat&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="o">))+&lt;/span>
@@ -6716,18 +6716,18 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="nf">getPackage&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">id&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="o">&amp;gt;&amp;gt;&amp;gt;&lt;/span>&lt;span class="mi">24&lt;/span>&lt;span class="o">==&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">id&lt;/span>&lt;span class="o">&amp;gt;&amp;gt;&amp;gt;&lt;/span>&lt;span class="n">24&lt;/span>&lt;span class="o">==&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="s">&amp;#34;android:&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">float&lt;/span> &lt;span class="nf">complexToFloat&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">complex&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kt">float&lt;/span>&lt;span class="o">)(&lt;/span>&lt;span class="n">complex&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="mh">0xFFFFFF00&lt;/span>&lt;span class="o">)*&lt;/span>&lt;span class="n">RADIX_MULTS&lt;/span>&lt;span class="o">[(&lt;/span>&lt;span class="n">complex&lt;/span>&lt;span class="o">&amp;gt;&amp;gt;&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="o">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kt">float&lt;/span>&lt;span class="o">)(&lt;/span>&lt;span class="n">complex&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">0xFFFFFF00&lt;/span>&lt;span class="o">)*&lt;/span>&lt;span class="n">RADIX_MULTS&lt;/span>&lt;span class="o">[(&lt;/span>&lt;span class="n">complex&lt;/span>&lt;span class="o">&amp;gt;&amp;gt;&lt;/span>&lt;span class="n">4&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">3&lt;/span>&lt;span class="o">];&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">float&lt;/span> &lt;span class="n">RADIX_MULTS&lt;/span>&lt;span class="o">[]={&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="mf">0.00390625F&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mf">3.051758E-005F&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mf">1.192093E-007F&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mf">4.656613E-010F&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">0&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">00390625F&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">3&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">051758E&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">005F&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">192093E&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">007F&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">4&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">656613E&lt;/span>&lt;span class="o">-&lt;/span>&lt;span class="n">010F&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">};&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="n">DIMENSION_UNITS&lt;/span>&lt;span class="o">[]={&lt;/span>
@@ -7078,10 +7078,10 @@ loading="lazy"
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-asm" data-lang="asm">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#123 - 立即数
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nf">Rx&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">寄存器比如&lt;/span>&lt;span class="no">R1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">ASR&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行算术右移&lt;/span>&lt;span class="no">n&lt;/span>&lt;span class="err">位后的值&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSL&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行逻辑左移&lt;/span>&lt;span class="no">n&lt;/span>&lt;span class="err">位后的值&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSR&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行逻辑右移&lt;/span>&lt;span class="no">n&lt;/span>&lt;span class="err">位后的值&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">ROR&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行循环右移&lt;/span>&lt;span class="no">n&lt;/span>&lt;span class="err">位后的值&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">ASR&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行算术右移&lt;/span>&lt;span class="no">n位后的值&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSL&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行逻辑左移&lt;/span>&lt;span class="no">n位后的值&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSR&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行逻辑右移&lt;/span>&lt;span class="no">n位后的值&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">ROR&lt;/span> &lt;span class="no">n&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行循环右移&lt;/span>&lt;span class="no">n位后的值&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Rx&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">RRX&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">对寄存器中的值进行带扩展的循环右移&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="err">位后的值&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
@@ -7093,7 +7093,7 @@ loading="lazy"
 &lt;/span>&lt;span class="lnt">4
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-asm" data-lang="asm">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ADD&lt;/span> &lt;span class="no">R0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">R1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">R2&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">将第一操作数&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">的内容与第二操作数&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">的内容相加，将结果存储到&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">中。&lt;/span>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-asm" data-lang="asm">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ADD&lt;/span> &lt;span class="no">R0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">R1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">R2&lt;/span> &lt;span class="p">-&lt;/span> &lt;span class="err">将第一操作数&lt;/span>&lt;span class="no">R1的内容与第二操作数R2的内容相加&lt;/span>&lt;span class="err">，将结果存储到&lt;/span>&lt;span class="no">R0中&lt;/span>&lt;span class="err">。&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">ADD&lt;/span> &lt;span class="no">R0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">R1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">#2 - 将第一操作数R1的内容与第二操作数一个立即数相加，将结果存到R0中
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nf">MOVLE&lt;/span> &lt;span class="no">R0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">#5 - 当满足条件LE(Less and Equal,小于等于0)将第二操作数立即数5移动到R0中,注意这条指令与MOVLE R0, R0, #5相同
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="nf">MOV&lt;/span> &lt;span class="no">R0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">R1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSL&lt;/span> &lt;span class="c1">#1 - 将第二操作数R1寄存器中的值逻辑左移1位后存入R0
@@ -7131,10 +7131,10 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">.text&lt;/span> &lt;span class="cm">/* 代码段开始 */&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="no">.global&lt;/span> &lt;span class="no">_start&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">_start:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var1&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var2&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">所指向地址中存放的&lt;/span>&lt;span class="mi">0x3&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">中的值&lt;/span>&lt;span class="mi">0x3&lt;/span>&lt;span class="err">存放到&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">做指向的地址&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1值的地址adr_var1加载到寄存器R0中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2值的地址adr_var2加载到寄存器R1中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0所指向地址中存放的0x3加载到寄存器R2中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R2中的值0x3存放到R1做指向的地址&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">bkpt&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="no">adr_var1&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="no">.word&lt;/span> &lt;span class="no">var1&lt;/span> &lt;span class="cm">/* var1的地址助记符 */&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">adr_var2:&lt;/span> &lt;span class="na">.word&lt;/span> &lt;span class="no">var2&lt;/span> &lt;span class="cm">/* var2的地址助记符 */&lt;/span>
@@ -7186,9 +7186,9 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">.text&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">.global&lt;/span> &lt;span class="no">_start&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">_start:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var1&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var2&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">所指向地址中存放的&lt;/span>&lt;span class="mi">0x3&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1值的地址adr_var1加载到寄存器R0中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2值的地址adr_var2加载到寄存器R1中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0所指向地址中存放的0x3加载到寄存器R2中&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">#2] @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加2所指向地址处。
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">#4]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加4所指向地址处，之后R1寄存器中存储的值加4,也就是R1=R1+4。
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="c1">#4 @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中存储的值加4,也就是R1=R1+4。
@@ -7240,12 +7240,12 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">.text&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">.global&lt;/span> &lt;span class="no">_start&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">_start:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var1&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var2&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">所指向地址中存放的&lt;/span>&lt;span class="mi">0x3&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">取址模式：基于偏移量。&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">寄存器中的值&lt;/span>&lt;span class="mi">0x3&lt;/span>&lt;span class="err">被存放到&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">寄存器的值加&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">寄存器的值所指向地址处。&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">寄存器不会被修改。&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">]!&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">取址模式：基于索引前置修改。&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">寄存器中的值&lt;/span>&lt;span class="mi">0x3&lt;/span>&lt;span class="err">被存放到&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">寄存器的值加&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">寄存器的值所指向地址处，之后&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">寄存器中的值被更新&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="err">也就是&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">=&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">+&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">。&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="no">r2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">取址模式：基于索引后置修改。&lt;/span>&lt;span class="no">R3&lt;/span>&lt;span class="err">寄存器中的值是从&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">寄存器的值所指向的地址中加载的，加载之后&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">寄存器中的值被更新也就是&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">=&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">+&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1值的地址adr_var1加载到寄存器R0中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2值的地址adr_var2加载到寄存器R1中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0所指向地址中存放的0x3加载到寄存器R2中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">取址模式：基于偏移量。&lt;/span>&lt;span class="no">R2寄存器中的值0x3被存放到R1寄存器的值加R2寄存器的值所指向地址处&lt;/span>&lt;span class="err">。&lt;/span>&lt;span class="no">R1寄存器不会被修改&lt;/span>&lt;span class="err">。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">]!&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">取址模式：基于索引前置修改。&lt;/span>&lt;span class="no">R2寄存器中的值0x3被存放到R1寄存器的值加R2寄存器的值所指向地址处&lt;/span>&lt;span class="err">，之后&lt;/span>&lt;span class="no">R1寄存器中的值被更新&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="err">也就是&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">=&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">+&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="no">r2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">取址模式：基于索引后置修改。&lt;/span>&lt;span class="no">R3寄存器中的值是从R1寄存器的值所指向的地址中加载的&lt;/span>&lt;span class="err">，加载之后&lt;/span>&lt;span class="no">R1寄存器中的值被更新也就是R1&lt;/span>&lt;span class="err">=&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">+&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">。&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">bx&lt;/span> &lt;span class="no">lr&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">adr_var1:&lt;/span> &lt;span class="na">.word&lt;/span> &lt;span class="no">var1&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">adr_var2:&lt;/span> &lt;span class="na">.word&lt;/span> &lt;span class="no">var2&lt;/span>
@@ -7292,9 +7292,9 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">.text&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="na">.global&lt;/span> &lt;span class="no">_start&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nl">_start:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var1&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2&lt;/span>&lt;span class="err">值的地址&lt;/span>&lt;span class="no">adr_var2&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R1&lt;/span>&lt;span class="err">中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0&lt;/span>&lt;span class="err">所指向地址中存放的&lt;/span>&lt;span class="mi">0x3&lt;/span>&lt;span class="err">加载到寄存器&lt;/span>&lt;span class="no">R2&lt;/span>&lt;span class="err">中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var1&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var1值的地址adr_var1加载到寄存器R0中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">adr_var2&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将存放&lt;/span>&lt;span class="no">var2值的地址adr_var2加载到寄存器R1中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">ldr&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r0&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="err">@&lt;/span> &lt;span class="err">将&lt;/span>&lt;span class="no">R0所指向地址中存放的0x3加载到寄存器R2中&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="no">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSL&lt;/span>&lt;span class="c1">#2] @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加(左移两位后的R2寄存器的值)所指向地址处。R1寄存器不会被修改。
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">str&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSL&lt;/span>&lt;span class="c1">#2]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加(左移两位后的R2寄存器的值)所指向地址处，之后R1寄存器中的值被更新,也就R1 = R1 + R2&amp;lt;&amp;lt;2。
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">ldr&lt;/span> &lt;span class="no">r3&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="no">r1&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="no">r2&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="no">LSL&lt;/span>&lt;span class="c1">#2 @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中的值被更新也就是R1 = R1 + R2&amp;lt;&amp;lt;2。
@@ -7655,7 +7655,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="n">WORD_ID&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getPathSegments&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getPathSegments&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">delete&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">USERDICT_TABLE_NAME&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">_ID&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="s">&amp;#34;=&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="c1">//db.delete
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">TextUtils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">isEmpty&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">where&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">?&lt;/span> &lt;span class="s">&amp;#34; AND (&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">where&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="sc">&amp;#39;)&amp;#39;&lt;/span> &lt;span class="o">:&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">),&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
@@ -7666,7 +7666,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Only the enabled IMEs and spell checkers can access this provider.
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">canCallerAccessUserDictionary&lt;/span>&lt;span class="o">())&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="c1">//!canCallerAccessUserDictionary()
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">getContext&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">notifyChange&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">uri&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span>
@@ -7686,7 +7686,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="n">WORD_ID&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getPathSegments&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">uri&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getPathSegments&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">count&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">update&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">USERDICT_TABLE_NAME&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">values&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">_ID&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="s">&amp;#34;=&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">wordId&lt;/span> &lt;span class="c1">//db.update
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="o">+&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">TextUtils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">isEmpty&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">where&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">?&lt;/span> &lt;span class="s">&amp;#34; AND (&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">where&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="sc">&amp;#39;)&amp;#39;&lt;/span> &lt;span class="o">:&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">),&lt;/span> &lt;span class="n">whereArgs&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="o">;&lt;/span>
@@ -7697,7 +7697,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Only the enabled IMEs and spell checkers can access this provider.
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">(!&lt;/span>&lt;span class="n">canCallerAccessUserDictionary&lt;/span>&lt;span class="o">())&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="c1">//!canCallerAccessUserDictionary()
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">getContext&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">notifyChange&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">uri&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span>
@@ -7798,10 +7798,10 @@ loading="lazy"
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="n">ContentValues&lt;/span> &lt;span class="n">values&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">ContentValues&lt;/span>&lt;span class="o">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">values&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">put&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">_ID&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">values&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">put&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">_ID&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">1&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">long&lt;/span> &lt;span class="n">t0&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">nanoTime&lt;/span>&lt;span class="o">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="mi">200&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">200&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">getContentResolver&lt;/span>&lt;span class="o">().&lt;/span>&lt;span class="na">update&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">UserDictionary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">Words&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">CONTENT_URI&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">values&lt;/span>&lt;span class="o">,&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;_id = 1 AND word LIKE &amp;#39;a%&amp;#39;&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">null&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//AND word LIKE &amp;#39;a%&amp;#39;&amp;#34;
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="o">}&lt;/span>
@@ -8151,7 +8151,7 @@ After the fix, the equivalent contents can be found in the following commit:
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">class&lt;/span> &lt;span class="nc">methodClass&lt;/span> &lt;span class="o">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">fuck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">fuck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">3&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">add&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
@@ -8237,7 +8237,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//获取methodClass类的add方法
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">Method&lt;/span> &lt;span class="n">method&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">klass&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getMethod&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;add&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">class&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">class&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//调用method对应的方法 =&amp;gt; add(1,4)
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">Object&lt;/span> &lt;span class="n">result&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">method&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">invoke&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">obj&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">Object&lt;/span> &lt;span class="n">result&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">method&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">invoke&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">obj&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">4&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">println&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">result&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
@@ -8245,7 +8245,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kd">class&lt;/span> &lt;span class="nc">methodClass&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">fuck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">fuck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">3&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">add&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
@@ -8276,15 +8276,15 @@ loading="lazy"
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">testArray&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="kd">throws&lt;/span> &lt;span class="n">ClassNotFoundException&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Class&lt;/span>&lt;span class="o">&amp;lt;?&amp;gt;&lt;/span> &lt;span class="n">cls&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Class&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">forName&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;java.lang.String&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Object&lt;/span> &lt;span class="n">array&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">newInstance&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">cls&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">25&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//通过Array.newInstance()
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Object&lt;/span> &lt;span class="n">array&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">newInstance&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">cls&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">25&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//通过Array.newInstance()
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//往数组里添加内容
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;hello&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//Array类为java.lang.reflect.Array
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;Java&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;fuck&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;Scala&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;Clojure&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;hello&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//Array类为java.lang.reflect.Array
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;Java&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">2&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;fuck&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">3&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;Scala&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">set&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">4&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="s">&amp;#34;Clojure&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//获取某一项的内容
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">println&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="o">));&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">println&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">Array&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">get&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">array&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">3&lt;/span>&lt;span class="o">));&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
@@ -8395,20 +8395,20 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Method&lt;/span> &lt;span class="n">method&lt;/span> &lt;span class="o">=&lt;/span>&lt;span class="n">TestHelper&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">class&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getDeclaredMethod&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;getGenericHelper&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="n">HashMap&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">class&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Type&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">genericParameterTypes&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">method&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getGenericParameterTypes&lt;/span>&lt;span class="o">();&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 检验是否为空
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kc">null&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">genericParameterTypes&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">genericParameterTypes&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kc">null&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">genericParameterTypes&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">genericParameterTypes&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 取 getGenericHelper 方法的第一个参数
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ParameterizedType&lt;/span> &lt;span class="n">parameterizedType&lt;/span>&lt;span class="o">=(&lt;/span>&lt;span class="n">ParameterizedType&lt;/span>&lt;span class="o">)&lt;/span>&lt;span class="n">genericParameterTypes&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ParameterizedType&lt;/span> &lt;span class="n">parameterizedType&lt;/span>&lt;span class="o">=(&lt;/span>&lt;span class="n">ParameterizedType&lt;/span>&lt;span class="o">)&lt;/span>&lt;span class="n">genericParameterTypes&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">];&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Type&lt;/span> &lt;span class="n">rawType&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">parameterizedType&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getRawType&lt;/span>&lt;span class="o">();&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">println&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;----&amp;gt; rawType=&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">rawType&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Type&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">actualTypeArguments&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">parameterizedType&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getActualTypeArguments&lt;/span>&lt;span class="o">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">actualTypeArguments&lt;/span>&lt;span class="o">==&lt;/span>&lt;span class="n">genericParameterTypes&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">actualTypeArguments&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">actualTypeArguments&lt;/span>&lt;span class="o">==&lt;/span>&lt;span class="n">genericParameterTypes&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">actualTypeArguments&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 打印出每一个类型
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">actualTypeArguments&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">actualTypeArguments&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Type&lt;/span> &lt;span class="n">type&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">actualTypeArguments&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">];&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">println&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;----&amp;gt; type=&amp;#34;&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">type&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
@@ -8662,8 +8662,8 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Must match a 2-list of { caller, targetClass }.
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">cache&lt;/span> &lt;span class="k">instanceof&lt;/span> &lt;span class="n">Class&lt;/span>&lt;span class="o">[])&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Class&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">lt&lt;/span>&lt;span class="o">;?&amp;amp;&lt;/span>&lt;span class="n">gt&lt;/span>&lt;span class="o">;[]&lt;/span> &lt;span class="n">cache2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">Class&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">lt&lt;/span>&lt;span class="o">;?&amp;amp;&lt;/span>&lt;span class="n">gt&lt;/span>&lt;span class="o">;[])&lt;/span> &lt;span class="n">cache&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">cache2&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">targetClass&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">amp&lt;/span>&lt;span class="o">;&amp;amp;&lt;/span>&lt;span class="n">amp&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cache2&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">caller&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">cache2&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">1&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">targetClass&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">amp&lt;/span>&lt;span class="o">;&amp;amp;&lt;/span>&lt;span class="n">amp&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cache2&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">caller&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span>&lt;span class="o">;&lt;/span> &lt;span class="c1">// ACCESS IS OK
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// (Test cache[1] first since range check for [1]
@@ -8904,7 +8904,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// Package-private to be accessible to NativeMethodAccessorImpl
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">// and NativeConstructorAccessorImpl
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">boolean&lt;/span> &lt;span class="n">noInflation&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kc">false&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">inflationThreshold&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">15&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">inflationThreshold&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">15&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//......
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
@@ -9617,7 +9617,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">property&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="nf">function&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">foo&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">Date&lt;/span> &lt;span class="n">date&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">arr&lt;/span>&lt;span class="o">){&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">println&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;function&amp;#34;&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">native&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">test&lt;/span>&lt;span class="o">();&lt;/span>
@@ -9672,7 +9672,7 @@ loading="lazy"
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="n">TAG&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;Hello&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">number&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">number&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">native&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">sayHello&lt;/span>&lt;span class="o">();&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="o">()&lt;/span> &lt;span class="o">{&lt;/span>
@@ -10174,7 +10174,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">initNativeIDs&lt;/span>&lt;span class="o">();&lt;/span> &lt;span class="c1">//静态代码块进行初始化
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">static&lt;/span> &lt;span class="kd">native&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">initNativeIDs&lt;/span>&lt;span class="o">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">propInt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">propInt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">propStr&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kd">native&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">otherNative&lt;/span>&lt;span class="o">();&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="err">···········&lt;/span>
@@ -10286,8 +10286,8 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">byte&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">md5&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">MessageDigest&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getInstance&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;MD5&amp;#34;&lt;/span>&lt;span class="o">).&lt;/span>&lt;span class="na">digest&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">saltedPassword&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">//首先让 password+salt值 再SHA-1和MD5
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kt">byte&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">combined&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">byte&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">sha1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">md5&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">];&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">arraycopy&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">sha1&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">combined&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">sha1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">arraycopy&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">md5&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">combined&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">sha1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">md5&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">arraycopy&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">sha1&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">combined&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">sha1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">System&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">arraycopy&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">md5&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">combined&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">sha1&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">md5&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">//装换成hex值 再拼接起来
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">hexEncoded&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">HexEncoding&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">encode&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">combined&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">String&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">hexEncoded&lt;/span>&lt;span class="o">).&lt;/span>&lt;span class="na">getBytes&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">StandardCharsets&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">UTF_8&lt;/span>&lt;span class="o">);&lt;/span>
@@ -10316,8 +10316,8 @@ loading="lazy"
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="nf">getSalt&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">userId&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">long&lt;/span> &lt;span class="n">salt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">getLong&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">LOCK_PASSWORD_SALT_KEY&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">userId&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">salt&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="c1">//值为0 重新生成
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">long&lt;/span> &lt;span class="n">salt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">getLong&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">LOCK_PASSWORD_SALT_KEY&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">userId&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">salt&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span> &lt;span class="c1">//值为0 重新生成
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">try&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">salt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">SecureRandom&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getInstance&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="s">&amp;#34;SHA1PRNG&amp;#34;&lt;/span>&lt;span class="o">).&lt;/span>&lt;span class="na">nextLong&lt;/span>&lt;span class="o">();&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">setLong&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">LOCK_PASSWORD_SALT_KEY&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">salt&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">userId&lt;/span>&lt;span class="o">);&lt;/span> &lt;span class="c1">//保存值
@@ -10460,7 +10460,7 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kt">boolean&lt;/span> &lt;span class="n">lockScreenDisable&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">SystemProperties&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">getBoolean&lt;/span>&lt;span class="o">(&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;ro.lockscreen.disable.default&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kc">false&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">lockScreenDisable&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">storage&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">writeKeyValue&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">db&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">LockPatternUtils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">DISABLE_LOCKSCREEN_KEY&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">storage&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">writeKeyValue&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">db&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">LockPatternUtils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">DISABLE_LOCKSCREEN_KEY&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="s">&amp;#34;1&amp;#34;&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="n">0&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">});&lt;/span>
@@ -10531,8 +10531,8 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="n">TAG&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;LockSettingsDB&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="n">DATABASE_NAME&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;locksettings.db&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">DATABASE_VERSION&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">IDLE_CONNECTION_TIMEOUT_MS&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">30000&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">DATABASE_VERSION&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">2&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="kd">final&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">IDLE_CONNECTION_TIMEOUT_MS&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">30000&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="n">Callback&lt;/span> &lt;span class="n">mCallback&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
@@ -10567,9 +10567,9 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@Override&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">public&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">onUpgrade&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">SQLiteDatabase&lt;/span> &lt;span class="n">db&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">oldVersion&lt;/span>&lt;span class="o">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">currentVersion&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">upgradeVersion&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">oldVersion&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">upgradeVersion&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">upgradeVersion&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="n">1&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Previously migrated lock screen widget settings. Now defunct.
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">upgradeVersion&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">upgradeVersion&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">2&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="o">(&lt;/span>&lt;span class="n">upgradeVersion&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">DATABASE_VERSION&lt;/span>&lt;span class="o">)&lt;/span> &lt;span class="o">{&lt;/span>
@@ -10657,9 +10657,9 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">private&lt;/span> &lt;span class="kd">static&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="nf">toHex&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">byte&lt;/span>&lt;span class="o">[]&lt;/span> &lt;span class="n">ary&lt;/span>&lt;span class="o">){&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">final&lt;/span> &lt;span class="n">String&lt;/span> &lt;span class="n">hex&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;102031398sjdfklaj&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">String&lt;/span> &lt;span class="n">ret&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="o">;&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">ary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">;&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">++){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ret&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="n">hex&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">charAt&lt;/span>&lt;span class="o">((&lt;/span>&lt;span class="n">ary&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">]&amp;gt;&amp;gt;&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="o">)&amp;amp;&lt;/span> &lt;span class="mh">0xf&lt;/span>&lt;span class="o">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ret&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="n">hex&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">charAt&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">ary&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">]&amp;amp;&lt;/span> &lt;span class="mh">0xf&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="o">;&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">ary&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">length&lt;/span>&lt;span class="o">;&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">++){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ret&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="n">hex&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">charAt&lt;/span>&lt;span class="o">((&lt;/span>&lt;span class="n">ary&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">]&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">4&lt;/span>&lt;span class="o">)&amp;amp;&lt;/span> &lt;span class="n">0xf&lt;/span>&lt;span class="o">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ret&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="n">hex&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="na">charAt&lt;/span>&lt;span class="o">(&lt;/span>&lt;span class="n">ary&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="n">i&lt;/span>&lt;span class="o">]&amp;amp;&lt;/span> &lt;span class="n">0xf&lt;/span>&lt;span class="o">);&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">ret&lt;/span>&lt;span class="o">;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
@@ -10674,106 +10674,7 @@ loading="lazy"
 &lt;p>大致同上&lt;/p>
 &lt;h4 id="3-简要">3. 简要：&lt;/h4>
 &lt;p>​ 九宫格团装化成字节数组-&amp;gt;sha1 加密 即可&lt;/p>
-&lt;p>​ 其实大致流程和分析输入密码差不多 保存到本地的目录、/data/system/gesture.key 文件&lt;/p></description></item><item><title>img</title><link>https://ykiko.top/img/</link><pubDate>Mon, 02 Oct 2017 21:49:20 +0200</pubDate><guid>https://ykiko.top/img/</guid><description>&lt;center>
-&lt;p>WeChat: &lt;img src="http://my-md-1253484710.coscd.myqcloud.com/MyWeChat.png" alt="WeChat" width="200px"/>
-公众号: &lt;img src="http://my-md-1253484710.coscd.myqcloud.com/myandroidsec.jpg" alt="公众号" width="200px"/>&lt;/p>
-&lt;center/></description></item><item><title>Reading</title><link>https://ykiko.top/reading/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/reading/</guid><description>&lt;center>&lt;h2>个人技术书单&lt;/h2>&lt;/center>
-&lt;blockquote>
-&lt;p>大多数都是已买已看&amp;amp;已买未看&amp;amp;白嫖电子书&amp;amp;PDFx版&lt;/p>
-&lt;/blockquote>
-&lt;h3 id="计算机基础语言基础">计算机基础&amp;amp;语言基础&lt;/h3>
-&lt;ul>
-&lt;li>汇编语言&lt;/li>
-&lt;li>C Primer plus 5&lt;/li>
-&lt;li>C++ Primer plus 5&lt;/li>
-&lt;li>Python 核心编程&lt;/li>
-&lt;li>python黑客攻防入门&lt;/li>
-&lt;li>锋利的jquery&lt;/li>
-&lt;li>javascript Dom编程艺术&lt;/li>
-&lt;li>java程序设计&lt;/li>
-&lt;li>kotlin程序入门开发&lt;/li>
-&lt;li>Windows Socket 网络编程&lt;/li>
-&lt;li>编码-隐匿在计算机软硬件背后的语言&lt;/li>
-&lt;li>程序员的自我修养-链接、装载与库&lt;/li>
-&lt;li>编译原理&lt;/li>
-&lt;li>Linux内核分析&lt;/li>
-&lt;li>&lt;/li>
-&lt;/ul>
-&lt;h3 id="逆向漏洞利用">逆向&amp;amp;漏洞利用&lt;/h3>
-&lt;ul>
-&lt;li>逆向工程权威指南（上下）&lt;/li>
-&lt;li>Linux二进制分析&lt;/li>
-&lt;li>有趣的二进制&lt;/li>
-&lt;li>漏洞战争软件漏洞分析精要&lt;/li>
-&lt;li>C/C++安全编码&lt;/li>
-&lt;li>内核漏洞的利用与防范&lt;/li>
-&lt;li>软件调试（第二版） 卷一 硬件基础&lt;/li>
-&lt;li>硬件安全攻防大揭秘&lt;/li>
-&lt;/ul>
-&lt;h3 id="移动安全开发">移动安全&amp;amp;开发&lt;/h3>
-&lt;ul>
-&lt;li>Android软件安全与逆向分析&lt;/li>
-&lt;li>Android软件安全攻防实例分析&lt;/li>
-&lt;li>Android安全攻防实战&lt;/li>
-&lt;li>Android安全攻防权威指南&lt;/li>
-&lt;li>Android安全攻防指南&lt;/li>
-&lt;li>Android应用安全防护和逆向分析&lt;/li>
-&lt;li>iOS应用逆向与安全&lt;/li>
-&lt;li>游戏安全-手游安全技术入门&lt;/li>
-&lt;li>最强Android书-构架大剖析&lt;/li>
-&lt;li>Android软件安全权威指南&lt;/li>
-&lt;/ul>
-&lt;h3 id="web安全渗透">Web安全&amp;amp;渗透&lt;/h3>
-&lt;ul>
-&lt;li>kali-linux 渗透测试的艺术&lt;/li>
-&lt;/ul>
-&lt;h3 id="other">Other&lt;/h3>
-&lt;ul>
-&lt;li>重构 改善既有代码设计&lt;/li>
-&lt;li>Wireshark数据包分析实战详解&lt;/li>
-&lt;li>代码整洁之道-程序员的职业素养&lt;/li>
-&lt;li>信息隐藏技术&lt;/li>
-&lt;/ul>
-&lt;h4 id="参考链接">参考链接&lt;/h4>
-&lt;ul>
-&lt;li>&lt;a class="link" href="https://github.com/riusksk/secbook" target="_blank" rel="noopener"
->https://github.com/riusksk/secbook&lt;/a>&lt;/li>
-&lt;li>&lt;a class="link" href="https://www.anquanquan.info/shudan.html" target="_blank" rel="noopener"
->https://www.anquanquan.info/shudan.html&lt;/a>&lt;/li>
-&lt;li>&lt;a class="link" href="https://www.zhihu.com/question/21390646" target="_blank" rel="noopener"
->https://www.zhihu.com/question/21390646&lt;/a>&lt;/li>
-&lt;/ul></description></item><item><title>Search</title><link>https://ykiko.top/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/search/</guid><description/></item><item><title>Todo</title><link>https://ykiko.top/todo/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/todo/</guid><description>&lt;hr>
-&lt;p>&lt;strong>持续进行的漏洞复现记录&lt;/strong>&lt;/p>
-&lt;ul>
-&lt;li>重新汇总到 &lt;a class="link" href="https://kuekiko.notion.site/0370489a3e95497aaac3cda68b895576?v=190923209288492a99fa7e1a89f6aa34" target="_blank" rel="noopener"
->Notion新链接&lt;/a>&lt;/li>
-&lt;/ul>
-&lt;h3 id="拖延症晚期患者治疗记录">拖延症晚期患者治疗记录&lt;/h3>
-&lt;p>s&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>保持更新&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>日常记录&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>CVE学习——Android、Linux内核、IoT&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>小工具开发&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>持续学习Fuzzing&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>车联网安全学习中&amp;hellip;&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200630012525.png"
-loading="lazy"
-alt="fail"
->&lt;/p></description></item><item><title>环境记录</title><link>https://ykiko.top/%E7%8E%AF%E5%A2%83%E8%AE%B0%E5%BD%95/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/%E7%8E%AF%E5%A2%83%E8%AE%B0%E5%BD%95/</guid><description>&lt;blockquote>
+&lt;p>​ 其实大致流程和分析输入密码差不多 保存到本地的目录、/data/system/gesture.key 文件&lt;/p></description></item><item><title>EnvRecord</title><link>https://ykiko.top/envrecord/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/envrecord/</guid><description>&lt;blockquote>
 &lt;p>用来不时记录平时所用环境配置，以及遇到的各种问题以及解决办法。主要是为了防丢失，以及总是和空气斗志斗勇。&lt;/p>
 &lt;/blockquote>
 &lt;h2 id="win10">Win10&lt;/h2>
@@ -11284,24 +11185,120 @@ alt="fail"
 loading="lazy"
 alt="穷"
 >&lt;/p>
-&lt;/blockquote></description></item><item><title>记录汇总(手动置顶)</title><link>https://ykiko.top/p/%E8%AE%B0%E5%BD%95%E6%B1%87%E6%80%BB%E6%89%8B%E5%8A%A8%E7%BD%AE%E9%A1%B6/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/p/%E8%AE%B0%E5%BD%95%E6%B1%87%E6%80%BB%E6%89%8B%E5%8A%A8%E7%BD%AE%E9%A1%B6/</guid><description>&lt;ul>
-&lt;li>&lt;input checked="" disabled="" type="checkbox"> 删&lt;/li>
-&lt;/ul></description></item><item><title>一些链接</title><link>https://ykiko.top/%E4%B8%80%E4%BA%9B%E9%93%BE%E6%8E%A5/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/%E4%B8%80%E4%BA%9B%E9%93%BE%E6%8E%A5/</guid><description>&lt;ol>
+&lt;/blockquote></description></item><item><title>Reading</title><link>https://ykiko.top/reading/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/reading/</guid><description>&lt;center>&lt;h2>个人技术书单&lt;/h2>&lt;/center>
+&lt;blockquote>
+&lt;p>大多数都是已买已看&amp;amp;已买未看&amp;amp;白嫖电子书&amp;amp;PDFx版&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="计算机基础语言基础">计算机基础&amp;amp;语言基础&lt;/h3>
+&lt;ul>
+&lt;li>汇编语言&lt;/li>
+&lt;li>C Primer plus 5&lt;/li>
+&lt;li>C++ Primer plus 5&lt;/li>
+&lt;li>Python 核心编程&lt;/li>
+&lt;li>python黑客攻防入门&lt;/li>
+&lt;li>锋利的jquery&lt;/li>
+&lt;li>javascript Dom编程艺术&lt;/li>
+&lt;li>java程序设计&lt;/li>
+&lt;li>kotlin程序入门开发&lt;/li>
+&lt;li>Windows Socket 网络编程&lt;/li>
+&lt;li>编码-隐匿在计算机软硬件背后的语言&lt;/li>
+&lt;li>程序员的自我修养-链接、装载与库&lt;/li>
+&lt;li>编译原理&lt;/li>
+&lt;li>Linux内核分析&lt;/li>
+&lt;/ul>
+&lt;h3 id="逆向漏洞利用">逆向&amp;amp;漏洞利用&lt;/h3>
+&lt;ul>
+&lt;li>逆向工程权威指南（上下）&lt;/li>
+&lt;li>Linux二进制分析&lt;/li>
+&lt;li>有趣的二进制&lt;/li>
+&lt;li>漏洞战争软件漏洞分析精要&lt;/li>
+&lt;li>C/C++安全编码&lt;/li>
+&lt;li>内核漏洞的利用与防范&lt;/li>
+&lt;li>软件调试（第二版） 卷一 硬件基础&lt;/li>
+&lt;li>硬件安全攻防大揭秘&lt;/li>
+&lt;/ul>
+&lt;h3 id="移动安全开发">移动安全&amp;amp;开发&lt;/h3>
+&lt;ul>
+&lt;li>Android软件安全与逆向分析&lt;/li>
+&lt;li>Android软件安全攻防实例分析&lt;/li>
+&lt;li>Android安全攻防实战&lt;/li>
+&lt;li>Android安全攻防权威指南&lt;/li>
+&lt;li>Android安全攻防指南&lt;/li>
+&lt;li>Android应用安全防护和逆向分析&lt;/li>
+&lt;li>iOS应用逆向与安全&lt;/li>
+&lt;li>游戏安全-手游安全技术入门&lt;/li>
+&lt;li>最强Android书-构架大剖析&lt;/li>
+&lt;li>Android软件安全权威指南&lt;/li>
+&lt;/ul>
+&lt;h3 id="web安全渗透">Web安全&amp;amp;渗透&lt;/h3>
+&lt;ul>
+&lt;li>kali-linux 渗透测试的艺术&lt;/li>
+&lt;/ul>
+&lt;h3 id="other">Other&lt;/h3>
+&lt;ul>
+&lt;li>重构 改善既有代码设计&lt;/li>
+&lt;li>Wireshark数据包分析实战详解&lt;/li>
+&lt;li>代码整洁之道-程序员的职业素养&lt;/li>
+&lt;li>信息隐藏技术&lt;/li>
+&lt;/ul>
+&lt;h4 id="参考链接">参考链接&lt;/h4>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://github.com/riusksk/secbook" target="_blank" rel="noopener"
+>https://github.com/riusksk/secbook&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.anquanquan.info/shudan.html" target="_blank" rel="noopener"
+>https://www.anquanquan.info/shudan.html&lt;/a>&lt;/li>
+&lt;li>&lt;a class="link" href="https://www.zhihu.com/question/21390646" target="_blank" rel="noopener"
+>https://www.zhihu.com/question/21390646&lt;/a>&lt;/li>
+&lt;/ul></description></item><item><title>Search</title><link>https://ykiko.top/search/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/search/</guid><description/></item><item><title>Todo</title><link>https://ykiko.top/todo/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/todo/</guid><description>&lt;hr>
+&lt;p>&lt;strong>持续进行的漏洞复现记录&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>重新汇总到 &lt;a class="link" href="https://kuekiko.notion.site/0370489a3e95497aaac3cda68b895576?v=190923209288492a99fa7e1a89f6aa34" target="_blank" rel="noopener"
+>Notion新链接&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="拖延症晚期患者治疗记录">拖延症晚期患者治疗记录&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>保持更新&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>日常记录&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>CVE学习——Android、Linux内核、IoT&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>小工具开发&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>持续学习Fuzzing&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>车联网安全学习中&amp;hellip;&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200630012525.png"
+loading="lazy"
+alt="fail"
+>&lt;/p></description></item><item><title>一些链接</title><link>https://ykiko.top/%E4%B8%80%E4%BA%9B%E9%93%BE%E6%8E%A5/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/%E4%B8%80%E4%BA%9B%E9%93%BE%E6%8E%A5/</guid><description>&lt;ol>
 &lt;li>
 &lt;p>漏洞复现记录&lt;/p>
 &lt;p>持续进行的漏洞复现表&lt;/p>
-&lt;p>&lt;a class="link" href="https://kuekiko.notion.site/0370489a3e95497aaac3cda68b895576?v=190923209288492a99fa7e1a89f6aa34" target="_blank" rel="noopener"
+&lt;p>-&amp;gt; &lt;a class="link" href="https://kuekiko.notion.site/0370489a3e95497aaac3cda68b895576?v=190923209288492a99fa7e1a89f6aa34" target="_blank" rel="noopener"
 >Notion-VUL&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>环境记录&lt;/p>
 &lt;p>遇到的问题记录&lt;/p>
-&lt;p>&lt;a class="link" href="https://ykiko.top/%e7%8e%af%e5%a2%83%e8%ae%b0%e5%bd%95" target="_blank" rel="noopener"
->问题记录&lt;/a>&lt;/p>
+&lt;p>-&amp;gt; &lt;a class="link" href="../envrecord" >问题记录&lt;/a>&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>日常CheckList表&lt;/p>
-&lt;p>&lt;a class="link" href="https://kuekiko.notion.site/517e49ce4e934db5b9b8ff1a040f00db?v=43dbda7927534a0c97a6bc1e05a3dc9e" target="_blank" rel="noopener"
+&lt;p>-&amp;gt; &lt;a class="link" href="https://kuekiko.notion.site/517e49ce4e934db5b9b8ff1a040f00db?v=43dbda7927534a0c97a6bc1e05a3dc9e" target="_blank" rel="noopener"
 >日常checklist&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>书单&lt;/p>
+&lt;p>记录一下平时所看的书，偶尔写写总结&lt;/p>
+&lt;p>-&amp;gt; &lt;a class="link" href="../reading" >书单&lt;/a>&lt;/p>
 &lt;/li>
 &lt;/ol></description></item><item><title>友链</title><link>https://ykiko.top/%E5%8F%8B%E9%93%BE/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://ykiko.top/%E5%8F%8B%E9%93%BE/</guid><description>&lt;p>欢迎各位dalao互链。&lt;/p></description></item></channel></rss>

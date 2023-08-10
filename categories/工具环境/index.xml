@@ -500,7 +500,7 @@ loading="lazy"
 &lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20181123153901.png"
 loading="lazy"
 >&lt;/p>
-&lt;p>&lt;img src="https://ykiko.top/E:%5c%e7%ac%94%e8%ae%b0%5cTypora%5c%e5%ad%a6%e4%b9%a0%e6%97%a5%e8%ae%b0%5cassets%5c1542959275318.png"
+&lt;p>&lt;img src="E:%5c%e7%ac%94%e8%ae%b0%5cTypora%5c%e5%ad%a6%e4%b9%a0%e6%97%a5%e8%ae%b0%5cassets%5c1542959275318.png"
 loading="lazy"
 alt="1542959275318"
 >&lt;/p>
@@ -763,8 +763,8 @@ loading="lazy"
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="mi">20&lt;/span> &lt;span class="err">$&lt;/span>&lt;span class="n">esp&lt;/span> &lt;span class="c1">//查看内存中开始的20个数
 &lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">ni&lt;/span> &lt;span class="err">单步执行不进入&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">si&lt;/span> &lt;span class="err">单步执行并进入&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">disas&lt;/span> &lt;span class="n">addr&lt;/span> &lt;span class="err">对地址&lt;/span>&lt;span class="n">addr&lt;/span>&lt;span class="err">处的指令进行反汇编，&lt;/span>&lt;span class="n">addr&lt;/span>&lt;span class="err">可以是函数名&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">checksec&lt;/span> &lt;span class="err">查看&lt;/span>&lt;span class="n">elf&lt;/span>&lt;span class="err">编译的保护选项。&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">disas&lt;/span> &lt;span class="n">addr&lt;/span> &lt;span class="err">对地址&lt;/span>&lt;span class="n">addr处的指令进行反汇编&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="n">addr可以是函数名&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">checksec&lt;/span> &lt;span class="err">查看&lt;/span>&lt;span class="n">elf编译的保护选项&lt;/span>&lt;span class="err">。&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h4 id="查壳">查壳&lt;/h4>
