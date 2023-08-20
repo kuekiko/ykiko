@@ -1,13 +1,14 @@
 ---
 title: "CTF-PWN刷题记录-CTFWiki_1栈溢出"
-date: 2023-05-05 16:34:00 +0000 UTC
+created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-16 17:17:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-categories: [二进制安全]
 description: "CTF刷题记录1"
 tags: [PWN]
+date: 2019-02-20T00:00:00.000+08:00
 draft: false
+categories: [二进制安全]
 ---
 
 # CTF-PWN刷题记录-CTFWiki_1栈溢出

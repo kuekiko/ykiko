@@ -1,13 +1,14 @@
 ---
 title: "Android应用安全防护和逆向分析-基础篇2"
-date: 2023-05-05 16:34:00 +0000 UTC
+created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-15 16:53:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-categories: [移动安全,读书笔记]
 description: "Android应用安全防护和逆向分析-基础篇2"
 tags: [Android,读书笔记,原理]
+date: 2018-08-16T00:00:00.000+08:00
 draft: false
+categories: [移动安全,读书笔记]
 ---
 
 # Android应用安全防护和逆向分析-基础篇2

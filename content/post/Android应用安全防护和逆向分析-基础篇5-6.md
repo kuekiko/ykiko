@@ -1,13 +1,14 @@
 ---
 title: "Android应用安全防护和逆向分析-基础篇5-6"
-date: 2023-05-05 16:34:00 +0000 UTC
+created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-15 16:57:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-draft: false
-categories: [移动安全,读书笔记]
 description: "主要描述AndroidManifest.xml和resourec.arsc这两个android文件"
 tags: [Android,读书笔记]
+date: 2018-08-29T00:00:00.000+08:00
+draft: false
+categories: [移动安全,读书笔记]
 ---
 
 # Android应用安全防护和逆向分析-基础篇5-6

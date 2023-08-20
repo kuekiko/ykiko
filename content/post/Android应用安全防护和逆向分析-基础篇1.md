@@ -1,13 +1,14 @@
 ---
 title: "Android应用安全防护和逆向分析-基础篇1"
-date: 2023-05-05 16:34:00 +0000 UTC
+created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-15 16:50:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+description: "Android中锁屏密码加密算法分析"
 tags: [读书笔记,Android]
+date: 2018-07-02T17:33:00.000+08:00
 draft: false
 categories: [读书笔记,移动安全]
-description: "Android中锁屏密码加密算法分析"
 ---
 
 # Android应用安全防护和逆向分析-基础篇1

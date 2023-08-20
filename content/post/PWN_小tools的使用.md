@@ -1,6 +1,6 @@
 ---
 title: "PWN_小tools的使用"
-date: 2023-05-05 16:35:00 +0000 UTC
+created_Time: 2023-05-05 16:35:00 +0000 UTC
 lastmod: 2023-08-17 17:09:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
@@ -8,6 +8,7 @@ draft: false
 categories: [二进制安全]
 description: "PWN 环境简单记录"
 tags: [PWN,工具]
+date: 2018-10-22T00:00:00.000+08:00
 ---
 
 # PWN_小tools的使用

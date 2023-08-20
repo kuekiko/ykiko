@@ -1,12 +1,13 @@
 ---
 title: "Android应用安全防护和逆向分析-基础篇3"
-date: 2023-05-05 16:34:00 +0000 UTC
+created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-15 16:57:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
 categories: [移动安全,读书笔记]
 description: "ADB基础命令"
 tags: [Android,读书笔记]
+date: 2018-08-16T02:00:00.000+08:00
 draft: false
 ---
 

@@ -1,13 +1,14 @@
 ---
 title: "Raspberry_Pi_3B+_0安装使用"
-date: 2023-05-05 16:35:00 +0000 UTC
+created_Time: 2023-05-05 16:35:00 +0000 UTC
 lastmod: 2023-08-17 17:21:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-tags: [RaspberryPI,ARM]
 draft: false
 categories: [二进制安全,IoT安全]
 description: "Raspberry Pi 3B+ 0安装使用"
+tags: [RaspberryPI,ARM]
+date: 2019-06-23T00:00:00.000+08:00
 ---
 
 # Raspberry_Pi_3B+_0安装使用

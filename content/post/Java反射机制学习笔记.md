@@ -1,13 +1,14 @@
 ---
 title: "Java反射机制学习笔记"
-date: 2023-05-05 16:34:00 +0000 UTC
+created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-16 17:36:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-draft: false
 categories: [移动安全,安全开发]
 description: "Java反射基础"
 tags: [Java,Android]
+date: 2018-07-25T00:00:00.000+08:00
+draft: false
 ---
 
 # Java反射机制学习笔记
