@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Fuzzing on ykikoqAq</title><link>https://ykiko.top/categories/fuzzing/</link><description>Recent content in Fuzzing on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 05 May 2023 16:35:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/categories/fuzzing/index.xml" rel="self" type="application/rss+xml"/><item><title>syzkaller_fuzzing_入门</title><link>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</guid><description>&lt;h1 id="syzkaller_fuzzing_入门">syzkaller_fuzzing_入门&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Fuzzing on ykikoqAq</title><link>https://ykiko.top/categories/fuzzing/</link><description>Recent content in Fuzzing on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 10 Apr 2020 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/categories/fuzzing/index.xml" rel="self" type="application/rss+xml"/><item><title>syzkaller_fuzzing_入门</title><link>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 10 Apr 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</guid><description>&lt;h1 id="syzkaller_fuzzing_入门">syzkaller_fuzzing_入门&lt;/h1>
 &lt;h3 id="0x00-介绍">0x00 介绍&lt;/h3>
 &lt;p>&lt;a class="link" href="https://github.com/google/syzkaller" target="_blank" rel="noopener"
 >syzkaller&lt;/a>是google的安全研究人员开发并维护的内核fuzz工具。它主要是用go写的，也有少部分C代码，支持akaros/fuchsia/linux/android/freebsd/netbsd/openbsd/windows等系统，发现的漏洞多达上千。&lt;/p>
@@ -290,7 +290,7 @@ alt="img"
 &lt;p>&lt;a class="link" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup.md" target="_blank" rel="noopener"
 >https://github.com/google/syzkaller/blob/master/docs/linux/setup.md&lt;/a>&lt;/p>
 &lt;/li>
-&lt;/ul></description></item><item><title>syzkaller-android</title><link>https://ykiko.top/p/syzkaller-android/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/syzkaller-android/</guid><description>&lt;h1 id="syzkaller-android">syzkaller-android&lt;/h1>
+&lt;/ul></description></item><item><title>syzkaller-android</title><link>https://ykiko.top/p/syzkaller-android/</link><pubDate>Sun, 15 Sep 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/syzkaller-android/</guid><description>&lt;h1 id="syzkaller-android">syzkaller-android&lt;/h1>
 &lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
 &lt;p>介绍使用syzkaller fuzz Android的配置教程。&lt;/p>
 &lt;h3 id="0x01-环境">0x01 环境&lt;/h3>
@@ -575,5 +575,5 @@ alt="img"
 &lt;li>
 &lt;p>[4]https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_android-device_arm-kernel.md&lt;/p>
 &lt;/li>
-&lt;/ul></description></item><item><title>Fuzzing基础(待补充)</title><link>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="fuzzing基础待补充">Fuzzing基础(待补充)&lt;/h1>
+&lt;/ul></description></item><item><title>Fuzzing基础(待补充)</title><link>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Wed, 10 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="fuzzing基础待补充">Fuzzing基础(待补充)&lt;/h1>
 &lt;h2 id="0x00">0x00&lt;/h2></description></item></channel></rss>

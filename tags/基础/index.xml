@@ -1,279 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>基础 on ykikoqAq</title><link>https://ykiko.top/tags/%E5%9F%BA%E7%A1%80/</link><description>Recent content in 基础 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 05 May 2023 16:35:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/tags/%E5%9F%BA%E7%A1%80/index.xml" rel="self" type="application/rss+xml"/><item><title>PWN-OOB(重写中)</title><link>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</guid><description>&lt;h1 id="pwn-oob重写中">PWN-OOB(重写中)&lt;/h1>
-&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>PWN-UAF_（重写）</title><link>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</guid><description>&lt;h1 id="pwn-uaf_重写">PWN-UAF_（重写）&lt;/h1>
-&lt;h2 id="0x00-原理">0x00 原理&lt;/h2>
-&lt;p>堆内存在释放后被直接再次使用(释放了堆块之后，未将该指针值为NULL,导致指针处于悬空状态，被释放的内存能被恶意利用) 在浏览器中比较常见的漏洞&lt;/p>
-&lt;p>&lt;strong>根本原因是：&lt;/strong>&lt;/p>
-&lt;blockquote>
-&lt;p>应用程序调用free()释放内存时，如果内存块小于256kb，dlmalloc并不马上将内存块释放回内存，而是将内存块标记为空闲状态。这么做的原因有两个：一是内存块不一定能马上释放会内核（比如内存块不是位于堆顶端），二是供应用程序下次申请内存使用（这是主要原因）。当dlmalloc中空闲内存量达到一定值时dlmalloc才将空闲内存释放会内核。如果应用程序申请的内存大于256kb，dlmalloc调用mmap()向内核申请一块内存，返回返还给应用程序使用。如果应用程序释放的内存大于256kb，dlmalloc马上调用munmap()释放内存。dlmalloc不会缓存大于256kb的内存块，因为这样的内存块太大了，最好不要长期占用这么大的内存资源。&lt;/p>
-&lt;/blockquote>
-&lt;h3 id="利用">利用&lt;/h3>
-&lt;h3 id="简单利用">简单利用&lt;/h3>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;span class="lnt">20
-&lt;/span>&lt;span class="lnt">21
-&lt;/span>&lt;span class="lnt">22
-&lt;/span>&lt;span class="lnt">23
-&lt;/span>&lt;span class="lnt">24
-&lt;/span>&lt;span class="lnt">25
-&lt;/span>&lt;span class="lnt">26
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdlib.h&amp;gt;&lt;/span>&lt;span class="cp">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">typedef&lt;/span> &lt;span class="nf">void&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="p">)(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">evil_fuc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">command&lt;/span>&lt;span class="p">[])&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">echo&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">content&lt;/span>&lt;span class="p">[])&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;%s&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">content&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">echo&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello world&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">free&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//在这里free了p1,但并未将p1置空,导致后续可以再使用p1指针
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello again&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//p1指针未被置空,虽然free了,但仍可使用.
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="c1">//malloc在free一块内存后,再次申请同样大小的指针会把刚刚释放的内存分配出来.
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="c1">//p2与p1指针指向的内存为同一地址
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p2&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">evil_fuc&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//在这里将p1指针里面保存的echo函数指针覆盖成为了evil_func指针.
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912215411.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;h3 id="pwnablekr-uaf">pwnable.kr uaf&lt;/h3>
-&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912220453.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>先看看源码：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;span class="lnt">20
-&lt;/span>&lt;span class="lnt">21
-&lt;/span>&lt;span class="lnt">22
-&lt;/span>&lt;span class="lnt">23
-&lt;/span>&lt;span class="lnt">24
-&lt;/span>&lt;span class="lnt">25
-&lt;/span>&lt;span class="lnt">26
-&lt;/span>&lt;span class="lnt">27
-&lt;/span>&lt;span class="lnt">28
-&lt;/span>&lt;span class="lnt">29
-&lt;/span>&lt;span class="lnt">30
-&lt;/span>&lt;span class="lnt">31
-&lt;/span>&lt;span class="lnt">32
-&lt;/span>&lt;span class="lnt">33
-&lt;/span>&lt;span class="lnt">34
-&lt;/span>&lt;span class="lnt">35
-&lt;/span>&lt;span class="lnt">36
-&lt;/span>&lt;span class="lnt">37
-&lt;/span>&lt;span class="lnt">38
-&lt;/span>&lt;span class="lnt">39
-&lt;/span>&lt;span class="lnt">40
-&lt;/span>&lt;span class="lnt">41
-&lt;/span>&lt;span class="lnt">42
-&lt;/span>&lt;span class="lnt">43
-&lt;/span>&lt;span class="lnt">44
-&lt;/span>&lt;span class="lnt">45
-&lt;/span>&lt;span class="lnt">46
-&lt;/span>&lt;span class="lnt">47
-&lt;/span>&lt;span class="lnt">48
-&lt;/span>&lt;span class="lnt">49
-&lt;/span>&lt;span class="lnt">50
-&lt;/span>&lt;span class="lnt">51
-&lt;/span>&lt;span class="lnt">52
-&lt;/span>&lt;span class="lnt">53
-&lt;/span>&lt;span class="lnt">54
-&lt;/span>&lt;span class="lnt">55
-&lt;/span>&lt;span class="lnt">56
-&lt;/span>&lt;span class="lnt">57
-&lt;/span>&lt;span class="lnt">58
-&lt;/span>&lt;span class="lnt">59
-&lt;/span>&lt;span class="lnt">60
-&lt;/span>&lt;span class="lnt">61
-&lt;/span>&lt;span class="lnt">62
-&lt;/span>&lt;span class="lnt">63
-&lt;/span>&lt;span class="lnt">64
-&lt;/span>&lt;span class="lnt">65
-&lt;/span>&lt;span class="lnt">66
-&lt;/span>&lt;span class="lnt">67
-&lt;/span>&lt;span class="lnt">68
-&lt;/span>&lt;span class="lnt">69
-&lt;/span>&lt;span class="lnt">70
-&lt;/span>&lt;span class="lnt">71
-&lt;/span>&lt;span class="lnt">72
-&lt;/span>&lt;span class="lnt">73
-&lt;/span>&lt;span class="lnt">74
-&lt;/span>&lt;span class="lnt">75
-&lt;/span>&lt;span class="lnt">76
-&lt;/span>&lt;span class="lnt">77
-&lt;/span>&lt;span class="lnt">78
-&lt;/span>&lt;span class="lnt">79
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c++" data-lang="c++">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;fcntl.h&amp;gt;&lt;/span>&lt;span class="cp">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;iostream&amp;gt; &lt;/span>&lt;span class="cp">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span class="cp">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span class="cp">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;unistd.h&amp;gt;&lt;/span>&lt;span class="cp">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">using&lt;/span> &lt;span class="k">namespace&lt;/span> &lt;span class="n">std&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Human&lt;/span>&lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">private&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">give_shell&lt;/span>&lt;span class="p">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">protected&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;My name is &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">age&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34; years old&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Man&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a nice guy!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Woman&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a cute girl!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">argc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">argv&lt;/span>&lt;span class="p">[]){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">m&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jack&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">25&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">w&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jill&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">21&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">size_t&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;1. use&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">2. after&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">3. free&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cin&lt;/span> &lt;span class="o">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">switch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">op&lt;/span>&lt;span class="p">){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">w&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">atoi&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">]);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">];&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">O_RDONLY&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;your data is allocated&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">m&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">w&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">default&lt;/span>&lt;span class="o">:&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="hcft2016-fheap">HCFt2016 fheap&lt;/h3>
-&lt;h3 id="网鼎杯ctf2018-第一场-pwn-babyheap">网鼎杯CTF2018 第一场 Pwn Babyheap&lt;/h3>
-&lt;p>参考资料：&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://www.cnblogs.com/Ox9A82/p/5320857.html" target="_blank" rel="noopener"
->https://www.cnblogs.com/Ox9A82/p/5320857.html&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://www.cnblogs.com/alert123/p/4918041.html" target="_blank" rel="noopener"
->https://www.cnblogs.com/alert123/p/4918041.html&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://blog.csdn.net/qq_31481187/article/details/73612451" target="_blank" rel="noopener"
->https://blog.csdn.net/qq_31481187/article/details/73612451&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
->https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4" target="_blank" rel="noopener"
->https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
->https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
-&lt;/li>
-&lt;/ul></description></item><item><title>PWN-堆溢出_(待补充)</title><link>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-堆溢出_待补充">PWN-堆溢出_(待补充)&lt;/h1>
-&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
-&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>PWN-栈溢出（待补充）</title><link>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-栈溢出待补充">PWN-栈溢出（待补充）&lt;/h1>
-&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
-&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>PWN-格式化字符串漏洞(FMT)</title><link>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</guid><description>&lt;h1 id="pwn-格式化字符串漏洞fmt">PWN-格式化字符串漏洞(FMT)&lt;/h1>
-&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>syzkaller_fuzzing_入门</title><link>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</guid><description>&lt;h1 id="syzkaller_fuzzing_入门">syzkaller_fuzzing_入门&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>基础 on ykikoqAq</title><link>https://ykiko.top/tags/%E5%9F%BA%E7%A1%80/</link><description>Recent content in 基础 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 10 Apr 2020 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/%E5%9F%BA%E7%A1%80/index.xml" rel="self" type="application/rss+xml"/><item><title>syzkaller_fuzzing_入门</title><link>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 10 Apr 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</guid><description>&lt;h1 id="syzkaller_fuzzing_入门">syzkaller_fuzzing_入门&lt;/h1>
 &lt;h3 id="0x00-介绍">0x00 介绍&lt;/h3>
 &lt;p>&lt;a class="link" href="https://github.com/google/syzkaller" target="_blank" rel="noopener"
 >syzkaller&lt;/a>是google的安全研究人员开发并维护的内核fuzz工具。它主要是用go写的，也有少部分C代码，支持akaros/fuchsia/linux/android/freebsd/netbsd/openbsd/windows等系统，发现的漏洞多达上千。&lt;/p>
@@ -565,7 +290,7 @@ alt="img"
 &lt;p>&lt;a class="link" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup.md" target="_blank" rel="noopener"
 >https://github.com/google/syzkaller/blob/master/docs/linux/setup.md&lt;/a>&lt;/p>
 &lt;/li>
-&lt;/ul></description></item><item><title>syzkaller-android</title><link>https://ykiko.top/p/syzkaller-android/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/syzkaller-android/</guid><description>&lt;h1 id="syzkaller-android">syzkaller-android&lt;/h1>
+&lt;/ul></description></item><item><title>syzkaller-android</title><link>https://ykiko.top/p/syzkaller-android/</link><pubDate>Sun, 15 Sep 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/syzkaller-android/</guid><description>&lt;h1 id="syzkaller-android">syzkaller-android&lt;/h1>
 &lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
 &lt;p>介绍使用syzkaller fuzz Android的配置教程。&lt;/p>
 &lt;h3 id="0x01-环境">0x01 环境&lt;/h3>
@@ -850,194 +575,7 @@ alt="img"
 &lt;li>
 &lt;p>[4]https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_android-device_arm-kernel.md&lt;/p>
 &lt;/li>
-&lt;/ul></description></item><item><title>ARM-PWN从入门到放弃0x00-环境准备</title><link>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</guid><description>&lt;h1 id="arm-pwn从入门到放弃0x00-环境准备">ARM-PWN从入门到放弃0x00-环境准备&lt;/h1>
-&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
-&lt;p>学PWN也有一段时间了，x86/x86_64 下算是入了个门，平时接触ARM比较多，正好以ARM架构下再更加深入的学习PWN。&lt;/p>
-&lt;p>会用的工具、环境：&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>在Ubuntu 18.04/WSL2&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>Docker for wsl2&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>树莓派3B+&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>qemu&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>unicorn&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>IDA&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>Radare2&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>GDB+gef+pwndbg+peda&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>pwntools&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;h3 id="0x01-环境安装">0x01 环境安装&lt;/h3>
-&lt;p>这里选用的有两种环境&lt;/p>
-&lt;ol>
-&lt;li>
-&lt;p>ARM设备 树莓派&lt;/p>
-&lt;p>之前618买了树莓派，派上用场了。&lt;/p>
-&lt;p>把PI的官方系统换成了Ubuntu 18.04。&lt;/p>
-&lt;p>安装了GCC 、gdb、gef（经测试只有gef能用），其他也没什么需要装的。&lt;/p>
-&lt;p>关闭地址随机化&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;span class="lnt">8
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sudo cat /proc/sys/kernel/randomize_va_space &lt;span class="c1"># 状态查看&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">2&lt;/span> &lt;span class="c1"># 开启中&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo &lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash: /proc/sys/kernel/randomize_va_space: Permission denied
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">su
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat /proc/sys/kernel/randomize_va_space
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span> &lt;span class="c1">#这就OK&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;/li>
-&lt;li>
-&lt;p>QEMU 模拟 (WSL2)&lt;/p>
-&lt;p>安装&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#防止又出什么乱七八糟的错误和需求，尽量都装上&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gdb gdb-multiarch &lt;span class="c1">##&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install qemu &lt;span class="c1">##&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu &lt;span class="c1">##gcc arm 依赖库安装&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;/li>
-&lt;/ol>
-&lt;h3 id="0x02-启动和调试">0x02 启动和调试&lt;/h3>
-&lt;ol>
-&lt;li>
-&lt;p>树莓派&lt;/p>
-&lt;p>直接运行&lt;/p>
-&lt;p>进行socat绑定端口 就OK&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">socat tcp-listen:6666,fork exec:./binfile
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;/li>
-&lt;li>
-&lt;p>QEMU&lt;/p>
-&lt;ul>
-&lt;li>32bit&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;span class="lnt">8
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地GDB调试&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-arm -g &lt;span class="m">1234&lt;/span> -L /usr/arm-linux-gnueabi ./binfile
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gdb-multiarch
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote localhost:1234
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 绑定运行到指定端口 远程调试&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># + -g 方便调试 &lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -g 1234 -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>64bit&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地调试 -g 等待GDB调试&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-aarch64 -g &lt;span class="m">1111&lt;/span> -L /usr/aarch64-linux-gnu ./file
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -g 1234 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;/li>
-&lt;/ol>
-&lt;h3 id="0x03-调试过程">0x03 调试过程&lt;/h3>
-&lt;p>在树莓派直接gdb调试就行。省略。。。&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804221031.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>img&lt;/p>
-&lt;p>使用qemu+gdb-multiarch+插件进行调试步骤&lt;/p>
-&lt;p>&lt;code>qemu-aarch64 -g 10002 -L /usr/aarch64-linux-gnu ./baby_arm&lt;/code>&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gdb-multiarch ./baby_arm -q
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote:10002
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804225625.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;h3 id="0x04-题目搭建">0x04 题目搭建&lt;/h3>
-&lt;p>基于&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
->ctf_xinetd&lt;/a>项目自己改了一个&lt;/p>
-&lt;p>地址：&lt;a class="link" href="https://github.com/Vorblock/CTF_arm_xinetd" target="_blank" rel="noopener"
->CTF_ARM_xinetd&lt;/a>&lt;/p>
-&lt;h3 id="0x05-参考链接">0x05 参考链接&lt;/h3>
-&lt;ul>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/3154" target="_blank" rel="noopener"
->https://xz.aliyun.com/t/3154&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
->https://github.com/Eadom/ctf_xinetd&lt;/a>&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>&lt;a class="link" href="https://github.com/bkerler/exploit_me" target="_blank" rel="noopener"
->https://github.com/bkerler/exploit_me&lt;/a>&lt;/p>
-&lt;/li>
-&lt;/ul></description></item><item><title>ARM汇编基础(待补充)</title><link>https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="arm汇编基础待补充">ARM汇编基础(待补充)&lt;/h1>
+&lt;/ul></description></item><item><title>ARM汇编基础(待补充)</title><link>https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 10 Aug 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="arm汇编基础待补充">ARM汇编基础(待补充)&lt;/h1>
 &lt;h2 id="arm汇编基础简">ARM汇编基础(简)&lt;/h2>
 &lt;p>经常忘记，做个笔记，好作复习。。&lt;/p>
 &lt;p>内容主要来源于《Android软件安全与逆向分析》和《逆向工程权威指南》以及 &lt;a class="link" href="https://www.anquanke.com/post/id/86383" target="_blank" rel="noopener"
@@ -1870,159 +1408,48 @@ alt="img"
 &lt;/ol>
 &lt;h3 id="heading">&lt;/h3>
 &lt;/li>
-&lt;/ul></description></item><item><title>CTF-PWN刷题记录-CTFWiki_2格式化字符串漏洞（待补充）</title><link>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_2%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_2%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="ctf-pwn刷题记录-ctfwiki_2格式化字符串漏洞待补充">CTF-PWN刷题记录-CTFWiki_2格式化字符串漏洞（待补充）&lt;/h1>
-&lt;h2 id="简介">简介&lt;/h2></description></item><item><title>CTF-PWN刷题记录-CTFWiki_3堆利用（待补充）</title><link>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_3%E5%A0%86%E5%88%A9%E7%94%A8%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_3%E5%A0%86%E5%88%A9%E7%94%A8%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="ctf-pwn刷题记录-ctfwiki_3堆利用待补充">CTF-PWN刷题记录-CTFWiki_3堆利用（待补充）&lt;/h1>
-&lt;h2 id="简介">简介&lt;/h2></description></item><item><title>Frida从入门到放弃_1（重置）</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</guid><description>&lt;h1 id="frida从入门到放弃_1重置">Frida从入门到放弃_1（重置）&lt;/h1>
-&lt;h3 id="0x00-frida">0x00 Frida&lt;/h3>
-&lt;p>Frida 官网：https://www.frida.re/&lt;/p>
-&lt;p>github: &lt;a class="link" href="https://github.com/frida/frida" target="_blank" rel="noopener"
->https://github.com/frida/frida&lt;/a>&lt;/p>
-&lt;p>Dynamic instrumentation toolkit for developers, reverse-engineers, and security researchers.&lt;/p>
+&lt;/ul></description></item><item><title>ARM-PWN从入门到放弃0x00-环境准备</title><link>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</link><pubDate>Sat, 03 Aug 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</guid><description>&lt;h1 id="arm-pwn从入门到放弃0x00-环境准备">ARM-PWN从入门到放弃0x00-环境准备&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>学PWN也有一段时间了，x86/x86_64 下算是入了个门，平时接触ARM比较多，正好以ARM架构下再更加深入的学习PWN。&lt;/p>
+&lt;p>会用的工具、环境：&lt;/p>
 &lt;ul>
 &lt;li>
-&lt;p>Scriptable&lt;/p>
+&lt;p>在Ubuntu 18.04/WSL2&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>Portable&lt;/p>
+&lt;p>Docker for wsl2&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>Free&lt;/p>
+&lt;p>树莓派3B+&lt;/p>
 &lt;/li>
 &lt;li>
-&lt;p>Battle-tested&lt;/p>
+&lt;p>qemu&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>unicorn&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>IDA&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Radare2&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GDB+gef+pwndbg+peda&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>pwntools&lt;/p>
 &lt;/li>
 &lt;/ul>
-&lt;h3 id="0x01-安装">0x01 安装&lt;/h3>
-&lt;h3 id="二进制安装-推荐">二进制安装 (推荐)&lt;/h3>
-&lt;p>pip install frida-tools 就一个命令搞定&lt;/p>
-&lt;blockquote>
-&lt;p>Failed to load the Frida native extension: DLL load failed: 找不到指定的模块&lt;/p>
-&lt;/blockquote>
-&lt;pre>&lt;code>报了这个错 查了大半天 原来我用的版本是基于python3.7编译的。我现在用的3.6.。。。。
-&lt;/code>&lt;/pre>
-&lt;p>绑定：二选一就行&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">pip install frida &lt;span class="c1"># Python bindings&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm install frida &lt;span class="c1"># Node.js bindings&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="手动编译">手动编译&lt;/h3>
-&lt;p>依赖：&lt;/p>
-&lt;p>&lt;code>pip3 install colorama prompt-toolkit pygments&lt;/code>&lt;/p>
-&lt;ul>
-&lt;li>Linux&lt;/li>
-&lt;/ul>
-&lt;p>&lt;code>make&lt;/code>&lt;/p>
-&lt;ul>
-&lt;li>MacOS and iOS&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">MAC_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">IOS_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;ul>
-&lt;li>Windows&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida.sln &lt;span class="c1">#VS2017&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="0x02-android环境">0x02 Android环境&lt;/h3>
-&lt;p>设备：小米mix2 运行Android9.0 MIUI10开发版已解锁root&lt;/p>
-&lt;p>frida-server: 用的arm64版本&lt;/p>
-&lt;p>&lt;a class="link" href="https://github.com/frida/frida/releases" target="_blank" rel="noopener"
->server文件下载&lt;/a>&lt;/p>
-&lt;p>下载好对应的 frida-server 然后adb push 进去&lt;/p>
-&lt;p>&lt;code>adb push frida-server /data/local/tmp&lt;/code>&lt;/p>
-&lt;p>然后&lt;code>chomd 755 frida-server&lt;/code>修改权限&lt;/p>
-&lt;p>运行&lt;code>./frida-server&lt;/code>&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133452.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>frida-server&lt;/p>
-&lt;p>这几个命令：&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">root&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">push&lt;/span> &lt;span class="nb">frida-server&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">local&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>查看架构：&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616145105.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>aarch64&lt;/p>
-&lt;h3 id="0x03-简单测试">0x03 简单测试&lt;/h3>
-&lt;p>命令行运行&lt;code>frida-ps -U&lt;/code>&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133604.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>frida-ps&lt;/p>
-&lt;p>有显示就是连接成功&lt;/p>
-&lt;p>接下来对浏览器进行简单测试&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150349.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>&lt;code>frida-trace -U -i open com.android.browser&lt;/code>&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150506.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>随便点一下浏览器&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150623.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>测试Diva&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151039.jpg"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151307.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>&lt;code>frida-trace -U -i &amp;quot;open*&amp;quot; jakhar.aseem.diva&lt;/code>&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151432.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>进行Hook login.class checkout函数&lt;/p>
-&lt;p>逆向过程略&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151826.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;p>HOOK脚本：&lt;/p>
+&lt;h3 id="0x01-环境安装">0x01 环境安装&lt;/h3>
+&lt;p>这里选用的有两种环境&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>ARM设备 树莓派&lt;/p>
+&lt;p>之前618买了树莓派，派上用场了。&lt;/p>
+&lt;p>把PI的官方系统换成了Ubuntu 18.04。&lt;/p>
+&lt;p>安装了GCC 、gdb、gef（经测试只有gef能用），其他也没什么需要装的。&lt;/p>
+&lt;p>关闭地址随机化&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -2032,28 +1459,421 @@ alt="img"
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">perfrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;######&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">var&lt;/span> &lt;span class="nx">logActivity&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">use&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;jakhar.aseem.diva.LogActivity&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">logActivity&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">checkout&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">implementation&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Hook&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sudo cat /proc/sys/kernel/randomize_va_space &lt;span class="c1"># 状态查看&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">2&lt;/span> &lt;span class="c1"># 开启中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo &lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash: /proc/sys/kernel/randomize_va_space: Permission denied
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">su
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span> &lt;span class="c1">#这就OK&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>命令行载入脚本运行&lt;/p>
-&lt;p>&lt;code>frida -U jakhar.aseem.diva -l diva1.js --no-pause&lt;/code>&lt;/p>
-&lt;p>进入logging关卡 点击check out，成功hook到checkout函数。&lt;/p>
-&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616153553.png"
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>QEMU 模拟 (WSL2)&lt;/p>
+&lt;p>安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#防止又出什么乱七八糟的错误和需求，尽量都装上&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gdb gdb-multiarch &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install qemu &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu &lt;span class="c1">##gcc arm 依赖库安装&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x02-启动和调试">0x02 启动和调试&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>树莓派&lt;/p>
+&lt;p>直接运行&lt;/p>
+&lt;p>进行socat绑定端口 就OK&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">socat tcp-listen:6666,fork exec:./binfile
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>QEMU&lt;/p>
+&lt;ul>
+&lt;li>32bit&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地GDB调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-arm -g &lt;span class="m">1234&lt;/span> -L /usr/arm-linux-gnueabi ./binfile
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gdb-multiarch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote localhost:1234
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 绑定运行到指定端口 远程调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># + -g 方便调试 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -g 1234 -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>64bit&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地调试 -g 等待GDB调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-aarch64 -g &lt;span class="m">1111&lt;/span> -L /usr/aarch64-linux-gnu ./file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -g 1234 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x03-调试过程">0x03 调试过程&lt;/h3>
+&lt;p>在树莓派直接gdb调试就行。省略。。。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804221031.png"
 loading="lazy"
 alt="img"
 >&lt;/p>
-&lt;h3 id="0x04-总结">0x04 总结&lt;/h3>
-&lt;hr>
-&lt;p>算是简单的入门了frida。&lt;/p>
-&lt;p>frida还有很多厉害的功能。多读读官方文档，收货会更多。&lt;/p></description></item><item><title>Frida从入门到放弃_2(待补充)</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="frida从入门到放弃_2待补充">Frida从入门到放弃_2(待补充)&lt;/h1>
+&lt;p>img&lt;/p>
+&lt;p>使用qemu+gdb-multiarch+插件进行调试步骤&lt;/p>
+&lt;p>&lt;code>qemu-aarch64 -g 10002 -L /usr/aarch64-linux-gnu ./baby_arm&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gdb-multiarch ./baby_arm -q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote:10002
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804225625.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-题目搭建">0x04 题目搭建&lt;/h3>
+&lt;p>基于&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
+>ctf_xinetd&lt;/a>项目自己改了一个&lt;/p>
+&lt;p>地址：&lt;a class="link" href="https://github.com/Vorblock/CTF_arm_xinetd" target="_blank" rel="noopener"
+>CTF_ARM_xinetd&lt;/a>&lt;/p>
+&lt;h3 id="0x05-参考链接">0x05 参考链接&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/3154" target="_blank" rel="noopener"
+>https://xz.aliyun.com/t/3154&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
+>https://github.com/Eadom/ctf_xinetd&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/bkerler/exploit_me" target="_blank" rel="noopener"
+>https://github.com/bkerler/exploit_me&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>PWN-格式化字符串漏洞(FMT)</title><link>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</link><pubDate>Fri, 12 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</guid><description>&lt;h1 id="pwn-格式化字符串漏洞fmt">PWN-格式化字符串漏洞(FMT)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>Fuzzing基础(待补充)</title><link>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Wed, 10 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="fuzzing基础待补充">Fuzzing基础(待补充)&lt;/h1>
+&lt;h2 id="0x00">0x00&lt;/h2></description></item><item><title>CTF-PWN刷题记录-CTFWiki_3堆利用（待补充）</title><link>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_3%E5%A0%86%E5%88%A9%E7%94%A8%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Thu, 04 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_3%E5%A0%86%E5%88%A9%E7%94%A8%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="ctf-pwn刷题记录-ctfwiki_3堆利用待补充">CTF-PWN刷题记录-CTFWiki_3堆利用（待补充）&lt;/h1>
+&lt;h2 id="简介">简介&lt;/h2></description></item><item><title>PWN-OOB(重写中)</title><link>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</link><pubDate>Mon, 25 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</guid><description>&lt;h1 id="pwn-oob重写中">PWN-OOB(重写中)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>CTF-PWN刷题记录-CTFWiki_2格式化字符串漏洞（待补充）</title><link>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_2%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 22 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_2%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="ctf-pwn刷题记录-ctfwiki_2格式化字符串漏洞待补充">CTF-PWN刷题记录-CTFWiki_2格式化字符串漏洞（待补充）&lt;/h1>
+&lt;h2 id="简介">简介&lt;/h2></description></item><item><title>PWN-UAF_（重写）</title><link>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</link><pubDate>Wed, 20 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</guid><description>&lt;h1 id="pwn-uaf_重写">PWN-UAF_（重写）&lt;/h1>
+&lt;h2 id="0x00-原理">0x00 原理&lt;/h2>
+&lt;p>堆内存在释放后被直接再次使用(释放了堆块之后，未将该指针值为NULL,导致指针处于悬空状态，被释放的内存能被恶意利用) 在浏览器中比较常见的漏洞&lt;/p>
+&lt;p>&lt;strong>根本原因是：&lt;/strong>&lt;/p>
+&lt;blockquote>
+&lt;p>应用程序调用free()释放内存时，如果内存块小于256kb，dlmalloc并不马上将内存块释放回内存，而是将内存块标记为空闲状态。这么做的原因有两个：一是内存块不一定能马上释放会内核（比如内存块不是位于堆顶端），二是供应用程序下次申请内存使用（这是主要原因）。当dlmalloc中空闲内存量达到一定值时dlmalloc才将空闲内存释放会内核。如果应用程序申请的内存大于256kb，dlmalloc调用mmap()向内核申请一块内存，返回返还给应用程序使用。如果应用程序释放的内存大于256kb，dlmalloc马上调用munmap()释放内存。dlmalloc不会缓存大于256kb的内存块，因为这样的内存块太大了，最好不要长期占用这么大的内存资源。&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="利用">利用&lt;/h3>
+&lt;h3 id="简单利用">简单利用&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdlib.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">typedef&lt;/span> &lt;span class="nf">void&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="p">)(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">evil_fuc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">command&lt;/span>&lt;span class="p">[])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">echo&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">content&lt;/span>&lt;span class="p">[])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;%s&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">content&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">echo&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello world&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">free&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//在这里free了p1,但并未将p1置空,导致后续可以再使用p1指针
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello again&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//p1指针未被置空,虽然free了,但仍可使用.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="c1">//malloc在free一块内存后,再次申请同样大小的指针会把刚刚释放的内存分配出来.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="c1">//p2与p1指针指向的内存为同一地址
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p2&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">evil_fuc&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//在这里将p1指针里面保存的echo函数指针覆盖成为了evil_func指针.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912215411.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="pwnablekr-uaf">pwnable.kr uaf&lt;/h3>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912220453.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>先看看源码：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;span class="lnt">75
+&lt;/span>&lt;span class="lnt">76
+&lt;/span>&lt;span class="lnt">77
+&lt;/span>&lt;span class="lnt">78
+&lt;/span>&lt;span class="lnt">79
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c++" data-lang="c++">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;fcntl.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;iostream&amp;gt; &lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;unistd.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">using&lt;/span> &lt;span class="k">namespace&lt;/span> &lt;span class="n">std&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">private&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">give_shell&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">protected&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;My name is &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">age&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34; years old&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Man&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a nice guy!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Woman&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a cute girl!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">argc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">argv&lt;/span>&lt;span class="p">[]){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">m&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jack&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">25&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">w&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jill&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">21&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">size_t&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;1. use&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">2. after&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">3. free&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cin&lt;/span> &lt;span class="o">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">switch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">op&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">w&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">atoi&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">O_RDONLY&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;your data is allocated&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">m&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">w&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">default&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="hcft2016-fheap">HCFt2016 fheap&lt;/h3>
+&lt;h3 id="网鼎杯ctf2018-第一场-pwn-babyheap">网鼎杯CTF2018 第一场 Pwn Babyheap&lt;/h3>
+&lt;p>参考资料：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/Ox9A82/p/5320857.html" target="_blank" rel="noopener"
+>https://www.cnblogs.com/Ox9A82/p/5320857.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/alert123/p/4918041.html" target="_blank" rel="noopener"
+>https://www.cnblogs.com/alert123/p/4918041.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://blog.csdn.net/qq_31481187/article/details/73612451" target="_blank" rel="noopener"
+>https://blog.csdn.net/qq_31481187/article/details/73612451&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4" target="_blank" rel="noopener"
+>https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>PWN-堆溢出_(待补充)</title><link>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 16 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-堆溢出_待补充">PWN-堆溢出_(待补充)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
+&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>PWN-栈溢出（待补充）</title><link>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sun, 10 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-栈溢出待补充">PWN-栈溢出（待补充）&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
+&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>Frida从入门到放弃_2(待补充)</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 02 Feb 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="frida从入门到放弃_2待补充">Frida从入门到放弃_2(待补充)&lt;/h1>
 &lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
 &lt;p>复习一下Android安装frida命令&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -2241,8 +2061,188 @@ alt="img"
 &lt;p>&lt;a class="link" href="https://github.com/dweinstein/awesome-frida" target="_blank" rel="noopener"
 >https://github.com/dweinstein/awesome-frida&lt;/a>&lt;/p>
 &lt;/li>
-&lt;/ul></description></item><item><title>Fuzzing基础(待补充)</title><link>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="fuzzing基础待补充">Fuzzing基础(待补充)&lt;/h1>
-&lt;h2 id="0x00">0x00&lt;/h2></description></item><item><title>IDA_动态调试.so_基本步骤</title><link>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</guid><description>&lt;h1 id="ida_动态调试so_基本步骤">IDA_动态调试.so_基本步骤&lt;/h1>
+&lt;/ul></description></item><item><title>Frida从入门到放弃_1（重置）</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</link><pubDate>Tue, 22 Jan 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</guid><description>&lt;h1 id="frida从入门到放弃_1重置">Frida从入门到放弃_1（重置）&lt;/h1>
+&lt;h3 id="0x00-frida">0x00 Frida&lt;/h3>
+&lt;p>Frida 官网：https://www.frida.re/&lt;/p>
+&lt;p>github: &lt;a class="link" href="https://github.com/frida/frida" target="_blank" rel="noopener"
+>https://github.com/frida/frida&lt;/a>&lt;/p>
+&lt;p>Dynamic instrumentation toolkit for developers, reverse-engineers, and security researchers.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Scriptable&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Portable&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Free&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Battle-tested&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-安装">0x01 安装&lt;/h3>
+&lt;h3 id="二进制安装-推荐">二进制安装 (推荐)&lt;/h3>
+&lt;p>pip install frida-tools 就一个命令搞定&lt;/p>
+&lt;blockquote>
+&lt;p>Failed to load the Frida native extension: DLL load failed: 找不到指定的模块&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>报了这个错 查了大半天 原来我用的版本是基于python3.7编译的。我现在用的3.6.。。。。
+&lt;/code>&lt;/pre>
+&lt;p>绑定：二选一就行&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">pip install frida &lt;span class="c1"># Python bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm install frida &lt;span class="c1"># Node.js bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="手动编译">手动编译&lt;/h3>
+&lt;p>依赖：&lt;/p>
+&lt;p>&lt;code>pip3 install colorama prompt-toolkit pygments&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>Linux&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>make&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>MacOS and iOS&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">MAC_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">IOS_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>Windows&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida.sln &lt;span class="c1">#VS2017&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x02-android环境">0x02 Android环境&lt;/h3>
+&lt;p>设备：小米mix2 运行Android9.0 MIUI10开发版已解锁root&lt;/p>
+&lt;p>frida-server: 用的arm64版本&lt;/p>
+&lt;p>&lt;a class="link" href="https://github.com/frida/frida/releases" target="_blank" rel="noopener"
+>server文件下载&lt;/a>&lt;/p>
+&lt;p>下载好对应的 frida-server 然后adb push 进去&lt;/p>
+&lt;p>&lt;code>adb push frida-server /data/local/tmp&lt;/code>&lt;/p>
+&lt;p>然后&lt;code>chomd 755 frida-server&lt;/code>修改权限&lt;/p>
+&lt;p>运行&lt;code>./frida-server&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133452.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>frida-server&lt;/p>
+&lt;p>这几个命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">root&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">push&lt;/span> &lt;span class="nb">frida-server&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">local&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>查看架构：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616145105.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>aarch64&lt;/p>
+&lt;h3 id="0x03-简单测试">0x03 简单测试&lt;/h3>
+&lt;p>命令行运行&lt;code>frida-ps -U&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133604.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>frida-ps&lt;/p>
+&lt;p>有显示就是连接成功&lt;/p>
+&lt;p>接下来对浏览器进行简单测试&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150349.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i open com.android.browser&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150506.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>随便点一下浏览器&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150623.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>测试Diva&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151039.jpg"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151307.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i &amp;quot;open*&amp;quot; jakhar.aseem.diva&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151432.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>进行Hook login.class checkout函数&lt;/p>
+&lt;p>逆向过程略&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151826.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>HOOK脚本：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">perfrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;######&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">var&lt;/span> &lt;span class="nx">logActivity&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">use&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;jakhar.aseem.diva.LogActivity&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">logActivity&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">checkout&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">implementation&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Hook&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>命令行载入脚本运行&lt;/p>
+&lt;p>&lt;code>frida -U jakhar.aseem.diva -l diva1.js --no-pause&lt;/code>&lt;/p>
+&lt;p>进入logging关卡 点击check out，成功hook到checkout函数。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616153553.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-总结">0x04 总结&lt;/h3>
+&lt;hr>
+&lt;p>算是简单的入门了frida。&lt;/p>
+&lt;p>frida还有很多厉害的功能。多读读官方文档，收货会更多。&lt;/p></description></item><item><title>IDA_动态调试.so_基本步骤</title><link>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</link><pubDate>Fri, 31 Aug 2018 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</guid><description>&lt;h1 id="ida_动态调试so_基本步骤">IDA_动态调试.so_基本步骤&lt;/h1>
 &lt;h2 id="ida-动态调试so-基本步骤">IDA 动态调试.so 基本步骤&lt;/h2>
 &lt;ul>
 &lt;li>待补图&lt;/li>
