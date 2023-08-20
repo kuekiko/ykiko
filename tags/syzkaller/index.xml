@@ -1,0 +1,578 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Syzkaller on ykikoqAq</title><link>https://ykiko.top/tags/syzkaller/</link><description>Recent content in Syzkaller on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 05 May 2023 16:35:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/tags/syzkaller/index.xml" rel="self" type="application/rss+xml"/><item><title>syzkaller_fuzzing_入门</title><link>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</guid><description>&lt;h1 id="syzkaller_fuzzing_入门">syzkaller_fuzzing_入门&lt;/h1>
+&lt;h3 id="0x00-介绍">0x00 介绍&lt;/h3>
+&lt;p>&lt;a class="link" href="https://github.com/google/syzkaller" target="_blank" rel="noopener"
+>syzkaller&lt;/a>是google的安全研究人员开发并维护的内核fuzz工具。它主要是用go写的，也有少部分C代码，支持akaros/fuchsia/linux/android/freebsd/netbsd/openbsd/windows等系统，发现的漏洞多达上千。&lt;/p>
+&lt;h3 id="0x01-环境配置">0x01 环境配置&lt;/h3>
+&lt;p>&lt;strong>环境要求&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>C/C++ 编译器&lt;/p>
+&lt;ul>
+&lt;li>GCC 6.1.0+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>linux kernel&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>编译 v4.6以后编译时确保&lt;code>CONFIG_KCOV=y&lt;/code> 之前版本：&lt;a class="link" href="https://github.com/torvalds/linux/commit/5c9a8750a6409c63a0f01d51a9024861022f6593" target="_blank" rel="noopener"
+>这样&lt;/a>添加支持&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>一些额外&lt;a class="link" href="https://github.com/google/syzkaller/blob/master/docs/linux/kernel_configs.md" target="_blank" rel="noopener"
+>选项&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>VM 一般QEMU&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>支持QEMU、kvmtool和GCE虚拟机、Android设备和Odroid C2开发板&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>需要进行通信：vm要提供网络支持&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>vm配置需要ssh服务器&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>要能执行&lt;code>ssh -i $SSHID -p $PORT root@localhost&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>需要将&lt;code>debugfs&lt;/code> 挂在到 &lt;code>/sys/kernel/debug&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://golang.org/" target="_blank" rel="noopener"
+>Golang&lt;/a> 安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">wget https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar -C ~/goroot -xzf go1.14.1.linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vim /etc/profile
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir /usr/local/gopath
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 添加export &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">GOROOT&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/goroot
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">GOPATH&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/gopath
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$GOROOT&lt;/span>/bin:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$GOPATH&lt;/span>/bin:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">source&lt;/span> etc/profile
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>syzkaller&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># build&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">go get -u -d github.com/google/syzkaller/...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="nv">$GOROOT&lt;/span>/src/github.com/google/syzkaller/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make -j4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># build之后在bin/下&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>如果要cross-OS/arch 进行测试的话，记得修改&lt;code>TARGETOS&lt;/code>, &lt;code>TARGETVMARCH&lt;/code> 和&lt;code>TARGETARCH&lt;/code>参数再&lt;code>make&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-init-syzkaller">0x02 Init syzkaller&lt;/h3>
+&lt;p>生成镜像&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sudo apt install debootstrap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> gopath/src/github.com/google/syzkaller/tools/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 使用国内源 修改create-image.sh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo debootstrap --include&lt;span class="o">=&lt;/span>&lt;span class="nv">$PREINSTALL_PKGS&lt;/span> --components&lt;span class="o">=&lt;/span>main,contrib,non-free &lt;span class="nv">$RELEASE&lt;/span> &lt;span class="nv">$DIR&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 改成&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo debootstrap --include&lt;span class="o">=&lt;/span>&lt;span class="nv">$PREINSTALL_PKGS&lt;/span> --components&lt;span class="o">=&lt;/span>main,contrib,non-free &lt;span class="nv">$RELEASE&lt;/span> &lt;span class="nv">$DIR&lt;/span> http://mirrors.163.com/debian/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./create-image.sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 选项 --distribution wheezy --feature full&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 生成了stretch.id_rsa stretch.id_rsa.pub stretch.img&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="编译启动-内核">编译启动 内核&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">KERNEL&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/linux_kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">IMG&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/linux_kernel/img
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$KERNEL&lt;/span>:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$IMG&lt;/span>:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 默认编译&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="nv">$KERNEL&lt;/span>/xxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> defconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> kvmconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 直接 make menuconfig &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 编辑.config&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_KCOV&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_DEBUG_INFO&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_KASAN&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_KASAN_INLINE&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 新&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_CONFIGFS_FS&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_SECURITYFS&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> olddefconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> -j4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="qemu">qemu&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">qemu-system-x86_64 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -kernel &lt;span class="nv">$KERNEL&lt;/span>/arch/x86/boot/bzImage &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -append &lt;span class="s2">&amp;#34;console=ttyS0 root=/dev/sda earlyprintk=serial&amp;#34;&lt;/span>&lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -hda &lt;span class="nv">$IMAGE&lt;/span>/stretch.img &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -net user,hostfwd&lt;span class="o">=&lt;/span>tcp::10021-:22 -net nic &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -enable-kvm &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -nographic &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -m 2G &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -smp &lt;span class="m">2&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -pidfile vm.pid &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> 2&amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">1&lt;/span> &lt;span class="p">|&lt;/span> tee vm.log
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ssh连接&lt;/p>
+&lt;p>&lt;code>ssh -i $IMG/stretch.id_rsa -p 10021 -o &amp;quot;StrictHostKeyChecking no&amp;quot; root@localhost&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417165654.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>kill qemu 使用&lt;code>kill $(cat vm.pid)&lt;/code>&lt;/p>
+&lt;h3 id="0x03-start-fuzzing">0x03 Start Fuzzing&lt;/h3>
+&lt;p>添加配置文件my.cfg&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;target&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;linux/amd64&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;http&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;127.0.0.1:56741&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;workdir&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller/workdir&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;kernel_obj&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$KERNEL&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;image&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$IMAGE/stretch.img&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;sshkey&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$IMAGE/stretch.id_rsa&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;syzkaller&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;procs&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;type&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;qemu&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;vm&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;count&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;kernel&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$KERNEL/arch/x86/boot/bzImage&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;cpu&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;mem&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">2048&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>启动fuzzing&lt;/p>
+&lt;p>&lt;code>./bin/syz-manager -config=my.cfg&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417185540.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>浏览器打开http://127.0.0.1:56741/&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417185612.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>虚拟机性能太垃圾，太慢了 fuzzing半天没也啥crashes。还是得用服务器。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417190242.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>挂机了大概3小时，出了几个没啥用的crach。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417205533.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-总结">0x04 总结&lt;/h3>
+&lt;p>还有很多选项可以开启，没试。&lt;/p>
+&lt;p>看看实现源码，还有就是之后试试Fuzzing Android&lt;/p>
+&lt;h3 id="参考">参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/google/syzkaller" target="_blank" rel="noopener"
+>https://github.com/google/syzkaller&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.freebuf.com/sectool/142969.html" target="_blank" rel="noopener"
+>https://www.freebuf.com/sectool/142969.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="http://blog.douluodalu.wang/2020/03/22/syz-fuzz%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener"
+>http://blog.douluodalu.wang/2020/03/22/syz-fuzz%E5%88%9D%E6%8E%A2/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup.md" target="_blank" rel="noopener"
+>https://github.com/google/syzkaller/blob/master/docs/linux/setup.md&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>syzkaller-android</title><link>https://ykiko.top/p/syzkaller-android/</link><pubDate>Fri, 05 May 2023 16:35:00 +0000</pubDate><guid>https://ykiko.top/p/syzkaller-android/</guid><description>&lt;h1 id="syzkaller-android">syzkaller-android&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>介绍使用syzkaller fuzz Android的配置教程。&lt;/p>
+&lt;h3 id="0x01-环境">0x01 环境&lt;/h3>
+&lt;p>按要安装好环境&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>go&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>syzkaller&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>交叉编译aarch64-linux-android、g++-aarch64-linux-gnu、gcc-arm-linux-gnueabihf、g++-arm-linux-gnueabihf&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-配置">0x02 配置&lt;/h3>
+&lt;p>创建配置文件android.cfg&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;target&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;linux/arm64&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// arm
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nt">&amp;#34;http&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;127.0.0.1:56741&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;workdir&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller/workdir&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;kernel_obj&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$KERNEL&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// 内核路径
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nt">&amp;#34;syzkaller&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;sandbox&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="err">none&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;procs&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;type&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;adb&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;cover&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;vm&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;devices&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="err">$DEVICES&lt;/span>&lt;span class="p">],&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;battery_check&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>KASAN+KCOV编译内核&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>首先编译要fuzz的Android版本输入手机。（过程省略）[1]&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>下载编译基准内核。[2] ，使用手动编译会报错，使用给KASCAN文档[3]的方法也可能报错。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 创建文件夹&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir android-kernel &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">cd&lt;/span> android-kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 切换分支&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">repo init -u https://android.googlesource.com/kernel/manifest -b BRANCH
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">repo sync
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 修改内核build文件 内核路径下的build.config制定make_deconfig&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">KERNEL_DIR&lt;/span>&lt;span class="o">=&lt;/span>private/msm-google
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">. &lt;span class="si">${&lt;/span>&lt;span class="nv">ROOT_DIR&lt;/span>&lt;span class="si">}&lt;/span>/&lt;span class="si">${&lt;/span>&lt;span class="nv">KERNEL_DIR&lt;/span>&lt;span class="si">}&lt;/span>/build.config.common &lt;span class="c1">##这里&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 构建内核&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">build/build.sh
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>刷入内核&lt;/p>
+&lt;p>重新编译aosp启动镜像&lt;/p>
+&lt;p>在服务器上编译的将out/dist目录打包备份&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="o">{&lt;/span>aosp_dir&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cp &lt;span class="o">{&lt;/span>kernel_dir&lt;span class="o">}&lt;/span>/out/&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>/dist/Image.lz4-dtb &lt;span class="o">{&lt;/span>aosp&lt;span class="o">}&lt;/span>/device/google/marlin-kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">. build/envsetup.sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">lunch aosp_sailfish-userdebug
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make -j64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 重新拷贝到本地 win&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb reboot bootloader
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">set&lt;/span> &lt;span class="nv">ANDROID_PRODUCT_OUT&lt;/span>&lt;span class="o">=&lt;/span>./
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">fastboot flashall -w
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;blockquote>
+&lt;p>之前 3.18.137-g72a7a6&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> 之后 … (手机显示无法显示内核)
+```shell
+sailfish:/ # uname -a
+Linux localhost 3.18.137-g8b62de70252d #1 SMP PREEMPT 2019-09-27 02:13:04 aarch64
+```
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>修改内核重新刷入&lt;/p>
+&lt;ul>
+&lt;li>失败的方法&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>按文档说的&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> ```shell
+cd arch/arm64/configs
+cp marlin_defconfig marlin-kasan_defconfig
+```
+在配置文档中移除`CONFIG_KERNEL_LZ4=y`
+加入
+```plain text
+CONFIG_KASAN_INLINE=y
+CONFIG_KCOV=y
+CONFIG_SLUB=y
+CONFIG_SLUB_DEBUG=y
+```
+重新编译内核。
+发现任何变化
+&lt;/code>&lt;/pre>
+&lt;blockquote>
+&lt;p>尝试的方法&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> 修改build.config文件
+```shell
+. ${ROOT_DIR}/${KERNEL_DIR}/build.config.kasan (失败)
+```
+不修改，还是去修改marlin_defconfig添加KASAN
+报错：savedefconfig does not match private/msm-google
+修改build.config 删掉check_defconfig 检查 （失败）
+&lt;/code>&lt;/pre>
+&lt;blockquote>
+&lt;p>不修改文件&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> 使用命令
+```shell
+./build/build.sh BUILD_CONFIG=build.config.kasan
+```
+&lt;/code>&lt;/pre>
+&lt;p>最后发现&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">cp private/msm-google/build.config.kasan ./
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">BUILD_CONFIG&lt;/span>&lt;span class="o">=&lt;/span>build.config.kasan build/build.sh &lt;span class="c1">##放前面才管用&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>编译完成 ，修改aosp参数&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">aosp$ &lt;span class="nb">cd&lt;/span> device/google/marlin/sailfish
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cp BoardConfig.mk BoardConfig.mk.bak
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vim BoardConfig.mk
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 注释掉&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_BASE :&lt;span class="o">=&lt;/span> 0x80000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_PAGESIZE :&lt;span class="o">=&lt;/span> &lt;span class="m">4096&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## ifneq ($(filter sailfish_kasan, $(TARGET_PRODUCT)),)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_OFFSET :&lt;span class="o">=&lt;/span> 0x80000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_TAGS_OFFSET :&lt;span class="o">=&lt;/span> 0x02500000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_RAMDISK_OFFSET :&lt;span class="o">=&lt;/span> 0x02700000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_MKBOOTIMG_ARGS :&lt;span class="o">=&lt;/span> --kernel_offset &lt;span class="k">$(&lt;/span>BOARD_KERNEL_OFFSET&lt;span class="k">)&lt;/span> --ramdisk_offset &lt;span class="k">$(&lt;/span>BOARD_RAMDISK_OFFSET&lt;span class="k">)&lt;/span> --tags_offset &lt;span class="k">$(&lt;/span>BOARD_KERNEL_TAGS_OFFSET&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## BOARD_KERNEL_TAGS_OFFSET := 0x02000000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## BOARD_RAMDISK_OFFSET := 0x02200000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## endif&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TARGET_KERNEL_ARCH :&lt;span class="o">=&lt;/span> arm64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TARGET_KERNEL_HEADER_ARCH :&lt;span class="o">=&lt;/span> arm64
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>修改device/google/marlin/device-common.mk&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">lz4-&amp;gt;gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LOCAL_KERNEL :&lt;span class="o">=&lt;/span> device/google/marlin-kernel/Image.gz-dtb
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>新的问题&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">error: out/target/product/sailfish/boot-debug.img too large
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>解决方法：将BoardConfig.mk的&lt;code>BOARD_BOOTIMAGE_PARTITION_SIZE&lt;/code>的值改大。&lt;/p>
+&lt;p>重新编译aosp启动镜像 再刷入手机。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x03-开启fuzzing">0x03 开启fuzzing&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">./bin/syz-manager -config&lt;span class="o">=&lt;/span>android.cfg
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200916163028.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>fuzz&lt;/p>
+&lt;p>手机不断重启。。。。&lt;/p>
+&lt;p>查看msg:&lt;code>adb shell dmesg -w&lt;/code>&lt;/p>
+&lt;p>&lt;code>syz-manager -debug&lt;/code> 查看syz的相关问题。&lt;/p>
+&lt;h3 id="参考">参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>[1]https://source.android.google.cn/setup/build?hl=zh-cn&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>[2]https://source.android.google.cn/setup/build/building-kernels?hl=zh-cn&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>[3]https://source.android.com/devices/tech/debug/kasan-kcov&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>[4]https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_android-device_arm-kernel.md&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

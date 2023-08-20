@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>jemalloc on ykikoqAq</title><link>https://ykiko.top/tags/jemalloc/</link><description>Recent content in jemalloc on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 05 May 2023 16:34:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/tags/jemalloc/index.xml" rel="self" type="application/rss+xml"/><item><title>Android之jemalloc</title><link>https://ykiko.top/p/android%E4%B9%8Bjemalloc/</link><pubDate>Fri, 05 May 2023 16:34:00 +0000</pubDate><guid>https://ykiko.top/p/android%E4%B9%8Bjemalloc/</guid><description>&lt;h1 id="android之jemalloc">Android之jemalloc&lt;/h1>
+&lt;h3 id="0x00-简单介绍">0x00 简单介绍&lt;/h3>
+&lt;p>想调一个CVE、发现对jemalloc 了解太少。重新复习复习jemalloc，做个记录。&lt;/p>
+&lt;p>jemalloc最初是2005年 Jason Evans开发的新一代内存分配器， 之后没多久被添加到FreeBSD的libc中的默认内存分配器，用来替代原来的phkmalloc。2007年 Firefox Mozilla项目的独立版本也将jemalloc作为主要的分配器。2009年，Facebook 的后端项目也广泛使用jemalloc。2014年，Android 5 开始采用jemalloc作为主要的内存分配器，不过部分Android5/6依然能看到dlmalloc和jemalloc两者并存。&lt;/p>
+&lt;p>jemalloc的一些特性与设计原则：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>强大的多核/多线程分配能力.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>最小化的元数据开销&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>基于每个线程进行缓存，避免了同步问题。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>避免了连续分配内存的碎片化问题。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>简洁高效&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-结构">0x01 结构&lt;/h3>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403011045.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>结构图&lt;/p>
+&lt;blockquote>
+&lt;p>jemalloc对内存划分按照如下由高到低的顺序:&lt;/p>
+&lt;/blockquote>
+&lt;blockquote>
+&lt;p>内存是由一定数量的arenas进行管理.一个arena被分割成若干chunks, 后者主要负责记录bookkeeping（记录信息）.chunk内部又包含着若干runs, 作为分配小块内存的基本单元.run由pages组成, 最终被划分成一定数量的regions对于small size的分配请求来说, 这些region就相当于user memory.&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="arenas">arenas&lt;/h3>
+&lt;p>对于Android来说：&lt;/p>
+&lt;p>限制了只使用两个arenas,每个带有一个lock。这意味着，不同线程尝试分配内存时，会循环、平均分配至两个arena，确保两个arena有大致相等的进程数量。只有在相同的arena中分配内存时才需要获取lock。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#/android.bp
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="n">android_product_variables&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// Only enable the tcache on non-svelte configurations, to save PSS.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nl">malloc_not_svelte&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nl">cflags&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;-UANDROID_MAX_ARENAS&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;-DANDROID_MAX_ARENAS=2&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;-DJEMALLOC_TCACHE&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;-DANDROID_TCACHE_NSLOTS_SMALL_MAX=8&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s">&amp;#34;-DANDROID_TCACHE_NSLOTS_LARGE=16&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">],&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">},&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>用shadow查看arenas&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403015253.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="chunk">chunk&lt;/h3>
+&lt;p>一个arena下会有若干个chunk，Android 7之前chunk为256k，之后32位系统改为512k，64位系统改为2MB。&lt;/p>
+&lt;p>每个chunk都有一个chunk head 包含着这个chunk的元数据（metadata）.Android 7之后元数据增加了mapbias与mapbits flags。&lt;/p>
+&lt;p>chunk是存放run的容器，大小固定相同，操作系统返回的内存被划分到chunk中管理&lt;/p>
+&lt;p>chunk中的元数据结构，mapbit[0]与mapmisc[0]指向chunk中的第一个run：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403012851.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>chunk元数据中mapmisc中的bitmap结构管理着run中的region的分配使用：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403013355.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>chunk&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403015412.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="run">run&lt;/h3>
+&lt;p>run是存放连续的大小相同的region的容器，每个chunk中会包含若干个run，而run的metadata会存放在chunk的header当中，这样region里只存放数据本身，不再有内存属性说明。&lt;/p>
+&lt;h3 id="region">region&lt;/h3>
+&lt;p>region是最小的存储单元，每个run里面的region大小完全相同，也没有元数据，malloc实际返回的是region的地址。&lt;/p>
+&lt;h3 id="bins">bins&lt;/h3>
+&lt;p>jemalloc也用bin来管理内存，共有39个bins。bin的metadata存放于arena的header中，39个bin还会存放当前正在使用的run。所有带有空闲region的run和闲置的chunk信息会被放置在红黑树结构当中，这样寻找空闲内存的复杂度可以控制在o(log(n))。&lt;/p>
+&lt;h3 id="tcache">tcache&lt;/h3>
+&lt;p>为了优化多线程性能，jemalloc还采用了LIFO结构的tcache，存放近期被释放的region，每个线程的每个bin都对应一个tcache，存放在tcache中的内存并不会设置free标记位，并且由于tache附着于线程本身，使得大部分情况下从tcache分配内存时完全无需lock。&lt;/p>
+&lt;p>当jemalloc新分配一块内存是发现tcache为空，会触发prefill事件，此时jemalloc会将单前的arena上lock,并从当前run中取出一定数量的region存入tcache，保证tcache不为空。&lt;/p>
+&lt;p>当tcache满了（small bin是8，larger bin是20）的时候，会触发flush 事件，会释放部分region，并且才会被标记为已释放。这时这些region才能被其他线程自由分配。&lt;/p>
+&lt;p>此外，jemalloc也实现是GC机制。会有一个计数器统计申请和释放，达到阈值之后会触发特别的事件，目标bin里的tcache的四分之三的region会被释放掉。下次GC时会轮到下一个bin。这是可以从tcache中删除region并使其恢复常规可用性的另一种方法。&lt;/p>
+&lt;h3 id="分配流程">分配流程&lt;/h3>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403022314.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;blockquote>
+&lt;p>计算申请内存大小从当前线程的tcache中找到合适的bin如果tcache为空，就从当前的run中prefill一些region进来如果当前run耗尽，就从低地址开始找到第一个非空run如果现有run里没有足够的内存就分配一个新run如果chunk里没有空间了就分配一个新chunk，同时分配新run并prefill一些region到tcache&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="0x02-shadow">0x02 shadow&lt;/h3>
+&lt;p>使用shadow查看Android中的内存布局，简单学习下shadow的使用&lt;/p>
+&lt;h3 id="查看arenas">查看arenas&lt;/h3>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403022557.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>可以看到一共两个arenas，每个arena有36个bin，一共2个chunk。&lt;/p>
+&lt;h3 id="查看chunks">查看chunks&lt;/h3>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403023042.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>单个chunk，查看chunk中的run&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403023253.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>查看runs，会列出单前所有的run的详情 run_siez = region_size*no_regions&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403023401.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>只显示单前运行中的run&lt;/p>
+&lt;p>是否是allocated状态是根据arena_chunk_map_bits_s 对应 bits的 第 [0] bit 来确定 这里jemalloc5 和 jemalloc4 3不一样。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403023454.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>查看单个run的详情：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/image-20200403023549875.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>run的布局如下：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405030548.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>源代码arena.h中有很多关于bits之类的注释。能够帮助理解。&lt;/p>
+&lt;p>查看bins:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">arena_bin_s&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">malloc_mutex_t&lt;/span> &lt;span class="n">lock&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">arena_run_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">runcur&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">arena_run_heap_t&lt;/span> &lt;span class="n">runs&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//4之前版本为arena_run_tree_t 类型
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kt">malloc_bin_stats_t&lt;/span> &lt;span class="n">stats&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//统计信息
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>runcur:&lt;/strong> 当前可用于分配的run, 一般情况下指向地址最低的non-full run, 同一时间一个bin只有一个current run用于分配.&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200403023802.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>看别人的文章说是除去0号bin以外没4个bin为一组，组内size差一样，但是在这里可以看到每8个为一组，01-8号bin的size差值都为0x10,算是第一组，那第二组就为9-12号，只有4个bin size差值为0x20,但是有的为空，算第二组。没两组之间的差值2倍。以此类推，后面每4个为一组。&lt;/p>
+&lt;p>划分为{0}、{1-8}、{9-12}、{13-16}····· 可能不同版本会有区别。&lt;/p>
+&lt;p>查看regions [换了一个进程]&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405031010.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>大小都是0x8&lt;/p>
+&lt;p>按大小查找：第4个：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405031343.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>tchche查看：&lt;/p>
+&lt;p>tcache的定义：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">tcache_bin_info_s&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="n">ncached_max&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Upper limit on ncached. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">tcache_bin_s&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">tcache_bin_stats_t&lt;/span> &lt;span class="n">tstats&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">low_water&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Min # cached since last GC. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="n">lg_fill_div&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Fill (ncached_max &amp;gt;&amp;gt; lg_fill_div). */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="n">ncached&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* # of cached objects. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="cm">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * To make use of adjacent cacheline prefetch, the items in the avail
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * stack goes to higher address for newer allocations. avail points
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * just above the available space, which means that
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * avail[-ncached, ... -1] are available items and the lowest item will
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * be allocated first.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">void&lt;/span> &lt;span class="o">**&lt;/span>&lt;span class="n">avail&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Stack of available objects. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">tcache_s&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ql_elm&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">tcache_t&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">link&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Used for aggregating stats. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">uint64_t&lt;/span> &lt;span class="n">prof_accumbytes&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="cm">/* Cleared after arena_prof_accum(). */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">ticker_t&lt;/span> &lt;span class="n">gc_ticker&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Drives incremental GC. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">szind_t&lt;/span> &lt;span class="n">next_gc_bin&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="cm">/* Next bin to GC. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">tcache_bin_t&lt;/span> &lt;span class="n">tbins&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">];&lt;/span> &lt;span class="cm">/* Dynamically sized. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="cm">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * The pointer stacks associated with tbins follow as a contiguous
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * array. During tcache initialization, the avail pointer in each
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * element of tbins is initialized to point to the proper offset within
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> * this array.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">struct&lt;/span> &lt;span class="n">tcaches_s&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">union&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">tcache_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">tcache&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">tcaches_t&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">next&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405034722.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405034659.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405190426.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x03-利用">0x03 利用&lt;/h3>
+&lt;p>&lt;strong>堆溢出&lt;/strong>&lt;/p>
+&lt;p>一般先利用gadget 绕过ASLR，再利用gadget拿到代码执行的权限，只要能执行代码就能逃出sandboxing或者摆脱selinux。&lt;/p>
+&lt;ul>
+&lt;li>Small region overflow&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405190147.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;ul>
+&lt;li>Run overflow&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405190224.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;ul>
+&lt;li>Chunk overflow&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200405190305.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="总结">总结&lt;/h3>
+&lt;p>后面还是得使用shadow工具具体调试CVE加深理解。&lt;/p>
+&lt;p>jemalloc新版与旧版有挺多区别，之后想要深入了解jemalloc的细节以及一些实现还是得看看源码。&lt;/p>
+&lt;h3 id="参考">参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/jemalloc/jemalloc" target="_blank" rel="noopener"
+>https://github.com/jemalloc/jemalloc&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://blog.csdn.net/txx_683/article/details/53468211" target="_blank" rel="noopener"
+>https://blog.csdn.net/txx_683/article/details/53468211&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://blog.nsogroup.com/a-tale-of-two-mallocs-on-android-libc-allocators-part-2-jemalloc/" target="_blank" rel="noopener"
+>https://blog.nsogroup.com/a-tale-of-two-mallocs-on-android-libc-allocators-part-2-jemalloc/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/149132#h3-5" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/149132#h3-5&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85982" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/85982&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>dlmalloc 的一个tools: &lt;a class="link" href="https://github.com/s1341/shade" target="_blank" rel="noopener"
+>shade&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>
