@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:35:00 +0000 UTC
 lastmod: 2023-08-17 17:21:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-description: "Qemu+gdb调试Linux内核"
 tags: [GDB,qemu,Linux]
 date: 2019-08-28T00:00:00.000+08:00
 draft: false
 categories: [工具,二进制安全]
+description: "Qemu+gdb调试Linux内核"
 ---
 
 # qemu+gdb调试Linux内核
