@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:02:00 +0000 UTC
 lastmod: 2023-08-20 15:55:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-tags: [密码学,Crypto]
-date: 2018-01-17T00:00:00.000+08:00
 draft: false
 categories: [密码学]
 description: "TEA加密原理简单研究"
+tags: [密码学,Crypto]
+date: 2018-01-17T00:00:00.000+08:00
 ---
 
 # TEA加密与解密

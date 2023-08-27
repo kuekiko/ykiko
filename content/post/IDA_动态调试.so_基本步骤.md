@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-17 17:09:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+description: "使用IDA调试Android so的方法"
 tags: [Android,基础,原理,IDA]
 date: 2018-08-31T00:00:00.000+08:00
 draft: false
 categories: [二进制安全,移动安全]
-description: "使用IDA调试Android so的方法"
 ---
 
 # IDA_动态调试.so_基本步骤

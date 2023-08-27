@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:35:00 +0000 UTC
 lastmod: 2023-08-17 17:10:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-tags: [AI,pytorch]
-date: 2018-12-08T00:00:00.000+08:00
 draft: false
 categories: [AI]
 description: "pytorch基础"
+tags: [AI,pytorch]
+date: 2018-12-08T00:00:00.000+08:00
 ---
 
 # pytorch学习_1安装
