@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:35:00 +0000 UTC
 lastmod: 2023-08-17 17:30:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+categories: [杂项]
 description: "最新版win10 wsl2 开启kvm的方法"
 tags: [WSL2,KVM,qemu]
 date: 2020-07-24T00:00:00.000+08:00
 draft: false
-categories: [杂项]
 ---
 
 # WSL2开启kvm

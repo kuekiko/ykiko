@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-17 17:09:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-description: "frida 1 "
-tags: [Android,Hook,原理,基础]
 date: 2019-01-22T00:00:00.000+08:00
 draft: false
 categories: [移动安全,工具]
+description: "frida 1 "
+tags: [Android,Hook,原理,基础]
 ---
 
 # Frida从入门到放弃_1（重置）
