@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-15 16:57:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-draft: false
-categories: [移动安全,读书笔记]
 description: "加固脱壳必须掌握的知识点。"
 tags: [Android,读书笔记]
 date: 2018-08-22T00:00:00.000+08:00
+draft: false
+categories: [移动安全,读书笔记]
 ---
 
 # Android应用安全防护和逆向分析-基础篇4

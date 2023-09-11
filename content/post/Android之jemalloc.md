@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-16 17:06:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+categories: [移动安全]
+description: "jemalloc简析"
 tags: [Android,jemalloc]
 date: 2020-04-05T00:00:00.000+08:00
 draft: false
-categories: [移动安全]
-description: "jemalloc简析"
 ---
 
 # Android之jemalloc
