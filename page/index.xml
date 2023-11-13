@@ -70,7 +70,7 @@ alt="img"
 &lt;p>via wget: &lt;code>sh -c &amp;quot;$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)&amp;quot;&lt;/code>&lt;/p>
 &lt;p>然后配置喜欢的 插件+主题。&lt;code>vi ~/.zshrc&lt;/code> 修改&lt;code>plugins&lt;/code>属性&lt;/p>
 &lt;p>必备插件git、autojump、zsh-autosuggestions。&lt;a class="link" href="https://github.com/robbyrussell/oh-my-zsh/wiki/Themes" target="_blank" rel="noopener"
->主题&lt;/a>&lt;/p>
+>主题&lt;/a> 经常使用ys&lt;/p>
 &lt;/li>
 &lt;li>
 &lt;p>GDB装上+pwndbg+peda+gef&lt;/p>
