@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>杂项 on ykikoqAq</title><link>https://ykiko.top/categories/%E6%9D%82%E9%A1%B9/</link><description>Recent content in 杂项 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 01 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/categories/%E6%9D%82%E9%A1%B9/index.xml" rel="self" type="application/rss+xml"/><item><title>博客正常运行中</title><link>https://ykiko.top/p/%E5%8D%9A%E5%AE%A2%E6%AD%A3%E5%B8%B8%E8%BF%90%E8%A1%8C%E4%B8%AD/</link><pubDate>Fri, 01 Sep 2023 00:00:00 +0000</pubDate><guid>https://ykiko.top/p/%E5%8D%9A%E5%AE%A2%E6%AD%A3%E5%B8%B8%E8%BF%90%E8%A1%8C%E4%B8%AD/</guid><description>&lt;h1 id="博客正常运行中">博客正常运行中&lt;/h1>
-&lt;p>TTTTT EEEEE SSSSSS TTTTTTTT&lt;/p></description></item><item><title>WSL2开启kvm</title><link>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</link><pubDate>Fri, 24 Jul 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</guid><description>&lt;h1 id="wsl2开启kvm">WSL2开启kvm&lt;/h1>
+&lt;p>TTTTT EEEEE SSSSSS TTTTTTTT&lt;/p>
+&lt;p>Notion自动生成测试&lt;/p>
+&lt;p>本文的Notion链接为：&lt;a class="link" href="https://kuekiko.notion.site/6e834359fd8445b7b5005bc7c58d6c57" target="_blank" rel="noopener"
+>https://kuekiko.notion.site/6e834359fd8445b7b5005bc7c58d6c57?pvs=4&lt;/a>&lt;/p>
+&lt;p>每10分钟更新一次&lt;/p></description></item><item><title>WSL2开启kvm</title><link>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</link><pubDate>Fri, 24 Jul 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</guid><description>&lt;h1 id="wsl2开启kvm">WSL2开启kvm&lt;/h1>
 &lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
 &lt;p>之前想着用wsl2去跑qemu，发现很多内核pwn题给的环境需要开启&lt;code>-enable-kvm&lt;/code>选项，还有自己编译的内核也没法，然而wsl2没法开启kvm，解决办法就是去把hype-v给关了，老老实实用vmware/vmbox开个虚拟机，这样每次都要切来切去很麻烦。&lt;/p>
 &lt;p>直到看到vmware和vmbox都可以与hype-v并存，以为看到了曙光，没想到是没法开启虚拟化选项的。&lt;/p>
