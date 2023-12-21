@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:35:00 +0000 UTC
 lastmod: 2023-08-17 17:14:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+categories: [工具]
+description: "QEMU的安装使用"
 tags: [qemu]
 date: 2018-08-09T00:00:00.000+08:00
 draft: false
-categories: [工具]
-description: "QEMU的安装使用"
 ---
 
 # QUME的安装使用(补充)

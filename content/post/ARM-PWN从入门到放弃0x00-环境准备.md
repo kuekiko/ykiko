@@ -4,11 +4,11 @@ created_Time: 2023-05-05 16:34:00 +0000 UTC
 lastmod: 2023-08-17 17:06:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+draft: false
 categories: [二进制安全]
 description: "ARM-PWN从入门到放弃 开篇"
 tags: [PWN,基础,原理,ARM]
 date: 2019-08-03T00:00:00.000+08:00
-draft: false
 ---
 
 # ARM-PWN从入门到放弃0x00-环境准备

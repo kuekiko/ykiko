@@ -4,11 +4,11 @@ created_Time: 2023-09-11 16:53:00 +0000 UTC
 lastmod: 2023-09-11 16:55:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-categories: [二进制安全]
-description: "总结Win下常见的反调试手段"
 tags: [Windows,调试]
 date: 2021-08-22
 draft: false
+categories: [二进制安全]
+description: "总结Win下常见的反调试手段"
 ---
 
 # Windows反调试总结
