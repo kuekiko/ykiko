@@ -1,25 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on ykikoqAq</title><link>https://ykiko.top/post/</link><description>Recent content in Posts on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 01 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/post/index.xml" rel="self" type="application/rss+xml"/><item><title>博客正常运行中</title><link>https://ykiko.top/p/%E5%8D%9A%E5%AE%A2%E6%AD%A3%E5%B8%B8%E8%BF%90%E8%A1%8C%E4%B8%AD/</link><pubDate>Fri, 01 Sep 2023 00:00:00 +0000</pubDate><guid>https://ykiko.top/p/%E5%8D%9A%E5%AE%A2%E6%AD%A3%E5%B8%B8%E8%BF%90%E8%A1%8C%E4%B8%AD/</guid><description>&lt;h1 id="博客正常运行中">博客正常运行中&lt;/h1>
-&lt;h1 id="h1">H1&lt;/h1>
-&lt;p>本博客基于Notion页面自动生成&lt;/p>
-&lt;p>Publish地址：&lt;a class="link" href="https://kuekiko.notion.site/14acc4eb33a24554a9224b2eafb61140?v=e0b848538c0c43108feebfcb8107f9c5" target="_blank" rel="noopener"
->https://kuekiko.notion.site/14acc4eb33a24554a9224b2eafb61140?v=e0b848538c0c43108feebfcb8107f9c5&amp;amp;pvs=4&lt;/a>&lt;/p>
-&lt;p>转发地址：notion.ykiko.top&lt;/p>
-&lt;h1 id="特性">特性&lt;/h1>
-&lt;ul>
-&lt;li>
-&lt;p>在Notion编写的文档自动更新到博客&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>可定制更新频率，可实时更新也可定期更新&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>自动备份相关文档&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;p>Notion自动生成测试&lt;/p>
-&lt;p>本文的Notion链接为：&lt;a class="link" href="https://kuekiko.notion.site/6e834359fd8445b7b5005bc7c58d6c57" target="_blank" rel="noopener"
->https://kuekiko.notion.site/6e834359fd8445b7b5005bc7c58d6c57?pvs=4&lt;/a>&lt;/p>
-&lt;p>每10分钟更新一次&lt;/p></description></item><item><title>CVE-2019-2215分析利用记录</title><link>https://ykiko.top/p/cve-2019-2215%E5%88%86%E6%9E%90%E5%88%A9%E7%94%A8%E8%AE%B0%E5%BD%95/</link><pubDate>Tue, 30 Jun 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/cve-2019-2215%E5%88%86%E6%9E%90%E5%88%A9%E7%94%A8%E8%AE%B0%E5%BD%95/</guid><description>&lt;h1 id="cve-2019-2215分析利用记录">CVE-2019-2215分析利用记录&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on ykikoqAq</title><link>https://ykiko.top/post/</link><description>Recent content in Posts on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Tue, 30 Jun 2020 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/post/index.xml" rel="self" type="application/rss+xml"/><item><title>CVE-2019-2215分析利用记录</title><link>https://ykiko.top/p/cve-2019-2215%E5%88%86%E6%9E%90%E5%88%A9%E7%94%A8%E8%AE%B0%E5%BD%95/</link><pubDate>Tue, 30 Jun 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/cve-2019-2215%E5%88%86%E6%9E%90%E5%88%A9%E7%94%A8%E8%AE%B0%E5%BD%95/</guid><description>&lt;h1 id="cve-2019-2215分析利用记录">CVE-2019-2215分析利用记录&lt;/h1>
 &lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
 &lt;p>&lt;a class="link" href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-2215" target="_blank" rel="noopener"
 >CVE-2019-2215&lt;/a>最初是由syzbot(syzkaller bot)在2017年发现的一个&lt;a class="link" href="https://groups.google.com/forum/#!msg/syzkaller-bugs/QyXdgUhAF50/eLGkcwk9AQAJ" target="_blank" rel="noopener"
