@@ -1,0 +1,256 @@
+<!doctype html><html lang=zh-cn dir=ltr><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content="ARM汇编基础知识点总结"><title>ARM汇编基础(待补充)</title>
+<link rel=canonical href=https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/><link rel=stylesheet href=/scss/style.min.ff300df33b80e2ac49809c825614392ed1c7b27591d65d3c4043602cd162e25f.css><meta property="og:title" content="ARM汇编基础(待补充)"><meta property="og:description" content="ARM汇编基础知识点总结"><meta property="og:url" content="https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/"><meta property="og:site_name" content="ykikoqAq"><meta property="og:type" content="article"><meta property="article:section" content="Post"><meta property="article:tag" content="基础"><meta property="article:tag" content="ARM"><meta property="article:published_time" content="2019-08-10T00:00:00+08:00"><meta property="article:modified_time" content="2023-08-16T17:12:00+00:00"><meta property="og:image" content="https://ykiko.top/"><meta name=twitter:site content="@ykikoqAq"><meta name=twitter:creator content="@ykikoqAq"><meta name=twitter:title content="ARM汇编基础(待补充)"><meta name=twitter:description content="ARM汇编基础知识点总结"><meta name=twitter:card content="summary_large_image"><meta name=twitter:image content="https://ykiko.top/"><link rel="shortcut icon" href=/favicon.ico></head><body class=article-page><script>(function(){const e="StackColorScheme";localStorage.getItem(e)||localStorage.setItem(e,"auto")})()</script><script>(function(){const t="StackColorScheme",e=localStorage.getItem(t),n=window.matchMedia("(prefers-color-scheme: dark)").matches===!0;e=="dark"||e==="auto"&&n?document.documentElement.dataset.scheme="dark":document.documentElement.dataset.scheme="light"})()</script><div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky"><button class="hamburger hamburger--spin" type=button id=toggle-menu aria-label=切换菜单>
+<span class=hamburger-box><span class=hamburger-inner></span></span></button><header><figure class=site-avatar><a href=/><img src=/img/wrlt_hu7776bd87ceaee6c7469d733bf0877a3e_443633_300x0_resize_q75_box.jpg width=300 height=296 class=site-logo loading=lazy alt=Avatar>
+</a><span class=emoji>🌈</span></figure><div class=site-meta><h1 class=site-name><a href=/>ykikoqAq</a></h1><h2 class=site-description>学习、吃饭、睡觉、活着。</h2></div></header><ol class=social-menu><li><a href=https://github.com/kuekiko target=_blank title=GitHub rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6.0 00-1.3-3.2 4.2 4.2.0 00-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3.0 00-6.2.0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2.0 00-.1 3.2A4.6 4.6.0 004 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a></li><li><a href=https://twitter.com/kuekiko7 target=_blank title=Twitter rel=me><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 4.01c-1 .49-1.98.689-3 .99-1.121-1.265-2.783-1.335-4.38-.737S11.977 6.323 12 8v1c-3.245.083-6.135-1.395-8-4 0 0-4.182 7.433 4 11-1.872 1.247-3.739 2.088-6 2 3.308 1.803 6.913 2.423 10.034 1.517 3.58-1.04 6.522-3.723 7.651-7.742a13.84 13.84.0 00.497-3.753C20.18 7.773 21.692 5.25 22 4.009z"/></svg></a></li></ol><ol class=menu id=main-menu><li><a href=/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><polyline points="5 12 3 12 12 3 21 12 19 12"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/><path d="M9 21v-6a2 2 0 012-2h2a2 2 0 012 2v6"/></svg><span>主页</span></a></li><li><a href=/archives/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><rect x="3" y="4" width="18" height="4" rx="2"/><path d="M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8"/><line x1="10" y1="12" x2="14" y2="12"/></svg><span>Archives</span></a></li><li><a href=/about/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="7" r="4"/><path d="M6 21v-2a4 4 0 014-4h4a4 4 0 014 4v2"/></svg><span>About</span></a></li><li><a href=/todo/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-forbid-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#9e9e9e" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9"/><line x1="9" y1="15" x2="15" y2="9"/></svg><span>Todo</span></a></li><li><a href=/search/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="10" cy="10" r="7"/><line x1="21" y1="21" x2="15" y2="15"/></svg><span>Search</span></a></li><li><a href=/%E5%8F%8B%E9%93%BE/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-link" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M10 14a3.5 3.5.0 005 0l4-4a3.5 3.5.0 00-5-5l-.5.5"/><path d="M14 10a3.5 3.5.0 00-5 0l-4 4a3.5 3.5.0 005 5l.5-.5"/></svg><span>友链</span></a></li><li><a href=/%E4%B8%80%E4%BA%9B%E9%93%BE%E6%8E%A5/><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="#9e9e9e" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><line x1="5" y1="6" x2="5" y2="6.01"/><line x1="5" y1="12" x2="5" y2="12.01"/><line x1="5" y1="18" x2="5" y2="18.01"/></svg><span>一些链接</span></a></li><div class=menu-bottom-section><li id=i18n-switch><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 5h7"/><path d="M9 3v2c0 4.418-2.239 8-5 8"/><path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"/><path d="M12 20l4-9 4 9"/><path d="M19.1 18h-6.2"/></svg><select name=language onchange="window.location.href=this.selectedOptions[0].value"><option value=https://ykiko.top/en/>English</option><option value=https://ykiko.top/ selected>中文</option></select></li><li id=dark-mode-toggle><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="8" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="16" cy="12" r="2"/><rect x="2" y="6" width="20" height="12" rx="6"/></svg><span>暗色模式</span></li></div></ol></aside><aside class="sidebar right-sidebar sticky"><section class="widget archives"><div class=widget-icon><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="11" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="13" y2="20"/></svg></div><h2 class="widget-title section-title">目录</h2><div class=widget--toc><nav id=TableOfContents><ol><li><a href=#arm汇编基础简>ARM汇编基础(简)</a><ol><li><a href=#arm架构>ARM架构</a></li><li><a href=#数据类型>数据类型</a></li><li><a href=#字节序>字节序</a></li><li><a href=#寄存器>寄存器</a></li><li><a href=#程序结构>程序结构</a></li><li><a href=#汇编器指令>汇编器指令</a></li><li><a href=#寻址方式>寻址方式</a></li><li><a href=#arm和thumb指令集>ARM和Thumb指令集</a></li><li><a href=#基本指令简述>基本指令简述</a></li><li><a href=#内存访问相关指令>内存访问相关指令</a></li><li><a href=#跳转指令>跳转指令</a></li><li><a href=#存储器操作指令>存储器操作指令</a></li><li><a href=#数据处理>数据处理</a></li><li><a href=#其他指令>其他指令</a></li><li><a href=#heading></a></li></ol></li></ol></nav></div></section></aside><main class="main full-width"><article class=main-article><header class=article-header><div class=article-details><header class=article-category><a href=/categories/%E4%BA%8C%E8%BF%9B%E5%88%B6%E5%AE%89%E5%85%A8/>二进制安全
+</a><a href=/categories/%E5%9F%BA%E7%A1%80%E5%8E%9F%E7%90%86/>基础原理</a></header><div class=article-title-wrapper><h2 class=article-title><a href=/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/>ARM汇编基础(待补充)</a></h2><h3 class=article-subtitle>ARM汇编基础知识点总结</h3></div><footer class=article-time><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><path d="M11.795 21H5a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v4"/><circle cx="18" cy="18" r="4"/><path d="M15 3v4"/><path d="M7 3v4"/><path d="M3 11h16"/><path d="M18 16.496V18l1 1"/></svg><time class=article-time--published>2019-08-10</time></div><div><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><time class=article-time--reading>阅读时长: 5 分钟</time></div></footer></div></header><section class=article-content><h1 id=arm汇编基础待补充>ARM汇编基础(待补充)</h1><h2 id=arm汇编基础简>ARM汇编基础(简)</h2><p>经常忘记，做个笔记，好作复习。。</p><p>内容主要来源于《Android软件安全与逆向分析》和《逆向工程权威指南》以及 <a class=link href=https://www.anquanke.com/post/id/86383 target=_blank rel=noopener>ARM 汇编</a> 和<a class=link href=https://azeria-labs.com/writing-arm-assembly-part-1/ target=_blank rel=noopener>Azeria-labs</a></p><h3 id=arm架构>ARM架构</h3><p>ARM属于RISC CPU，</p><ul><li><p>ARM模式 4个字节opcode 32位</p></li><li><p>Thumb模式 2个字节opcode 16位</p></li><li><p>Thumb-2模式 同上（只是有部分4个字节的opcode)</p></li><li><p>64位ARM 4个字节opcode</p></li><li><p>ARM机器码在版本3之前是小端。但是之后默认采用大端格式，但可以设置切换到小端。</p></li></ul><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810112415.png loading=lazy alt=img></p><h3 id=数据类型>数据类型</h3><p>数据类型在汇编语言中的扩展后缀为**-h<strong>或者</strong>-sh<strong>对应着半字，</strong>-b<strong>或者</strong>-sb**对应着字节，但是对于字并没有对应的扩展</p><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810113108.png loading=lazy alt=img></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>ldr = 加载字，宽度四字节
+</span></span><span class=line><span class=cl>ldrh = 加载无符号的半字，宽度两字节
+</span></span><span class=line><span class=cl>ldrsh = 加载有符号的半字，宽度两字节
+</span></span><span class=line><span class=cl>ldrb = 加载无符号的字节
+</span></span><span class=line><span class=cl>ldrsb = 加载有符号的字节
+</span></span><span class=line><span class=cl>str = 存储字，宽度四字节
+</span></span><span class=line><span class=cl>strh = 存储无符号的半字，宽度两字节
+</span></span><span class=line><span class=cl>strsh = 存储有符号的半字，宽度两字节
+</span></span><span class=line><span class=cl>strb = 存储无符号的字节
+</span></span><span class=line><span class=cl>strsb = 存储有符号的字节
+</span></span></code></pre></td></tr></table></div></div><h3 id=字节序>字节序</h3><p>在内存中有两种字节排布顺序，大端序(BE)或者小端序(LE)。两者的主要不同是对象中的每个字节在内存中的存储顺序存在差异。一般X86中是小端序，最低的字节存储在最低的地址上。在大端机中最高的字节存储在最低的地址上。</p><p><img src=https://p0.ssl.qhimg.com/t01b6d7f41b02b0a58d.png loading=lazy alt=img></p><p>数据访问时采取大端序还是小端序使用程序状态寄存器(CPSR)的第9比特位来决定的。</p><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810120701.png loading=lazy alt=img></p><h3 id=寄存器>寄存器</h3><p>37个32位寄存器，其中31个为基础寄存器，6个为状态寄存器。</p><p>用户模式下有</p><ul><li><p>不分组寄存器（R0-R7） R7一般存放系统调用号</p></li><li><p>分组寄存器（R8-R14）</p></li><li><p>程序计数器（R15）</p></li><li><p>单前程序状态寄存器（CPSR）</p></li></ul><p>两种状态：</p><div class=table-wrapper><table><tr><th>ARM状态（32位对齐）</th><th>Thumb状态(16位对齐)</th></tr><tr><th>R0-R7</th><th>R0-R7(相同)</th></tr><tr><th>CPSR</th><th>CPSR（同）</th></tr><tr><th>R11</th><th>FP（栈帧指针）</th></tr><tr><th>R12</th><th>IP（内部程序调用）</th></tr><tr><th>R13</th><th>SP（栈指针）</th></tr><tr><th>R14</th><th>LR（链接寄存器）一般存放函数返回地址</th></tr><tr><th>R15</th><th>PC（程序计数器）</th></tr></table></div><p>和x86对比：</p><p><img src=https://p5.ssl.qhimg.com/t01a8e5d24fa91f9f0f.jpg loading=lazy alt=img></p><p>CSPR:</p><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810122226.png loading=lazy alt=img></p><p>32位的CPSR寄存器的比特位含义，左边是最大比特位，右边是最小比特位。每个单元代表一个比特。</p><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810122258.png loading=lazy alt=img></p><div class=table-wrapper><table><tr><th>条件码</th><th>助记符后缀</th><th>标志</th><th>含义</th></tr><tr><th>0000</th><th>EQ</th><th>Z置位</th><th>相等</th></tr><tr><th>0001</th><th>NE</th><th>Z清零</th><th>不相等</th></tr><tr><th>0010</th><th>CS</th><th>C置位</th><th>无符号数大于或等于</th></tr><tr><th>0011</th><th>CC</th><th>C清零</th><th>无符号数小于</th></tr><tr><th>0100</th><th>MI</th><th>N置位</th><th>负数</th></tr><tr><th>0101</th><th>PL</th><th>N清零</th><th>正数或零</th></tr><tr><th>0110</th><th>VS</th><th>V置位</th><th>溢出</th></tr><tr><th>0111</th><th>VC</th><th>V清零</th><th>未溢出</th></tr><tr><th>1000</th><th>HI</th><th>C置位Z清零</th><th>无符号数大于</th></tr><tr><th>1001</th><th>LS</th><th>C清零Z置位</th><th>无符号数小于或等于</th></tr><tr><th>1010</th><th>GE</th><th>N等于V</th><th>带符号数大于或等于</th></tr><tr><th>1011</th><th>LT</th><th>N不等于V</th><th>带符号数小于</th></tr><tr><th>1100</th><th>GT</th><th>Z清零且（N等于V）</th><th>带符号数大于</th></tr><tr><th>1101</th><th>LE</th><th>Z置位或（N不等于V）</th><th>带符号数小于或等于</th></tr><tr><th>1110</th><th>AL</th><th>忽略</th><th>无条件执行</th></tr></table></div><h3 id=程序结构>程序结构</h3><p>Android平台采用的是GUN ARM汇编格式，汇编器为GAS</p><p>参数传递：R0-R3这4个寄存器用来传递函数调用的第1到4个参数，超出的参数通过堆栈来传递。R0还用来存放函数调用的返回值。</p><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810112712.gif loading=lazy alt=img></p><h3 id=汇编器指令>汇编器指令</h3><ul><li><p><code>.file</code>:源文件名</p></li><li><p><code>.align</code>:代码对齐方式</p></li><li><p><code>.ascii</code>:声明字符串</p></li><li><p><code>.global</code>:声明全局符号</p></li><li><p><code>.type</code>：指定符号的类型</p></li><li><p><code>.word</code>：存放地址值</p></li><li><p><code>.size</code>：设置指定符号的大小</p></li><li><p><code>.ident</code>：编译器标识</p></li></ul><h3 id=寻址方式>寻址方式</h3><ul><li><p>立即寻址</p><p><code>MOV R0, #1234</code> ->R0=1234</p></li><li><p>寄存器寻址</p><p><code>MOV R1 = R2</code> ->R0=R1</p></li><li><p>寄存器移位寻址</p><ul><li><p>LSL ：逻辑左移，移位后寄存器空出的低位补0</p></li><li><p>LSR：逻辑右移，移位后寄存器空出的高位补0</p></li><li><p>ASR：算术右移，移位过程中符号位保持不变，若源操作数为正数，则移位后空出的高位补0，否则补1。</p></li><li><p>ROR：循环右移，移位后移出的低位填入移位空出的高位。</p></li><li><p>RRX：带扩展的循环右移，操作数右移一位，移出的空位用C标志的值填充。</p></li></ul><p><code>MOV R0, R1, LSL #2</code> ->R1左移两位（R1&#171;2）赋值给R0,相当于R0 = R1*4</p></li><li><p>寄存器间接寻址</p><p><code>LDR RO, [R1]</code> ->将R1寄存器的数值作为地址，取出此地址中的值赋给R0寄存器</p></li><li><p>基址寻址</p><p>多用于查表、数组访问操作。</p><p><code>LDR R0, [R1,#-4]</code> ->将R1寄存器的数值减4作为地址，取出此地址的值赋给R0寄存器。</p></li><li><p>多寄存器寻址</p><p>一条指令最多完成16个通用寄存器值的传送。</p><p><code>LDMIA R0,{R1,R2,R3,R4}</code> ->LDM为数据加载指令，指令的后缀IA表示每次执行完加载操作后R0寄存器的值自增1个字，ARM指令集中，子表示的是一个32位数值。这条指令作用为：R1 = [R0],R2 = [R0+#4],R3 = [R0+#8],R4 = [R0+#12]。</p></li><li><p>堆栈寻址</p><p>特定的指令来完成：<code>LDMFA/STMFA</code>、<code>LDMEA/STMEA</code>、<code>LDMFD/STMFD</code>、<code>LDMED/STMED</code>。</p><p>LDM和STM为指令前缀，表示多寄存器寻址，即一次传送多个寄存器的值。后面的后缀为指令后缀。</p><p><code>STMFD SP!, {R1-R7,LR}</code> ->将R1~R7,LR入栈，多用于保存子程序的现场。</p><p><code>LDMFD SP!, {R1-R7,LR}</code> ->出栈，恢复现场。</p></li><li><p>块拷贝寻址</p><p>实现从连续地址数据从存储器的某一位置拷贝到另外一个位置，指令有：<code>LDMIA/STMIA</code>、<code>LDMDA/STMDA</code>、<code>LDMIB/STMIB</code>、<code>LDMDB/STMDB</code>。</p><p><code>LDMIA R0! {R0-R3}</code> 从R0寄存器指向的存储单元中读取3个字到R1-R3寄存器</p><p><code>STMIA R0! {R0-R3}</code> 存储从R1-R3寄存器的内容到R0寄存器指向的存储单元</p></li><li><p>相对寻址</p><p>以程序计数器PC的当前值为基地址，指令中的地址标号作为偏移量，将两者相加之后得到操作数的有效地址。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>BL NEXT  ····NEXT:  ········
+</span></span></code></pre></td></tr></table></div></div></li></ul><h3 id=arm和thumb指令集>ARM和Thumb指令集</h3><h3 id=基本指令简述>基本指令简述</h3><p><code>MNEMONIC{S}{condition} {Rd}, Operand1, Operand2</code></p><p><code>助记符{是否使用CPSR}{是否条件执行以及条件} {目的寄存器}, 操作符1, 操作符2</code></p><blockquote><p>MNEMONIC     - 指令的助记符如ADD</p></blockquote><pre><code>{S}           - 可选的扩展位，如果指令后加了S，则需要依据计算结果更新CPSR寄存器中的条件跳转相关 的FLAG
+
+{condition}   - 如果机器码要被条件执行，那它需要满足的条件标示
+
+{Rd}          - 存储结果的目的寄存器
+
+Operand1     - 第一个操作数，寄存器或者是一个立即数
+
+Operand2     - 第二个(可变的)操作数，可以是一个立即数或者寄存器或者有偏移量的寄存器
+</code></pre><p>第二操作数还有如下操作：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>#123                    - 立即数
+</span></span><span class=line><span class=cl>Rx                      - 寄存器比如R1
+</span></span><span class=line><span class=cl>Rx, ASR n               - 对寄存器中的值进行算术右移n位后的值
+</span></span><span class=line><span class=cl>Rx, LSL n               - 对寄存器中的值进行逻辑左移n位后的值
+</span></span><span class=line><span class=cl>Rx, LSR n               - 对寄存器中的值进行逻辑右移n位后的值
+</span></span><span class=line><span class=cl>Rx, ROR n               - 对寄存器中的值进行循环右移n位后的值
+</span></span><span class=line><span class=cl>Rx, RRX                 - 对寄存器中的值进行带扩展的循环右移1位后的值
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>ADD   R0, R1, R2         - 将第一操作数R1的内容与第二操作数R2的内容相加，将结果存储到R0中。
+</span></span><span class=line><span class=cl>ADD   R0, R1, #2         - 将第一操作数R1的内容与第二操作数一个立即数相加，将结果存到R0中
+</span></span><span class=line><span class=cl>MOVLE R0, #5             - 当满足条件LE(Less and Equal,小于等于0)将第二操作数立即数5移动到R0中,注意这条指令与MOVLE R0, R0, #5相同
+</span></span><span class=line><span class=cl>MOV   R0, R1, LSL #1     - 将第二操作数R1寄存器中的值逻辑左移1位后存入R0
+</span></span></code></pre></td></tr></table></div></div><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810144732.png loading=lazy alt=img></p><h3 id=内存访问相关指令>内存访问相关指令</h3><p>通常，LDR被用来从内存中加载数据到寄存器，STR被用作将寄存器的值存放到内存中。</p><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810145231.png loading=lazy alt=img></p><p>例子：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>.data          /* 数据段是在内存中动态创建的，所以它的在内存中的地址不可预测*/
+</span></span><span class=line><span class=cl>var1: .word 3  /* 内存中的第一个变量 */
+</span></span><span class=line><span class=cl>var2: .word 4  /* 内存中的第二个变量 */
+</span></span><span class=line><span class=cl>.text          /* 代码段开始 */ 
+</span></span><span class=line><span class=cl>.global _start
+</span></span><span class=line><span class=cl>_start:
+</span></span><span class=line><span class=cl>    ldr r0, adr_var1  @ 将存放var1值的地址adr_var1加载到寄存器R0中 
+</span></span><span class=line><span class=cl>    ldr r1, adr_var2  @ 将存放var2值的地址adr_var2加载到寄存器R1中 
+</span></span><span class=line><span class=cl>    ldr r2, [r0]      @ 将R0所指向地址中存放的0x3加载到寄存器R2中  
+</span></span><span class=line><span class=cl>    str r2, [r1]      @ 将R2中的值0x3存放到R1做指向的地址 
+</span></span><span class=line><span class=cl>    bkpt             
+</span></span><span class=line><span class=cl>adr_var1: .word var1  /* var1的地址助记符 */
+</span></span><span class=line><span class=cl>adr_var2: .word var2  /* var2的地址助记符 */
+</span></span></code></pre></td></tr></table></div></div><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810145711.gif loading=lazy alt=img></p><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810154906.png loading=lazy alt=img></p><ul><li><p>第一种偏移形式：立即数作偏移</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>STR    Ra, [Rb, imm]
+</span></span><span class=line><span class=cl>LDR    Ra, [Rc, imm]
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>.data
+</span></span><span class=line><span class=cl>var1: .word 3
+</span></span><span class=line><span class=cl>var2: .word 4
+</span></span><span class=line><span class=cl>.text
+</span></span><span class=line><span class=cl>.global _start
+</span></span><span class=line><span class=cl>_start:
+</span></span><span class=line><span class=cl>    ldr r0, adr_var1  @ 将存放var1值的地址adr_var1加载到寄存器R0中 
+</span></span><span class=line><span class=cl>    ldr r1, adr_var2  @ 将存放var2值的地址adr_var2加载到寄存器R1中 
+</span></span><span class=line><span class=cl>    ldr r2, [r0]      @ 将R0所指向地址中存放的0x3加载到寄存器R2中  
+</span></span><span class=line><span class=cl>    str r2, [r1, #2]  @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加2所指向地址处。
+</span></span><span class=line><span class=cl>    str r2, [r1, #4]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加4所指向地址处，之后R1寄存器中存储的值加4,也就是R1=R1+4。
+</span></span><span class=line><span class=cl>    ldr r3, [r1], #4  @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中存储的值加4,也就是R1=R1+4。
+</span></span><span class=line><span class=cl>    bkpt
+</span></span><span class=line><span class=cl>adr_var1: .word var1
+</span></span><span class=line><span class=cl>adr_var2: .word var2
+</span></span></code></pre></td></tr></table></div></div></li></ul><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810160844.gif loading=lazy alt=img></p><ul><li><p><strong>第二种偏移形式：寄存器作偏移</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>STR    Ra, [Rb, Rc]
+</span></span><span class=line><span class=cl>LDR    Ra, [Rb, Rc]
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>.data
+</span></span><span class=line><span class=cl>var1: .word 3
+</span></span><span class=line><span class=cl>var2: .word 4
+</span></span><span class=line><span class=cl>.text
+</span></span><span class=line><span class=cl>.global _start
+</span></span><span class=line><span class=cl>_start:
+</span></span><span class=line><span class=cl>    ldr r0, adr_var1  @ 将存放var1值的地址adr_var1加载到寄存器R0中 
+</span></span><span class=line><span class=cl>    ldr r1, adr_var2  @ 将存放var2值的地址adr_var2加载到寄存器R1中 
+</span></span><span class=line><span class=cl>    ldr r2, [r0]      @ 将R0所指向地址中存放的0x3加载到寄存器R2中  
+</span></span><span class=line><span class=cl>    str r2, [r1, r2]  @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加R2寄存器的值所指向地址处。R1寄存器不会被修改。 
+</span></span><span class=line><span class=cl>    str r2, [r1, r2]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加R2寄存器的值所指向地址处，之后R1寄存器中的值被更新,也就是R1=R1+R2。
+</span></span><span class=line><span class=cl>    ldr r3, [r1], r2  @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中的值被更新也就是R1=R1+R2。
+</span></span><span class=line><span class=cl>    bx lr
+</span></span><span class=line><span class=cl>adr_var1: .word var1
+</span></span></code></pre></td></tr></table></div></div><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810162217.gif loading=lazy alt=img></p></li><li><p><strong>第三种偏移形式：寄存器缩放值作偏移</strong></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>LDR    Ra, [Rb, Rc, &lt;shifter&gt;]
+</span></span><span class=line><span class=cl>STR    Ra, [Rb, Rc, &lt;shifter&gt;]
+</span></span></code></pre></td></tr></table></div></div><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>.data
+</span></span><span class=line><span class=cl>var1: .word 3
+</span></span><span class=line><span class=cl>var2: .word 4
+</span></span><span class=line><span class=cl>.text
+</span></span><span class=line><span class=cl>.global _start
+</span></span><span class=line><span class=cl>_start:
+</span></span><span class=line><span class=cl>    ldr r0, adr_var1         @ 将存放var1值的地址adr_var1加载到寄存器R0中 
+</span></span><span class=line><span class=cl>    ldr r1, adr_var2         @ 将存放var2值的地址adr_var2加载到寄存器R1中 
+</span></span><span class=line><span class=cl>    ldr r2, [r0]             @ 将R0所指向地址中存放的0x3加载到寄存器R2中  
+</span></span><span class=line><span class=cl>    str r2, [r1, r2, LSL#2]  @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加(左移两位后的R2寄存器的值)所指向地址处。R1寄存器不会被修改。
+</span></span><span class=line><span class=cl>    str r2, [r1, r2, LSL#2]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加(左移两位后的R2寄存器的值)所指向地址处，之后R1寄存器中的值被更新,也就R1 = R1 + R2&lt;&lt;2。
+</span></span><span class=line><span class=cl>    ldr r3, [r1], r2, LSL#2  @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中的值被更新也就是R1 = R1 + R2&lt;&lt;2。
+</span></span><span class=line><span class=cl>    bkpt
+</span></span><span class=line><span class=cl>adr_var1: .word var1
+</span></span><span class=line><span class=cl>adr_var2: .word var2
+</span></span></code></pre></td></tr></table></div></div><p><img src=http://my-md-1253484710.coscd.myqcloud.com/20180810162414.png loading=lazy alt=img></p><p>如何区分取址模式：</p><p>如果有一个叹号!，那就是索引前置取址模式，即使用计算后的地址，之后更新基址寄存器。</p><p>如果在外有一个寄存器，那就是索引后置取址模式，即使用原有基址寄存器重的地址，之后再更新基址寄存器</p><p>除此之外，就都是偏移取址模式了</p></li><li><p><strong>关于PC相对取址的LDR指令</strong></p><p>有时候LDR并不仅仅被用来从内存中加载数据。还有如下这操作:</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>.section .text
+</span></span><span class=line><span class=cl>.global _start
+</span></span><span class=line><span class=cl>_start:
+</span></span><span class=line><span class=cl>   ldr r0, =jump        /* 加载jump标签所在的内存位置到R0 */
+</span></span><span class=line><span class=cl>   ldr r1, =0x68DB00AD  /* 加载立即数0x68DB00AD到R1 */
+</span></span><span class=line><span class=cl>jump:
+</span></span><span class=line><span class=cl>   ldr r2, =511         /* 加载立即数511到R2 */ 
+</span></span><span class=line><span class=cl>   bkpt
+</span></span></code></pre></td></tr></table></div></div><p>这些指令学术上被称作伪指令。</p></li><li><p><strong>在ARM中使用立即数的规律</strong></p><p>在ARM中不能像X86那样直接将立即数加载到寄存器中。因为你使用的立即数是受限的。</p><p>立即数的值：v = n ror 2*r 有效的立即数都可以通过循环右移来得到</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-plain data-lang=plain><span class=line><span class=cl>#256        // 1 循环右移 24位 --&gt; 256
+</span></span><span class=line><span class=cl>#384        // 6 循环右移 26位 --&gt; 384
+</span></span><span class=line><span class=cl>#484        // 121 循环右移 30位 --&gt; 484
+</span></span><span class=line><span class=cl>#16384      // 1 循环右移 18位 --&gt; 16384
+</span></span><span class=line><span class=cl>#2030043136 // 121 循环右移 8位 --&gt; 2030043136
+</span></span><span class=line><span class=cl>#0x06000000 // 6 循环右移 8位 --&gt; 100663296 (十六进制值0x06000000)
+</span></span><span class=line><span class=cl>Invalid values:
+</span></span><span class=line><span class=cl>#370        // 185 循环右移 31位 --&gt; 31不在范围内 (0 – 30)
+</span></span><span class=line><span class=cl>#511        // 1 1111 1111 --&gt; 比特模型不符合
+</span></span><span class=line><span class=cl>#0x06010000 // 1 1000 0001.. --&gt; 比特模型不符合
+</span></span></code></pre></td></tr></table></div></div><p>这样并不能一次性加载所有的32位值。不过我们可以通过以下的两个选项来解决这个问题：</p><ul><li>用小部分去组成更大的值。 MOV r0, #511 将511分成两部分：MOV r0, #256, and ADD r0, #255</li></ul><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-bash data-lang=bash><span class=line><span class=cl>.section .text
+</span></span><span class=line><span class=cl>.global _start
+</span></span><span class=line><span class=cl>_start:
+</span></span><span class=line><span class=cl> mov r0, <span class=c1>#256   /* 1 ror 24 = 256, so it&#39;s valid */</span>
+</span></span><span class=line><span class=cl> add r0, <span class=c1>#255   /* 255 ror 0 = 255, valid. r0 = 256 + 255 = 511 */</span>
+</span></span><span class=line><span class=cl> ldr r1, <span class=o>=</span><span class=m>511</span>   /* load <span class=m>511</span> from the literal pool using LDR */
+</span></span><span class=line><span class=cl> bkpt
+</span></span></code></pre></td></tr></table></div></div><p>计算立即数的有效值脚本：https://raw.githubusercontent.com/azeria-labs/rotator/master/rotator.py</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>azeria@labs:~$ python rotator.py
+</span></span><span class=line><span class=cl>Enter the value you want to check: <span class=m>511</span>
+</span></span><span class=line><span class=cl>Sorry, <span class=m>511</span> cannot be used as an immediate number and has to be split.
+</span></span><span class=line><span class=cl>azeria@labs:~$ python rotator.py
+</span></span><span class=line><span class=cl>Enter the value you want to check: <span class=m>256</span>
+</span></span><span class=line><span class=cl>The number <span class=m>256</span> can be used as a valid immediate number.
+</span></span><span class=line><span class=cl><span class=m>1</span> ror <span class=m>24</span> --&gt; <span class=m>256</span>
+</span></span></code></pre></td></tr></table></div></div><p>下面的部分指令用到在详细查，记的话脑壳痛</p><h3 id=跳转指令>跳转指令</h3><ol><li><p><code>B</code></p></li><li><p><code>BL</code></p></li><li><p><code>BX</code></p></li><li><p><code>BXL</code></p></li></ol><h3 id=存储器操作指令>存储器操作指令</h3><ol><li><p><code>LDM</code></p></li><li><p><code>STM</code></p></li><li><p><code>PUSH</code></p></li><li><p><code>POP</code></p></li><li><p><code>SWP</code></p></li></ol><h3 id=数据处理>数据处理</h3><ol><li><p><code>MOV</code></p></li><li><p><code>MVN</code></p></li><li><p><code>ADD</code></p></li><li><p><code>ADC</code></p></li><li><p><code>SUB</code></p></li><li><p><code>RSB</code></p></li><li><p><code>SBC</code></p></li><li><p><code>RSC</code></p></li><li><p><code>MUL</code></p></li><li><p><code>MLS</code></p></li><li><p><code>MLA</code></p></li><li><p><code>UMULL</code></p></li><li><p><code>UMLAL</code></p></li><li><p><code>SMUULL</code></p></li><li><p><code>SMLAL</code></p></li><li><p><code>SMLAD</code></p></li><li><p><code>SMLSD</code></p></li><li><p><code>SDIV</code></p></li><li><p><code>UDIV</code></p></li><li><p><code>ASR</code></p></li><li><p><code>AND</code></p></li><li><p><code>ORR</code></p></li><li><p><code>EOR</code></p></li><li><p><code>BIC</code></p></li><li><p><code>LSL</code></p></li><li><p><code>LSR</code></p></li><li><p><code>RRX</code></p></li><li><p><code>ROR</code></p></li><li><p><code>CMP</code></p></li><li><p><code>CMN</code></p></li><li><p><code>TSL</code></p></li><li><p><code>TEQ</code></p></li></ol><h3 id=其他指令>其他指令</h3><ol><li><p><code>SWI</code></p></li><li><p><code>NOP</code></p></li><li><p><code>MRS</code></p></li><li><p><code>MSR</code></p></li></ol><h3 id=heading></h3></li></ul></section><footer class=article-footer><section class=article-tags><a href=/tags/%E5%9F%BA%E7%A1%80/>基础</a>
+<a href=/tags/arm/>ARM</a></section><section class=article-copyright><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><path d="M14.5 9a3.5 4 0 100 6"/></svg><span>Licensed under CC BY-NC-SA 4.0</span></section><section class=article-lastmod><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentcolor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z"/><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg><span>最后更新于 2023-08-16 17:12 UTC</span></section></footer><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.css integrity="sha256-J+iAE0sgH8QSz9hpcDxXIftnj65JEZgNhGcgReTTK9s=" crossorigin=anonymous><script src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/katex.min.js integrity="sha256-InsNdER1b2xUewP+pKCUJpkhiqwHgqiPXDlIk7GzBu4=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/katex@0.15.6/dist/contrib/auto-render.min.js integrity="sha256-y39Mpg7V3D4lhBX4x6O0bUqTV4pSrfgwEfGKfxkOdgI=" crossorigin=anonymous defer></script><script>window.addEventListener("DOMContentLoaded",()=>{renderMathInElement(document.querySelector(`.article-content`),{delimiters:[{left:"$$",right:"$$",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1},{left:"\\[",right:"\\]",display:!0}],ignoredClasses:["gist"]})})</script></article><aside class=related-content--wrapper><h2 class=section-title>相关文章</h2><div class=related-content><div class="flex article-list--tile"><article><a href=/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/><div class=article-details><h2 class=article-title>ARM-PWN从入门到放弃0x00-环境准备</h2></div></a></article><article><a href=/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/><div class=article-details><h2 class=article-title>syzkaller_fuzzing_入门</h2></div></a></article><article><a href=/p/syzkaller-android/><div class=article-details><h2 class=article-title>syzkaller-android</h2></div></a></article><article><a href=/p/raspberry_pi_3b-_0%E5%AE%89%E8%A3%85%E4%BD%BF%E7%94%A8/><div class=article-details><h2 class=article-title>Raspberry_Pi_3B+_0安装使用</h2></div></a></article><article><a href=/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/><div class=article-details><h2 class=article-title>PWN-格式化字符串漏洞(FMT)</h2></div></a></article></div></div></aside><link rel=stylesheet href=https://unpkg.com/vssue/dist/vssue.min.css><div id=vssue></div><script src=https://unpkg.com/vue@2/dist/vue.runtime.min.js></script><script src=https://unpkg.com/vssue/dist/vssue.github.min.js></script><script>new Vue({el:"#vssue",render:e=>e("Vssue",{props:{title:"ARM汇编基础(待补充)",options:{autoCreateIssue:!0,owner:"kuekiko",repo:"ykiko",clientId:"95aae0b36f5f8169a39b",clientSecret:"b26f68955b1da8bc4fd0e24b27a6a055d15a5267"}}})})</script><footer class=site-footer><section class=copyright>&copy;
+2016 -
+2024 ykikoqAq</section><section class=powerby>(*╹▽╹*)<br>Built with <a href=https://gohugo.io/ target=_blank rel=noopener>Hugo</a><br>主题 <b><a href=https://github.com/CaiJimmy/hugo-theme-stack target=_blank rel=noopener data-version=3.17.0>Stack</a></b> 由 <a href=https://jimmycai.com target=_blank rel=noopener>Jimmy</a> 设计</section></footer><div class=pswp tabindex=-1 role=dialog aria-hidden=true><div class=pswp__bg></div><div class=pswp__scroll-wrap><div class=pswp__container><div class=pswp__item></div><div class=pswp__item></div><div class=pswp__item></div></div><div class="pswp__ui pswp__ui--hidden"><div class=pswp__top-bar><div class=pswp__counter></div><button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+<button class="pswp__button pswp__button--share" title=Share></button>
+<button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+<button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+</button>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>

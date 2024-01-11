@@ -1,0 +1,1765 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>原理 on ykikoqAq</title><link>https://ykiko.top/tags/%E5%8E%9F%E7%90%86/</link><description>Recent content in 原理 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sat, 03 Aug 2019 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/%E5%8E%9F%E7%90%86/index.xml" rel="self" type="application/rss+xml"/><item><title>ARM-PWN从入门到放弃0x00-环境准备</title><link>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</link><pubDate>Sat, 03 Aug 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</guid><description>&lt;h1 id="arm-pwn从入门到放弃0x00-环境准备">ARM-PWN从入门到放弃0x00-环境准备&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>学PWN也有一段时间了，x86/x86_64 下算是入了个门，平时接触ARM比较多，正好以ARM架构下再更加深入的学习PWN。&lt;/p>
+&lt;p>会用的工具、环境：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>在Ubuntu 18.04/WSL2&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Docker for wsl2&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>树莓派3B+&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>qemu&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>unicorn&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>IDA&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Radare2&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GDB+gef+pwndbg+peda&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>pwntools&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-环境安装">0x01 环境安装&lt;/h3>
+&lt;p>这里选用的有两种环境&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>ARM设备 树莓派&lt;/p>
+&lt;p>之前618买了树莓派，派上用场了。&lt;/p>
+&lt;p>把PI的官方系统换成了Ubuntu 18.04。&lt;/p>
+&lt;p>安装了GCC 、gdb、gef（经测试只有gef能用），其他也没什么需要装的。&lt;/p>
+&lt;p>关闭地址随机化&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sudo cat /proc/sys/kernel/randomize_va_space &lt;span class="c1"># 状态查看&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">2&lt;/span> &lt;span class="c1"># 开启中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo &lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash: /proc/sys/kernel/randomize_va_space: Permission denied
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">su
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span> &lt;span class="c1">#这就OK&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>QEMU 模拟 (WSL2)&lt;/p>
+&lt;p>安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#防止又出什么乱七八糟的错误和需求，尽量都装上&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gdb gdb-multiarch &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install qemu &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu &lt;span class="c1">##gcc arm 依赖库安装&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x02-启动和调试">0x02 启动和调试&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>树莓派&lt;/p>
+&lt;p>直接运行&lt;/p>
+&lt;p>进行socat绑定端口 就OK&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">socat tcp-listen:6666,fork exec:./binfile
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>QEMU&lt;/p>
+&lt;ul>
+&lt;li>32bit&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地GDB调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-arm -g &lt;span class="m">1234&lt;/span> -L /usr/arm-linux-gnueabi ./binfile
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gdb-multiarch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote localhost:1234
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 绑定运行到指定端口 远程调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># + -g 方便调试 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -g 1234 -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>64bit&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地调试 -g 等待GDB调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-aarch64 -g &lt;span class="m">1111&lt;/span> -L /usr/aarch64-linux-gnu ./file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -g 1234 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x03-调试过程">0x03 调试过程&lt;/h3>
+&lt;p>在树莓派直接gdb调试就行。省略。。。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804221031.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>img&lt;/p>
+&lt;p>使用qemu+gdb-multiarch+插件进行调试步骤&lt;/p>
+&lt;p>&lt;code>qemu-aarch64 -g 10002 -L /usr/aarch64-linux-gnu ./baby_arm&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gdb-multiarch ./baby_arm -q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote:10002
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804225625.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-题目搭建">0x04 题目搭建&lt;/h3>
+&lt;p>基于&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
+>ctf_xinetd&lt;/a>项目自己改了一个&lt;/p>
+&lt;p>地址：&lt;a class="link" href="https://github.com/Vorblock/CTF_arm_xinetd" target="_blank" rel="noopener"
+>CTF_ARM_xinetd&lt;/a>&lt;/p>
+&lt;h3 id="0x05-参考链接">0x05 参考链接&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/3154" target="_blank" rel="noopener"
+>https://xz.aliyun.com/t/3154&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
+>https://github.com/Eadom/ctf_xinetd&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/bkerler/exploit_me" target="_blank" rel="noopener"
+>https://github.com/bkerler/exploit_me&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>PWN-格式化字符串漏洞(FMT)</title><link>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</link><pubDate>Fri, 12 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</guid><description>&lt;h1 id="pwn-格式化字符串漏洞fmt">PWN-格式化字符串漏洞(FMT)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>Fuzzing基础(待补充)</title><link>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Wed, 10 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="fuzzing基础待补充">Fuzzing基础(待补充)&lt;/h1>
+&lt;h2 id="0x00">0x00&lt;/h2></description></item><item><title>PWN-OOB(重写中)</title><link>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</link><pubDate>Mon, 25 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</guid><description>&lt;h1 id="pwn-oob重写中">PWN-OOB(重写中)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>PWN-UAF_（重写）</title><link>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</link><pubDate>Wed, 20 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</guid><description>&lt;h1 id="pwn-uaf_重写">PWN-UAF_（重写）&lt;/h1>
+&lt;h2 id="0x00-原理">0x00 原理&lt;/h2>
+&lt;p>堆内存在释放后被直接再次使用(释放了堆块之后，未将该指针值为NULL,导致指针处于悬空状态，被释放的内存能被恶意利用) 在浏览器中比较常见的漏洞&lt;/p>
+&lt;p>&lt;strong>根本原因是：&lt;/strong>&lt;/p>
+&lt;blockquote>
+&lt;p>应用程序调用free()释放内存时，如果内存块小于256kb，dlmalloc并不马上将内存块释放回内存，而是将内存块标记为空闲状态。这么做的原因有两个：一是内存块不一定能马上释放会内核（比如内存块不是位于堆顶端），二是供应用程序下次申请内存使用（这是主要原因）。当dlmalloc中空闲内存量达到一定值时dlmalloc才将空闲内存释放会内核。如果应用程序申请的内存大于256kb，dlmalloc调用mmap()向内核申请一块内存，返回返还给应用程序使用。如果应用程序释放的内存大于256kb，dlmalloc马上调用munmap()释放内存。dlmalloc不会缓存大于256kb的内存块，因为这样的内存块太大了，最好不要长期占用这么大的内存资源。&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="利用">利用&lt;/h3>
+&lt;h3 id="简单利用">简单利用&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdlib.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">typedef&lt;/span> &lt;span class="nf">void&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="p">)(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">evil_fuc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">command&lt;/span>&lt;span class="p">[])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">echo&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">content&lt;/span>&lt;span class="p">[])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;%s&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">content&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">echo&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello world&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">free&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//在这里free了p1,但并未将p1置空,导致后续可以再使用p1指针
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello again&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//p1指针未被置空,虽然free了,但仍可使用.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="c1">//malloc在free一块内存后,再次申请同样大小的指针会把刚刚释放的内存分配出来.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="c1">//p2与p1指针指向的内存为同一地址
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p2&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">evil_fuc&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//在这里将p1指针里面保存的echo函数指针覆盖成为了evil_func指针.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912215411.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="pwnablekr-uaf">pwnable.kr uaf&lt;/h3>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912220453.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>先看看源码：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;span class="lnt">75
+&lt;/span>&lt;span class="lnt">76
+&lt;/span>&lt;span class="lnt">77
+&lt;/span>&lt;span class="lnt">78
+&lt;/span>&lt;span class="lnt">79
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c++" data-lang="c++">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;fcntl.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;unistd.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">using&lt;/span> &lt;span class="k">namespace&lt;/span> &lt;span class="n">std&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">private&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">give_shell&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">protected&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;My name is &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">age&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34; years old&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Man&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a nice guy!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Woman&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a cute girl!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">argc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">argv&lt;/span>&lt;span class="p">[]){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">m&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jack&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">25&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">w&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jill&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">21&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">size_t&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;1. use&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">2. after&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">3. free&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cin&lt;/span> &lt;span class="o">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">switch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">op&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">w&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">atoi&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">O_RDONLY&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;your data is allocated&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">m&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">w&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">default&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="hcft2016-fheap">HCFt2016 fheap&lt;/h3>
+&lt;h3 id="网鼎杯ctf2018-第一场-pwn-babyheap">网鼎杯CTF2018 第一场 Pwn Babyheap&lt;/h3>
+&lt;p>参考资料：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/Ox9A82/p/5320857.html" target="_blank" rel="noopener"
+>https://www.cnblogs.com/Ox9A82/p/5320857.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/alert123/p/4918041.html" target="_blank" rel="noopener"
+>https://www.cnblogs.com/alert123/p/4918041.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://blog.csdn.net/qq_31481187/article/details/73612451" target="_blank" rel="noopener"
+>https://blog.csdn.net/qq_31481187/article/details/73612451&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4" target="_blank" rel="noopener"
+>https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>PWN-堆溢出_(待补充)</title><link>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 16 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-堆溢出_待补充">PWN-堆溢出_(待补充)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
+&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>PWN-栈溢出（待补充）</title><link>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sun, 10 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-栈溢出待补充">PWN-栈溢出（待补充）&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
+&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>Frida从入门到放弃_2(待补充)</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 02 Feb 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="frida从入门到放弃_2待补充">Frida从入门到放弃_2(待补充)&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>复习一下Android安装frida命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">adb root
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb push frida-server /data/local/tmp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb shell &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb shell &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>常用Frida 命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida-ps -U &lt;span class="c1">#列出USB设备运行ing的进程&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -Ua &lt;span class="c1">#列出运行中的应用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -Uai &lt;span class="c1">#列出已安装的应用列表&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -D xxx &lt;span class="c1">#连接指定的设备&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -R
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在Safari中跟踪recv*和send* API&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -i &lt;span class="s2">&amp;#34;recv*&amp;#34;&lt;/span> -i &lt;span class="s2">&amp;#34;send&amp;#34;&lt;/span> Safari
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在Safari中跟踪ObjC方法调用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -m &lt;span class="s2">&amp;#34;-[NSView drawRect:]&amp;#34;&lt;/span> Safari
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在iPhone上启动SnapChat，跟踪加密API调用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -U -f com.app.testing -I &lt;span class="s2">&amp;#34;libcommonCrypto*&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#当程序启动时，frida跟踪所有open function&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -U -i open com.app.testing
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下面通过自己创建一个Android APP来学习Frida在Android上的一般用法。&lt;/p>
+&lt;h3 id="0x01-简单用例">0x01 简单用例&lt;/h3>
+&lt;p>Frida常用的两种启动方式：&lt;/p>
+&lt;ol>
+&lt;li>python 绑定启动&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">frida&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">sys&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="nn">os&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## package name&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pkg_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;com.example.xxx&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">js_hook_file&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;xxx.js&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">on_message&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">message&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;type&amp;#39;&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s1">&amp;#39;send&amp;#39;&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;[*] &lt;/span>&lt;span class="si">{0}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">format&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;payload&amp;#39;&lt;/span>&lt;span class="p">]))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 插入js代码 or 加载js文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">jscode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">process&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">frida&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_usb_device&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">attach&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pkg_name&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">with&lt;/span> &lt;span class="nb">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">js_hook_file&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;r&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">as&lt;/span> &lt;span class="n">f&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">script&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">create_script&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">f&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">on&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;message&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">on_message&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sys&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">stdin&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">console.log(&amp;#34;Script loaded successfully &amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Java.perform(function x() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> //hook代码
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">});
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol>
+&lt;li>直接命令加载脚本启动&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida -U -l xxx.js com.example.xxx
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x02-app源码">0x02 App源码&lt;/h3>
+&lt;p>java层&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>native层&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x03-java层hook">0x03 Java层hook&lt;/h3>
+&lt;p>HOOK代码&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x04-native层hook">0x04 Native层hook&lt;/h3>
+&lt;p>native层代码&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x05-总结">0x05 总结&lt;/h3>
+&lt;p>源代码地址：&lt;/p>
+&lt;h3 id="0x06-参考">0x06 参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.freebuf.com/articles/system/190565.html" target="_blank" rel="noopener"
+>https://www.freebuf.com/articles/system/190565.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://blog.csdn.net/jiangwei0910410003/article/details/80372118" target="_blank" rel="noopener"
+>https://blog.csdn.net/jiangwei0910410003/article/details/80372118&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/dweinstein/awesome-frida" target="_blank" rel="noopener"
+>https://github.com/dweinstein/awesome-frida&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>Frida从入门到放弃_1（重置）</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</link><pubDate>Tue, 22 Jan 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</guid><description>&lt;h1 id="frida从入门到放弃_1重置">Frida从入门到放弃_1（重置）&lt;/h1>
+&lt;h3 id="0x00-frida">0x00 Frida&lt;/h3>
+&lt;p>Frida 官网：https://www.frida.re/&lt;/p>
+&lt;p>github: &lt;a class="link" href="https://github.com/frida/frida" target="_blank" rel="noopener"
+>https://github.com/frida/frida&lt;/a>&lt;/p>
+&lt;p>Dynamic instrumentation toolkit for developers, reverse-engineers, and security researchers.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Scriptable&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Portable&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Free&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Battle-tested&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-安装">0x01 安装&lt;/h3>
+&lt;h3 id="二进制安装-推荐">二进制安装 (推荐)&lt;/h3>
+&lt;p>pip install frida-tools 就一个命令搞定&lt;/p>
+&lt;blockquote>
+&lt;p>Failed to load the Frida native extension: DLL load failed: 找不到指定的模块&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>报了这个错 查了大半天 原来我用的版本是基于python3.7编译的。我现在用的3.6.。。。。
+&lt;/code>&lt;/pre>
+&lt;p>绑定：二选一就行&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">pip install frida &lt;span class="c1"># Python bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm install frida &lt;span class="c1"># Node.js bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="手动编译">手动编译&lt;/h3>
+&lt;p>依赖：&lt;/p>
+&lt;p>&lt;code>pip3 install colorama prompt-toolkit pygments&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>Linux&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>make&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>MacOS and iOS&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">MAC_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">IOS_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>Windows&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida.sln &lt;span class="c1">#VS2017&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x02-android环境">0x02 Android环境&lt;/h3>
+&lt;p>设备：小米mix2 运行Android9.0 MIUI10开发版已解锁root&lt;/p>
+&lt;p>frida-server: 用的arm64版本&lt;/p>
+&lt;p>&lt;a class="link" href="https://github.com/frida/frida/releases" target="_blank" rel="noopener"
+>server文件下载&lt;/a>&lt;/p>
+&lt;p>下载好对应的 frida-server 然后adb push 进去&lt;/p>
+&lt;p>&lt;code>adb push frida-server /data/local/tmp&lt;/code>&lt;/p>
+&lt;p>然后&lt;code>chomd 755 frida-server&lt;/code>修改权限&lt;/p>
+&lt;p>运行&lt;code>./frida-server&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133452.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>frida-server&lt;/p>
+&lt;p>这几个命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">root&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">push&lt;/span> &lt;span class="nb">frida-server&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">local&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>查看架构：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616145105.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>aarch64&lt;/p>
+&lt;h3 id="0x03-简单测试">0x03 简单测试&lt;/h3>
+&lt;p>命令行运行&lt;code>frida-ps -U&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133604.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>frida-ps&lt;/p>
+&lt;p>有显示就是连接成功&lt;/p>
+&lt;p>接下来对浏览器进行简单测试&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150349.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i open com.android.browser&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150506.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>随便点一下浏览器&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150623.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>测试Diva&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151039.jpg"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151307.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i &amp;quot;open*&amp;quot; jakhar.aseem.diva&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151432.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>进行Hook login.class checkout函数&lt;/p>
+&lt;p>逆向过程略&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151826.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>HOOK脚本：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">perfrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;######&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">var&lt;/span> &lt;span class="nx">logActivity&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">use&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;jakhar.aseem.diva.LogActivity&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">logActivity&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">checkout&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">implementation&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Hook&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>命令行载入脚本运行&lt;/p>
+&lt;p>&lt;code>frida -U jakhar.aseem.diva -l diva1.js --no-pause&lt;/code>&lt;/p>
+&lt;p>进入logging关卡 点击check out，成功hook到checkout函数。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616153553.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-总结">0x04 总结&lt;/h3>
+&lt;hr>
+&lt;p>算是简单的入门了frida。&lt;/p>
+&lt;p>frida还有很多厉害的功能。多读读官方文档，收货会更多。&lt;/p></description></item><item><title>IDA_动态调试.so_基本步骤</title><link>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</link><pubDate>Fri, 31 Aug 2018 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</guid><description>&lt;h1 id="ida_动态调试so_基本步骤">IDA_动态调试.so_基本步骤&lt;/h1>
+&lt;h2 id="ida-动态调试so-基本步骤">IDA 动态调试.so 基本步骤&lt;/h2>
+&lt;ul>
+&lt;li>待补图&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x00-ida快捷键">0x00 IDA快捷键&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>Shirt+F12 字符串窗口&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>F5大法好 反汇编&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Ctrl+S 查看so对应段的信息（非调试），快速定位so文件的内存地址（Debug）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>G 快速跳转到对应地址。s&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>调试-F7单步进入调试、F8单步、F9运行&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-方法一">0x01 方法一&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>获取运行Android_server。&lt;/p>
+&lt;p>android_server文件放在IDA安装目录下的注意版本的不同。&lt;/p>
+&lt;p>之后只需 &lt;code>push android_server /data/local/tmp/&lt;/code>。&lt;/p>
+&lt;p>之后&lt;code>adb shell&lt;/code>，&lt;code>su&lt;/code> ，&lt;code>cd /data/local/tmp/&lt;/code>。&lt;/p>
+&lt;p>可能还得&lt;code>chmod 755 android_server&lt;/code> 才有权限运行。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>建立通信、attach进程。&lt;/p>
+&lt;p>&lt;code>adb forward tcp:23946 tcp:23946&lt;/code>命令。&lt;/p>
+&lt;p>在IDA的Debugger选项中attach进程。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>加载so、找函数下断点&lt;/p>
+&lt;p>双开IDA ，Ctrl+S找到so文件的基地址，另外一个IDA找到函数的相对地址。相加得到绝对地址。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x02-方法二">0x02 方法二&lt;/h3>
+&lt;p>无法加载so文件需要在加载之前断点。反调试之类&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>Debug方式启动app。需要应用可调试开启&lt;/p>
+&lt;p>&lt;code>adb shell am start -D -n 包名/.MainActivity&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>方法一的1，2两步 勾选选项。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>jdb attach程序&lt;/p>
+&lt;p>&lt;code>jdb -connect com.sun.jdi.SocketAttach:hostname=127.0.0.1,port=8700&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>开始调试 同上&lt;/p>
+&lt;/li>
+&lt;/ol></description></item><item><title>Android应用安全防护和逆向分析-基础篇2</title><link>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%872/</link><pubDate>Thu, 16 Aug 2018 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%872/</guid><description>&lt;h1 id="android应用安全防护和逆向分析-基础篇2">Android应用安全防护和逆向分析-基础篇2&lt;/h1>
+&lt;h1 id="一-基础篇">一、 基础篇②&lt;/h1>
+&lt;h2 id="第二章-android中ndk的开发">第二章 Android中NDK的开发&lt;/h2>
+&lt;h3 id="1-相关环境">1. 相关环境&lt;/h3>
+&lt;p>相关环境参考另外一篇文章&lt;a class="link" href="https://naivete.cc/post/android%E5%AE%89%E5%85%A8%E5%92%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" target="_blank" rel="noopener"
+>Android安全和开发环境搭建&lt;/a>&lt;/p>
+&lt;h3 id="2-jni基础">2. JNI基础&lt;/h3>
+&lt;h3 id="21-第一行代码书上使用eclipse我使用as简单方便很多">2.1 第一行代码(书上使用Eclipse,我使用AS(简单方便很多))&lt;/h3>
+&lt;p>​ 参考文章&lt;a class="link" href="https://naivete.cc/post/android%E5%AE%89%E5%85%A8%E5%92%8C%E5%BC%80%E5%8F%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/" target="_blank" rel="noopener"
+>Android安全和开发环境搭建&lt;/a>中的JNI开发章节&lt;/p>
+&lt;h3 id="22-jnienv类型和jobject类型">2.2 JNIEnv类型和jobject类型&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>AS 默认自动生成&lt;/strong>&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">native&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">String&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">stringFromJNI&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="n">Java_com_naivete_jni_1study_MainActivity_stringFromJNI&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">JNIEnv&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">env&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">jobject&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="cm">/* this */&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">std&lt;/span>&lt;span class="p">::&lt;/span>&lt;span class="n">string&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">hello&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;Hello from C++&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="k">return&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">NewStringUTF&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hello&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">c_str&lt;/span>&lt;span class="p">());&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>JNIEnv类型&lt;/strong>&lt;/p>
+&lt;p>通过JNIEnv* 指针就可以对Java端的代码进行操作&lt;/p>
+&lt;p>Jni的所有函数可以查看jni.h文件&lt;/p>
+&lt;p>下面是一些函数eg：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>NewObject : 创建Java类中的对象。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>NewString : 创建Java类中的String对象。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>NewArray : 创建类型为Type的数组对象&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GetField: 获取型为Type的字段。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>SetFileld: 设置类型为Type的字段的值。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GetStaticField: 获取类型为Type的static的字段。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>SetStaticField:设置类型为Typede的static的字段的值。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>CallMethod: 调用返回类型为Type的方法。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>CallStaticMethod: 调用返回值类型为Type的Static方法&lt;/p>
+&lt;p>…..&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Jobject参数obj&lt;/strong>&lt;/p>
+&lt;p>如果native 方法不是static ,obj就代表native方法的实例。&lt;/p>
+&lt;p>如果narive方法是static,obj 就代表native方法的类的class对象实例。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>Java和C++中的基本类型的映射关系&lt;/strong>：&lt;/p>
+&lt;p>具体查看jni.h文件的详细说明&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;table>
+&lt;tr>
+&lt;th>Java类型&lt;/th>
+&lt;th>本地类型&lt;/th>
+&lt;th>JNI定义的别名&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>int&lt;/th>
+&lt;th>long&lt;/th>
+&lt;th>jint/jsize&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>long&lt;/th>
+&lt;th>_int64&lt;/th>
+&lt;th>jlong&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>byte&lt;/th>
+&lt;th>signed char&lt;/th>
+&lt;th>jbyte&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>boolean&lt;/th>
+&lt;th>unsigned char&lt;/th>
+&lt;th>jboolean&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>char&lt;/th>
+&lt;th>unsigned short&lt;/th>
+&lt;th>jchar&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>short&lt;/th>
+&lt;th>short&lt;/th>
+&lt;th>jshort&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>float&lt;/th>
+&lt;th>float&lt;/th>
+&lt;th>jfloat&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>double&lt;/th>
+&lt;th>double&lt;/th>
+&lt;th>jdouble&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>Object&lt;/th>
+&lt;th>_jobject*&lt;/th>
+&lt;th>jobject&lt;/th>
+&lt;/tr>&lt;/table>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>jclass类型&lt;/strong>&lt;/p>
+&lt;p>jclass 表示java中的class 类：&lt;/p>
+&lt;p>JNIEnv 类中有如下几个简单的函数可以取得jclass:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>jclass FindClass( const char* clsName):通过类的名称来获取jclass&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>jcalss GetObjectClass( jobject obj ):通过对象实例来获取jcalss,相当于java 中的getclass方法&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>jclass GetSuperClass(jclass obj):通过jclass 可以获取其父类的jclass对象。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>native中访问Java层代码&lt;/strong>&lt;/p>
+&lt;p>常见的应用就是获取类的属性和调用类的方法&lt;/p>
+&lt;p>JNi在jni.h头文件中定义了jfieldId、jmethodID类型分别代表JAVA端的属性和方法。&lt;/p>
+&lt;p>使用JNI的以下方法来取得相应的jfieldId、jmethodID：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>GetFieldID、GetMethodID&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GetStaticFieldID、GetStaticMethodID&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>查看jni.h中源函数&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">GetFieldID&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">jclass&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">clazz&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">const&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">sig&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>​ 参数说明：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>clazz 方法依赖的类对象的class对象&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>name: 字段的名称&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>sig : 字段的签名&lt;/p>
+&lt;p>查看签名命令&lt;/p>
+&lt;p>&lt;code>javap -s -p 字节码.class 文件&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>GetMethodID 也能够会的构造函数的jmethodID，创建一个Java对象是可以调用指定的构造方法，eg：&lt;/p>
+&lt;p>&lt;code>env-&amp;gt;GetmethodID(data_class,&amp;quot;&amp;lt;init&amp;gt;&amp;quot;,&amp;quot;()v&amp;quot;);&lt;/code>&lt;/p>
+&lt;p>签名的格式：&lt;/p>
+&lt;table>
+&lt;tr>
+&lt;th>类型&lt;/th>
+&lt;th>相应的签名&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>boolean&lt;/th>
+&lt;th>Z&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>byte&lt;/th>
+&lt;th>B&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>chat&lt;/th>
+&lt;th>C&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>short&lt;/th>
+&lt;th>S&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>int&lt;/th>
+&lt;th>I&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>long&lt;/th>
+&lt;th>L&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>float&lt;/th>
+&lt;th>F&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>double&lt;/th>
+&lt;th>D&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>void&lt;/th>
+&lt;th>V&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>object&lt;/th>
+&lt;th>L用/分割包的完整类名；Ljava/lang/String;&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>Array&lt;/th>
+&lt;th>[签名 [I [Ljava/lang/Object&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>Method&lt;/th>
+&lt;th>(参数类型签名··· .) 返回值类型签名&lt;/th>
+&lt;/tr>&lt;/table>
+&lt;p>eg:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">package&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nn">com.naivete.jni_study&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="kn">import&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nn">java.util.Date&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">class&lt;/span> &lt;span class="nc">Hello&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">property&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">foo&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Date&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">date&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="o">[]&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">arr&lt;/span>&lt;span class="p">){&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">System&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">println&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;function&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="k">return&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">native&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">test&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">extern&lt;/span> &lt;span class="s">&amp;#34;C&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">JNIEXPORT&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">JNICALL&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Java_com_naivete_jni_1study_Hello_test&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">JNIEnv&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">env&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">jobject&lt;/span> &lt;span class="n">instance&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// TODO
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jclass&lt;/span> &lt;span class="n">helloclazz&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetObjectClass&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jfieldID&lt;/span> &lt;span class="n">field_prop&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetFieldID&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">helloclazz&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s">&amp;#34;property&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s">&amp;#34;I&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//取到property字段
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jmethodID&lt;/span> &lt;span class="n">method_fun&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetMethodID&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">helloclazz&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s">&amp;#34;function&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s">&amp;#34;ILjava/util/Date;[I)I&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//取到function函数
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">CallIntMethod&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">method_fun&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mi">0L&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">NULL&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">NULL&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>GetStaticFieldID与GetStaticMethodID这两个方法的用法大同小异。&lt;/p>
+&lt;h3 id="23-jnienv类型中方法的使用">2.3 JNIEnv类型中方法的使用&lt;/h3>
+&lt;ul>
+&lt;li>在java中定义一个属性，再从C++代码中将其设置成另外的值&lt;/li>
+&lt;/ul>
+&lt;h3 id="231-native中获取方法的id">2.3.1 native中获取方法的ID&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">private&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">static&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">String&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">TAG&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;Hello&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">number&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">native&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">sayHello&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">static&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">Hello&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">hello&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="k">new&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Hello&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">hello&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">sayHello&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">System&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">out&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hello&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">number&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">Log&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">d&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">TAG&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="n">hello&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">number&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">JNIEXPORT&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">JNICALL&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Java_com_naivete_jni_1study_Hello_sayHello&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">JNIEnv&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">env&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">jobject&lt;/span> &lt;span class="n">instance&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// TODO
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jclass&lt;/span> &lt;span class="n">helloclazz&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetObjectClass&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jfieldID&lt;/span> &lt;span class="n">id_number&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetFieldID&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">helloclazz&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s">&amp;#34;number&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s">&amp;#34;I&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//获取numberID
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jint&lt;/span> &lt;span class="n">number&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetIntField&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">id_number&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//获取number的值;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">cout&lt;/span>&lt;span class="o">&amp;lt;&amp;lt;&lt;/span>&lt;span class="n">number&lt;/span>&lt;span class="o">&amp;lt;&amp;lt;&lt;/span>&lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//输出到控制台
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">SetIntField&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">id_number&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mi">100L&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//设置number的值;注意jint对应c++ long类型
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/android-note-2-1.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>JNIEnv 还提供了许多CallMethod 和CallStaticMethod 还有CallNovirtualMethod函数，需要通过GetMethodID来取得相应的方法的jmethodId传入到上述函数的参数中&lt;/p>
+&lt;p>调用示例方法的三种形式如下：&lt;/p>
+&lt;p>&lt;code>Call&amp;lt;Type&amp;gt;Method(jobject obj,jmethodID id,id,·······);&lt;/code> //常用的方式&lt;/p>
+&lt;p>&lt;code>Call&amp;lt;Type&amp;gt;Method(jobject obj,jmethodID id,id,va_list lst);&lt;/code> //有指向参数表的va_list变量（很少使用）&lt;/p>
+&lt;p>&lt;code>Call&amp;lt;Type&amp;gt;Method(jobject obj,jmethodID id,id,jvalue * v);&lt;/code> //有指向jvalue或jvalue数组指针时用的&lt;/p>
+&lt;p>jvalue 是union联合体，定义jvalue数组传递到方法中，这样可以包含多种类型的参数：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">typedef&lt;/span> &lt;span class="k">union&lt;/span> &lt;span class="n">jvalue&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jboolean&lt;/span> &lt;span class="n">z&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jbytpe&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jchar&lt;/span> &lt;span class="n">c&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jshort&lt;/span> &lt;span class="n">s&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jint&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jlong&lt;/span> &lt;span class="n">j&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jfloat&lt;/span> &lt;span class="n">f&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jdouble&lt;/span> &lt;span class="n">d&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jobject&lt;/span> &lt;span class="n">l&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;span class="n">jvalue&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>比如在Java中有这样一个方法：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">boolean&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">function&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="kt">double&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">b&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="kt">char&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">c&lt;/span>&lt;span class="p">){&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="err">·····&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>1）在C++中使用第一种方法调用function方法：&lt;/p>
+&lt;p>&lt;code>env-&amp;gt;CallbooleanMethod(obj,id_function,10L，3.4，L'a')&lt;/code>&lt;/p>
+&lt;p>obj:functon对象，id_function:functiond的id,10L、3.4、L’a’是对应的参数。&lt;/p>
+&lt;p>L’a’ 中的L是因为Java中的字符是Unicode双字节的，而C++中的字节是单字节的，所以要变成宽字符。&lt;/p>
+&lt;p>2）在C++中使用第三种方法function调用：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">jvalue* args = new Jvalue[3]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">args[0] = 10L;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">args[1] = 3.22;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">args[2] = L&amp;#39;a&amp;#39;;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">env-&amp;gt;GetBooleanMethod(obj,id_function,args);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">delete[] args; //是否指针堆内存
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="232-java和c中的多态机制">2.3.2 Java和C++中的多态机制&lt;/h3>
+&lt;p>JNIEnv中的特殊方法CallNovirtualMethod。来帮助java调用Java中父类的方法。&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>介绍了-C++和java多态的基础知识。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>步骤：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>获取obj中对象的class 对象 GetObjectClass(obj)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>获取java中father字段的id GetFieldID()&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>获取father字段的对象类型 GetObjectField&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>获取father对象的class对象 FindClass&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>获取father对象中function方法ID GetMethodID()&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>调用父类中的function方法（会执行子类的方法）CallvoidMethod&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>调用父类中的function方法（会执行父类的方法）CallNonvirtualVoidMethod()&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="24-创建java对象及字符串的操作方法">2.4 创建Java对象及字符串的操作方法&lt;/h3>
+&lt;h3 id="241-native中创建java对象">2.4.1 native中创建Java对象&lt;/h3>
+&lt;p>​ 两种方法：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>第一种：&lt;/p>
+&lt;p>&lt;code>jobject Newobject(jclass clazz,jmethodID methodID,·····)&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>clazz 需要创建的Java对象的Class对象。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>methodID :传递一个方法的ID: 构造方法&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>第三个参数：构造函数需要传入的参数值（默认不传递） 默认构造方法返回值签名始终是“()V”,方法的名称始终是“&lt;/p>
+&lt;p>”。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>在C++中构造Java中的Date对象调用方法getTime():&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">jclass clazz_date = env-&amp;gt;FindClass(&amp;#34;java/util/Date&amp;#34;); //获取date对象
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">jmethodID mid_date = env-&amp;gt;GetMethodID(clazz_date,&amp;#34;&amp;lt;init&amp;gt;&amp;#34;,&amp;#34;()V&amp;#34;); //获取构造方法的ID
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">jobject now = env-&amp;gt;NewObject(clazz_date,mid_date); //生成Date对象
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">jmethodID mid_date_getTime = env-&amp;gt;GetMethodID(clazz_date,&amp;#34;getTime()&amp;#34;,&amp;#34;()J&amp;#34;); //获取getTime的ID
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">jlong time = env-&amp;gt;CallLongMethod(now,mid_date_getTime);//调用getTime返回时间
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">printf(&amp;#34;%I64d&amp;#34;,time);
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>第二种：&lt;/p>
+&lt;p>用AllocObject函数创建一个对象，可以根据传入的jclass创建一个java对象，但是状态时未初始化的，在这个对象之前绝对要用CallNonvirtualVoidMethod来调用该jclass的构造函数这样可以延迟构造函数的调用。用的比较少。&lt;/p>
+&lt;p>eg：略；&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="242-native中操作java字符串">2.4.2 native中操作Java字符串&lt;/h3>
+&lt;p>​ Java-String对象是Unicode(UTF-16)码 一个字符总是占用两个字节 可以通过JNI接口将Java中的字符串转换到C++的宽字符串（wchar_t*),或者传回一个UTF-8编码的字符串（char * )到C++ 反过来同理。&lt;/p>
+&lt;p>JNIEnv中的一些C++方法：&lt;/p>
+&lt;p>1）获取字符串的长度：&lt;/p>
+&lt;p>​ &lt;code>jsize GetStringLength(jstring j_msg)&lt;/code>&lt;/p>
+&lt;ol>
+&lt;li>将jstring 对象拷贝到const jchar* 指针字符串：&lt;/li>
+&lt;/ol>
+&lt;p>​ //拷贝Java字符串并以UTF-8编码传入jstr:&lt;/p>
+&lt;p>​ &lt;code>env-&amp;gt;GetStringRegion(jstring j_msg.jsize start,jszie len,jchar* jstr);&lt;/code>&lt;/p>
+&lt;p>​ ////拷贝Java字符串并以UTF-16编码传入jstr:&lt;/p>
+&lt;p>​ &lt;code>env-&amp;gt;GetStringUTFRegion(jstring j_msg.jsize start,jszie len, char* jstr);&lt;/code>&lt;/p>
+&lt;ol>
+&lt;li>生成一个jstring 对象&lt;/li>
+&lt;/ol>
+&lt;p>​ &lt;code>jobject NewString(const jchar* jstr,int size);&lt;/code>&lt;/p>
+&lt;p>​ 将字符串指针jstr转换成jstring。&lt;/p>
+&lt;ol>
+&lt;li>将jstring对象转换成const jchar* 字符串指。&lt;/li>
+&lt;/ol>
+&lt;ul>
+&lt;li>
+&lt;p>GetStringChars 开内存 指针指向先开的内存&lt;/p>
+&lt;p>&lt;code>const* jchar * GetStringChars(jstring j_msg,jboolean* copied)&lt;/code>&lt;/p>
+&lt;p>返回一个UTF-16编码的宽字符串（jchar*);&lt;/p>
+&lt;p>对应的释放内存方法：&lt;/p>
+&lt;p>&lt;code>ReleaseStringChars(jstring j_msg,const jchar* jstr)&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GetStringUTFChars 不开内存直接指向Java中string的指针&lt;/p>
+&lt;p>&lt;code>const char* GetStringUTFChars(jstring str,jboolean* copied)&lt;/code>&lt;/p>
+&lt;p>取得UTF-8编码的字符串&lt;/p>
+&lt;p>释放：&lt;/p>
+&lt;p>&lt;code>ReleaseStringUTFChars(jstring j_msg,const jchar* jstr)&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;ol>
+&lt;li>将jstring 对象转化成const jchar* 字符串指针：&lt;/li>
+&lt;/ol>
+&lt;p>​ &lt;code>const jchar* GetStringCritical(jstring j_msg,Jboolean* copied)&lt;/code>&lt;/p>
+&lt;p>​ 作用:增加直接传回指向Java字符串的指针的可能性（而不是拷贝）；&lt;/p>
+&lt;p>​ 在&lt;code>GetStringCritical/ReleaseStringCritical&lt;/code>之间的关键区域之间不能调用任何其他JNI函数。否则会造成关键区域代码执行期间垃圾回收器停止工作。任何触发垃圾回收器的的线程也将暂停。&lt;/p>
+&lt;p>​ 释放：&lt;/p>
+&lt;p>​ &lt;code>ReleaseStringCritical(jstring j_msg,const jchar* jstr)&lt;/code>&lt;/p>
+&lt;p>实例eg：（与书上不同,思路大概相同）&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">class&lt;/span> &lt;span class="nc">MainActivity&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">extends&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">AppCompatActivity&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">private&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">EditText&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">et&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">private&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">TextView&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">tv&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">private&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">Button&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">bt&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">String&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">text&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">null&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c1">// Used to load the &amp;#39;native-lib&amp;#39; library on application startup.&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">static&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">System&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">loadLibrary&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;native-lib&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nd">@Override&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">protected&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">onCreate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">Bundle&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">savedInstanceState&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">super&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">onCreate&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">savedInstanceState&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">setContentView&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">R&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">layout&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">activity_main&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">et&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">findViewById&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">R&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">id&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">editText&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">tv&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">findViewById&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">R&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">id&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">tv&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">bt&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">findViewById&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">R&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">id&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">button&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">bt&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">setOnClickListener&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="k">new&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">View&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">OnClickListener&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nd">@Override&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">onClick&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">View&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">v&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">text&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">et&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">getText&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="na">toString&lt;/span>&lt;span class="p">().&lt;/span>&lt;span class="na">trim&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">callCppFunction&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">tv&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="na">setText&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">text&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">});&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">native&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">callCppFunction&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;jni.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;string&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span>&lt;span class="cpf">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span>&lt;span class="cpf">&amp;lt;algorithm&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="n">using&lt;/span> &lt;span class="n">namespace&lt;/span> &lt;span class="n">std&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">extern&lt;/span> &lt;span class="s">&amp;#34;C&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">JNIEXPORT&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">JNICALL&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">Java_com_example_naivete_jnidemo_MainActivity_callCppFunction&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">JNIEnv&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">env&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">jobject&lt;/span> &lt;span class="n">instance&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// TODO
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//获取text
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jfieldID&lt;/span> &lt;span class="n">fid_tx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetFieldID&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetObjectClass&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">),&lt;/span>&lt;span class="s">&amp;#34;text&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s">&amp;#34;Ljava/lang/String;&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//获取ext对象
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jstring&lt;/span> &lt;span class="n">j_tx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">jstring&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetObjectField&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">fid_tx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//第一种方式
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="c1">//获得字符串指针：
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="n">jchar&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">jstr1&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetStringChars&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">j_tx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">NULL&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//z转换成宽字符
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">wstring&lt;/span> &lt;span class="nf">wstr&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="k">const&lt;/span> &lt;span class="kt">wchar_t&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">jstr1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//释放指针
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">ReleaseStringChars&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">j_tx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">jstr1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//第一种END
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//第二种
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="n">jchar&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">jstr2&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetStringCritical&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">j_tx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="nb">NULL&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">wstring&lt;/span> &lt;span class="nf">wstr2&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="k">const&lt;/span> &lt;span class="kt">wchar_t&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">jstr2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">ReleaseStringCritical&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">j_tx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">jstr2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//END
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//第三种
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jsize&lt;/span> &lt;span class="n">len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetStringLength&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">j_tx&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//获取长度
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">jchar&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">jstr3&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">new&lt;/span> &lt;span class="n">jchar&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jstr3&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="sa">L&lt;/span>&lt;span class="sc">&amp;#39;\0&amp;#39;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//复制
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">GetStringRegion&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">j_tx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">jstr3&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">wstring&lt;/span> &lt;span class="nf">wstr3&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="k">const&lt;/span> &lt;span class="kt">wchar_t&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">jstr3&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">delete&lt;/span>&lt;span class="p">[]&lt;/span> &lt;span class="n">jstr3&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//End
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//倒序
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">reverse&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">wstr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">begin&lt;/span>&lt;span class="p">(),&lt;/span>&lt;span class="n">wstr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">end&lt;/span>&lt;span class="p">());&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">jstring&lt;/span> &lt;span class="n">j_new_str&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">NewString&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="k">const&lt;/span> &lt;span class="n">jchar&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">wstr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">c_str&lt;/span>&lt;span class="p">(),(&lt;/span>&lt;span class="n">jint&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">wstr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">size&lt;/span>&lt;span class="p">());&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">env&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="nf">SetObjectField&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">instance&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">fid_tx&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">j_new_str&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/android-note-2-2.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>​&lt;/p>
+&lt;h3 id="25-cc中操作java中的数组">2.5 C/C++中操作Java中的数组&lt;/h3>
+&lt;p>​ 在java中数组分为两种：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>基本类型数组&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>对象类型数组&lt;/p>
+&lt;p>一个能用于两种不同类型数组的函数是：GetArrayLength(jarray array)。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="251-操作基本类型的数组">2.5.1 操作基本类型的数组&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>GetArrayElements方法&lt;code>Get&amp;lt;Type&amp;gt;ArrayElements(&amp;lt;Type&amp;gt;Array arr,jboolean* isCopide)&lt;/code>&lt;/p>
+&lt;p>把Java中的基本类型的数组转换成C++中的数组 两种方式：&lt;/p>
+&lt;p>一是拷贝一份传回本地，另外一种是把指向Java数组的指针直接传回到本地代码中&lt;/p>
+&lt;p>处理完后，通过ReleaseArrayelements 来释放数组。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>ReleaseArrayelement 方法&lt;code>Release&amp;lt;Type&amp;gt;Arrayelement(Type&amp;gt;Array arr,&amp;lt;Type&amp;gt;* array,jint mode)&lt;/code>&lt;/p>
+&lt;p>这个函数可以选择如何处理Java和C++中的数组，是提交还是撤销····内存是否释放等等。&lt;/p>
+&lt;p>mode的取值：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>0：对Java的数组进行更新并且释放C/C++数组&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>JNI_COMMIT：更新但是不释放&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>JNI_ABOUT：不更新，释放。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>GetPrimittiveArrayCritical方法&lt;/p>
+&lt;p>&lt;code>GetPrimittiveArrayCritical(jarray arr,jboolean* isCopied)&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>ReleasePrimittiveArrayCritical方法&lt;/p>
+&lt;p>&lt;code>ReleasePrimittiveArrayCritical(jarray arr,void* array,jint mode)&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GetArrayRegion方法&lt;code>Get&amp;lt;type&amp;gt;ArrayRegion(&amp;lt;Type&amp;gt;Arryay arr,jsize strat ,jsize len,&amp;lt;Type&amp;gt;* buffer)&lt;/code>&lt;/p>
+&lt;p>在C++中开辟内存，拷贝数组到内存中。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>SetArrayRegion&lt;code>Set&amp;lt;type&amp;gt;ArrayRegion(&amp;lt;Type&amp;gt;Arryay arr,jsize strat ,jsize len,const &amp;lt;Type&amp;gt;* buffer)&lt;/code>&lt;/p>
+&lt;p>把Java基本类型数组中的指定范围的元素用C++数组中的元素来赋值。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>ArrayNew方法&lt;code>&amp;lt;Type&amp;gt;ArrayNew&amp;lt;Type&amp;gt;Array(jszie sz)&lt;/code>&lt;/p>
+&lt;p>指定一个长度然后返回相应的Java基本类型的数组。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="252-操作对象数组类型">2.5.2 操作对象数组类型&lt;/h3>
+&lt;p>​ JNI未提供把Java对象数组 直接转到C++对象数组的函数。而是通过&lt;code>Get/SetObjectArrayaElement&lt;/code>这样的函数来对java中的对象数组进行操作。因为未拷贝 所以没有释放操作。&lt;code>NewObjectArray&lt;/code>可以通过指定长度和初始值来创建某一个类的数组。&lt;/p>
+&lt;p>例子：两种类型的操作：&lt;/p>
+&lt;p>略·····&lt;/p>
+&lt;p>​ 注：书本P34-36&lt;/p>
+&lt;h3 id="26-cc中的引用类型和id缓存">2.6 C++/C中的引用类型和ID缓存&lt;/h3>
+&lt;h3 id="261-引用类型">2.6.1 引用类型&lt;/h3>
+&lt;p>​ 从Java创建对象传到本地C/C++代码时会产生引用，根据Java的垃圾回收机制，只要存在引用就不会触发改引用所指的Java对象垃圾回收。&lt;/p>
+&lt;p>​ 几种C/C++中的引用类型：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>局部引用：（最常见）&lt;/p>
+&lt;p>局部引用只在该native函数中有用，所有在该函数中产生的局部引用，都会在函数返回时自动释放，也可以使用DeleteLocalRef函数手动释放。&lt;/p>
+&lt;p>有效期中能传递到别的本地函数中，千万不要用C++全局变量保存它，或者把它定义为C++静态局部变量。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>全局引用：&lt;/p>
+&lt;p>可以跨越当前线程，在对个native函数中有效，需要手动释放。会阻止垃圾回收器回收这个引用所指的对象。&lt;/p>
+&lt;p>不同于局部引用，全局引用的创建不是由JNI自动创建的，全局引用是需要调用NewGlobalRef函数，释放使用ReleaseGlobalRef函数。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>弱全局引用&lt;/p>
+&lt;p>与全局引用相似。不一样的为不会阻止垃圾回收器回收这个引用所指对象，使用NewWeakGlobalRef和ReleaseWeakGlobalRef来产生和释放。&lt;/p>
+&lt;p>关于引用的一些函数：&lt;/p>
+&lt;p>&lt;code>jobject NewGlobalRef(jobject obj)&lt;/code>&lt;/p>
+&lt;p>&lt;code>jobject NewLocalRef(jobject obj)&lt;/code>&lt;/p>
+&lt;p>&lt;code>jobject New WeakGlobalRef(jobject obj)&lt;/code>&lt;/p>
+&lt;p>&lt;code>void DeleteGlobalRef(jobject obj)&lt;/code>&lt;/p>
+&lt;p>&lt;code>void DeleteLocalRef(jobject obj)&lt;/code>&lt;/p>
+&lt;p>&lt;code>void DeleteWeakGlobalRef(jobject obj)&lt;/code>&lt;/p>
+&lt;p>很容易理解上面6个函数&lt;/p>
+&lt;p>&lt;code>jboolean IsSameObject(jobject obj1,jobject obj2)&lt;/code>&lt;/p>
+&lt;p>这个函数用来比较两个引用是否相等，但是对于弱引用有一个特别的功能，如果把NULL传入要比较的对象中就能判断弱全局引用所指的Java对象是否被回收。&lt;/p>
+&lt;p>缓存jfieldID/jmethodID.减小查询开销。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="262-缓存方法">2.6.2 缓存方法&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>在用的时候缓存&lt;/p>
+&lt;p>在native代码中使用static局部变量来保存已经查询过的id,就缓存下了id。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>在Java类初始化时缓存&lt;/p>
+&lt;p>比较好的方法，在native调用前把所有ID全部保存下来。可以让Java代码在第一次加载这个类的时候首先调用本地代码初始化所有的jfildID/jmethodID.这样可以省去多次确定ID是否存在的语句。这些jfildID/jmethodID定义在C++的全局。当java类卸载或者重新加载的时候，也会重新计算ID.&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;span class="line">&lt;span class="cl">&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">class&lt;/span> &lt;span class="nc">TestNative&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">static&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">initNativeIDs&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c1">//静态代码块进行初始化&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">static&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">native&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">initNativeIDs&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">propInt&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">0&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="n">String&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="n">propStr&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s">&amp;#34;&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="kd">public&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kd">native&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kt">void&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="nf">otherNative&lt;/span>&lt;span class="p">();&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="err">···········&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="p">}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">jfieldID g_propInt_id = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">jfieldID g_propStr_id = 0;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">JNIEXPORT void JNICALL Java_····init（JNIEnv* env,jobject clazz）{
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> jfieldID g_propInt_id = GetfieldID(clazz,&amp;#34;propInt&amp;#34;,&amp;#34;I&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> jfieldID g_propStr_id = GetfieldID(clazz,&amp;#34;propStr&amp;#34;,&amp;#34;/Ljava/lang/String;&amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">JNIEXPORT void JNICALL Java_····other（JNIEnv* env,jobject clazz）{
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ············
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">}
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="总结">总结&lt;/h3>
+&lt;p>​ 主要是NDK开发相关。&lt;/p>
+&lt;p>​ 感觉系统的学了一遍还是感觉不错的。&lt;/p>
+&lt;p>可以多找网上的例子来练习练习，加深对JNI 的了解。&lt;/p></description></item></channel></rss>

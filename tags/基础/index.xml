@@ -1,0 +1,2304 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>基础 on ykikoqAq</title><link>https://ykiko.top/tags/%E5%9F%BA%E7%A1%80/</link><description>Recent content in 基础 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 10 Apr 2020 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/%E5%9F%BA%E7%A1%80/index.xml" rel="self" type="application/rss+xml"/><item><title>syzkaller_fuzzing_入门</title><link>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</link><pubDate>Fri, 10 Apr 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/syzkaller_fuzzing_%E5%85%A5%E9%97%A8/</guid><description>&lt;h1 id="syzkaller_fuzzing_入门">syzkaller_fuzzing_入门&lt;/h1>
+&lt;h3 id="0x00-介绍">0x00 介绍&lt;/h3>
+&lt;p>&lt;a class="link" href="https://github.com/google/syzkaller" target="_blank" rel="noopener"
+>syzkaller&lt;/a>是google的安全研究人员开发并维护的内核fuzz工具。它主要是用go写的，也有少部分C代码，支持akaros/fuchsia/linux/android/freebsd/netbsd/openbsd/windows等系统，发现的漏洞多达上千。&lt;/p>
+&lt;h3 id="0x01-环境配置">0x01 环境配置&lt;/h3>
+&lt;p>&lt;strong>环境要求&lt;/strong>：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>C/C++ 编译器&lt;/p>
+&lt;ul>
+&lt;li>GCC 6.1.0+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>linux kernel&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>编译 v4.6以后编译时确保&lt;code>CONFIG_KCOV=y&lt;/code> 之前版本：&lt;a class="link" href="https://github.com/torvalds/linux/commit/5c9a8750a6409c63a0f01d51a9024861022f6593" target="_blank" rel="noopener"
+>这样&lt;/a>添加支持&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>一些额外&lt;a class="link" href="https://github.com/google/syzkaller/blob/master/docs/linux/kernel_configs.md" target="_blank" rel="noopener"
+>选项&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>VM 一般QEMU&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>支持QEMU、kvmtool和GCE虚拟机、Android设备和Odroid C2开发板&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>需要进行通信：vm要提供网络支持&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>vm配置需要ssh服务器&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>要能执行&lt;code>ssh -i $SSHID -p $PORT root@localhost&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>需要将&lt;code>debugfs&lt;/code> 挂在到 &lt;code>/sys/kernel/debug&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://golang.org/" target="_blank" rel="noopener"
+>Golang&lt;/a> 安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">wget https://dl.google.com/go/go1.14.1.linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar -C ~/goroot -xzf go1.14.1.linux-amd64.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vim /etc/profile
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir /usr/local/gopath
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 添加export &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">GOROOT&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/goroot
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">GOPATH&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/gopath
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$GOROOT&lt;/span>/bin:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$GOPATH&lt;/span>/bin:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">source&lt;/span> etc/profile
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>syzkaller&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># build&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">go get -u -d github.com/google/syzkaller/...
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="nv">$GOROOT&lt;/span>/src/github.com/google/syzkaller/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make -j4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># build之后在bin/下&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>如果要cross-OS/arch 进行测试的话，记得修改&lt;code>TARGETOS&lt;/code>, &lt;code>TARGETVMARCH&lt;/code> 和&lt;code>TARGETARCH&lt;/code>参数再&lt;code>make&lt;/code>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-init-syzkaller">0x02 Init syzkaller&lt;/h3>
+&lt;p>生成镜像&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sudo apt install debootstrap
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> gopath/src/github.com/google/syzkaller/tools/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 使用国内源 修改create-image.sh&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo debootstrap --include&lt;span class="o">=&lt;/span>&lt;span class="nv">$PREINSTALL_PKGS&lt;/span> --components&lt;span class="o">=&lt;/span>main,contrib,non-free &lt;span class="nv">$RELEASE&lt;/span> &lt;span class="nv">$DIR&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 改成&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo debootstrap --include&lt;span class="o">=&lt;/span>&lt;span class="nv">$PREINSTALL_PKGS&lt;/span> --components&lt;span class="o">=&lt;/span>main,contrib,non-free &lt;span class="nv">$RELEASE&lt;/span> &lt;span class="nv">$DIR&lt;/span> http://mirrors.163.com/debian/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./create-image.sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 选项 --distribution wheezy --feature full&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 生成了stretch.id_rsa stretch.id_rsa.pub stretch.img&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="编译启动-内核">编译启动 内核&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">KERNEL&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/linux_kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">IMG&lt;/span>&lt;span class="o">=&lt;/span>/home/kuekiko/linux_kernel/img
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$KERNEL&lt;/span>:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">PATH&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nv">$IMG&lt;/span>:&lt;span class="nv">$PATH&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 默认编译&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="nv">$KERNEL&lt;/span>/xxx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> defconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> kvmconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 直接 make menuconfig &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 编辑.config&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_KCOV&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_DEBUG_INFO&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_KASAN&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_KASAN_INLINE&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 新&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_CONFIGFS_FS&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">CONFIG_SECURITYFS&lt;/span>&lt;span class="o">=&lt;/span>y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> olddefconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make &lt;span class="nv">CC&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="nv">$GCC&lt;/span>&lt;span class="s2">/bin/gcc&amp;#34;&lt;/span> -j4
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="qemu">qemu&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">qemu-system-x86_64 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -kernel &lt;span class="nv">$KERNEL&lt;/span>/arch/x86/boot/bzImage &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -append &lt;span class="s2">&amp;#34;console=ttyS0 root=/dev/sda earlyprintk=serial&amp;#34;&lt;/span>&lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -hda &lt;span class="nv">$IMAGE&lt;/span>/stretch.img &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -net user,hostfwd&lt;span class="o">=&lt;/span>tcp::10021-:22 -net nic &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -enable-kvm &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -nographic &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -m 2G &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -smp &lt;span class="m">2&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> -pidfile vm.pid &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span> 2&amp;gt;&lt;span class="p">&amp;amp;&lt;/span>&lt;span class="m">1&lt;/span> &lt;span class="p">|&lt;/span> tee vm.log
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>ssh连接&lt;/p>
+&lt;p>&lt;code>ssh -i $IMG/stretch.id_rsa -p 10021 -o &amp;quot;StrictHostKeyChecking no&amp;quot; root@localhost&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417165654.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>kill qemu 使用&lt;code>kill $(cat vm.pid)&lt;/code>&lt;/p>
+&lt;h3 id="0x03-start-fuzzing">0x03 Start Fuzzing&lt;/h3>
+&lt;p>添加配置文件my.cfg&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;target&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;linux/amd64&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;http&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;127.0.0.1:56741&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;workdir&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller/workdir&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;kernel_obj&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$KERNEL&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;image&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$IMAGE/stretch.img&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;sshkey&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$IMAGE/stretch.id_rsa&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;syzkaller&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;procs&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;type&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;qemu&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;vm&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;count&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">4&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;kernel&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$KERNEL/arch/x86/boot/bzImage&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;cpu&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;mem&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">2048&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>启动fuzzing&lt;/p>
+&lt;p>&lt;code>./bin/syz-manager -config=my.cfg&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417185540.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>浏览器打开http://127.0.0.1:56741/&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417185612.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>虚拟机性能太垃圾，太慢了 fuzzing半天没也啥crashes。还是得用服务器。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417190242.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>挂机了大概3小时，出了几个没啥用的crach。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200417205533.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-总结">0x04 总结&lt;/h3>
+&lt;p>还有很多选项可以开启，没试。&lt;/p>
+&lt;p>看看实现源码，还有就是之后试试Fuzzing Android&lt;/p>
+&lt;h3 id="参考">参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/google/syzkaller" target="_blank" rel="noopener"
+>https://github.com/google/syzkaller&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.freebuf.com/sectool/142969.html" target="_blank" rel="noopener"
+>https://www.freebuf.com/sectool/142969.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="http://blog.douluodalu.wang/2020/03/22/syz-fuzz%E5%88%9D%E6%8E%A2/" target="_blank" rel="noopener"
+>http://blog.douluodalu.wang/2020/03/22/syz-fuzz%E5%88%9D%E6%8E%A2/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/google/syzkaller/blob/master/docs/linux/setup.md" target="_blank" rel="noopener"
+>https://github.com/google/syzkaller/blob/master/docs/linux/setup.md&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>syzkaller-android</title><link>https://ykiko.top/p/syzkaller-android/</link><pubDate>Sun, 15 Sep 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/syzkaller-android/</guid><description>&lt;h1 id="syzkaller-android">syzkaller-android&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>介绍使用syzkaller fuzz Android的配置教程。&lt;/p>
+&lt;h3 id="0x01-环境">0x01 环境&lt;/h3>
+&lt;p>按要安装好环境&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>go&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>syzkaller&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>交叉编译aarch64-linux-android、g++-aarch64-linux-gnu、gcc-arm-linux-gnueabihf、g++-arm-linux-gnueabihf&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-配置">0x02 配置&lt;/h3>
+&lt;p>创建配置文件android.cfg&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-json" data-lang="json">&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;target&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;linux/arm64&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// arm
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nt">&amp;#34;http&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;127.0.0.1:56741&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;workdir&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller/workdir&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;kernel_obj&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$KERNEL&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="c1">// 内核路径
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nt">&amp;#34;syzkaller&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;$GOPATH/src/github.com/google/syzkaller&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;sandbox&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="err">none&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;procs&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="mi">8&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;type&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="s2">&amp;#34;adb&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;cover&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">true&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;vm&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;devices&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="err">$DEVICES&lt;/span>&lt;span class="p">],&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;#34;battery_check&amp;#34;&lt;/span>&lt;span class="p">:&lt;/span> &lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>KASAN+KCOV编译内核&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>首先编译要fuzz的Android版本输入手机。（过程省略）[1]&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>下载编译基准内核。[2] ，使用手动编译会报错，使用给KASCAN文档[3]的方法也可能报错。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 创建文件夹&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir android-kernel &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">cd&lt;/span> android-kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 切换分支&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">repo init -u https://android.googlesource.com/kernel/manifest -b BRANCH
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">repo sync
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 修改内核build文件 内核路径下的build.config制定make_deconfig&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">KERNEL_DIR&lt;/span>&lt;span class="o">=&lt;/span>private/msm-google
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">. &lt;span class="si">${&lt;/span>&lt;span class="nv">ROOT_DIR&lt;/span>&lt;span class="si">}&lt;/span>/&lt;span class="si">${&lt;/span>&lt;span class="nv">KERNEL_DIR&lt;/span>&lt;span class="si">}&lt;/span>/build.config.common &lt;span class="c1">##这里&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 构建内核&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">build/build.sh
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>刷入内核&lt;/p>
+&lt;p>重新编译aosp启动镜像&lt;/p>
+&lt;p>在服务器上编译的将out/dist目录打包备份&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> &lt;span class="o">{&lt;/span>aosp_dir&lt;span class="o">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cp &lt;span class="o">{&lt;/span>kernel_dir&lt;span class="o">}&lt;/span>/out/&lt;span class="o">{&lt;/span>version&lt;span class="o">}&lt;/span>/dist/Image.lz4-dtb &lt;span class="o">{&lt;/span>aosp&lt;span class="o">}&lt;/span>/device/google/marlin-kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">. build/envsetup.sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">lunch aosp_sailfish-userdebug
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make -j64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 重新拷贝到本地 win&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb reboot bootloader
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">set&lt;/span> &lt;span class="nv">ANDROID_PRODUCT_OUT&lt;/span>&lt;span class="o">=&lt;/span>./
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">fastboot flashall -w
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;blockquote>
+&lt;p>之前 3.18.137-g72a7a6&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> 之后 … (手机显示无法显示内核)
+```shell
+sailfish:/ # uname -a
+Linux localhost 3.18.137-g8b62de70252d #1 SMP PREEMPT 2019-09-27 02:13:04 aarch64
+```
+&lt;/code>&lt;/pre>
+&lt;/li>
+&lt;li>
+&lt;p>修改内核重新刷入&lt;/p>
+&lt;ul>
+&lt;li>失败的方法&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>按文档说的&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> ```shell
+cd arch/arm64/configs
+cp marlin_defconfig marlin-kasan_defconfig
+```
+在配置文档中移除`CONFIG_KERNEL_LZ4=y`
+加入
+```plain text
+CONFIG_KASAN_INLINE=y
+CONFIG_KCOV=y
+CONFIG_SLUB=y
+CONFIG_SLUB_DEBUG=y
+```
+重新编译内核。
+发现任何变化
+&lt;/code>&lt;/pre>
+&lt;blockquote>
+&lt;p>尝试的方法&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> 修改build.config文件
+```shell
+. ${ROOT_DIR}/${KERNEL_DIR}/build.config.kasan (失败)
+```
+不修改，还是去修改marlin_defconfig添加KASAN
+报错：savedefconfig does not match private/msm-google
+修改build.config 删掉check_defconfig 检查 （失败）
+&lt;/code>&lt;/pre>
+&lt;blockquote>
+&lt;p>不修改文件&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code> 使用命令
+```shell
+./build/build.sh BUILD_CONFIG=build.config.kasan
+```
+&lt;/code>&lt;/pre>
+&lt;p>最后发现&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">cp private/msm-google/build.config.kasan ./
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">BUILD_CONFIG&lt;/span>&lt;span class="o">=&lt;/span>build.config.kasan build/build.sh &lt;span class="c1">##放前面才管用&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>编译完成 ，修改aosp参数&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">aosp$ &lt;span class="nb">cd&lt;/span> device/google/marlin/sailfish
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cp BoardConfig.mk BoardConfig.mk.bak
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">vim BoardConfig.mk
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 注释掉&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_BASE :&lt;span class="o">=&lt;/span> 0x80000000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_PAGESIZE :&lt;span class="o">=&lt;/span> &lt;span class="m">4096&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## ifneq ($(filter sailfish_kasan, $(TARGET_PRODUCT)),)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_OFFSET :&lt;span class="o">=&lt;/span> 0x80000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_KERNEL_TAGS_OFFSET :&lt;span class="o">=&lt;/span> 0x02500000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_RAMDISK_OFFSET :&lt;span class="o">=&lt;/span> 0x02700000
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">BOARD_MKBOOTIMG_ARGS :&lt;span class="o">=&lt;/span> --kernel_offset &lt;span class="k">$(&lt;/span>BOARD_KERNEL_OFFSET&lt;span class="k">)&lt;/span> --ramdisk_offset &lt;span class="k">$(&lt;/span>BOARD_RAMDISK_OFFSET&lt;span class="k">)&lt;/span> --tags_offset &lt;span class="k">$(&lt;/span>BOARD_KERNEL_TAGS_OFFSET&lt;span class="k">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## BOARD_KERNEL_TAGS_OFFSET := 0x02000000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## BOARD_RAMDISK_OFFSET := 0x02200000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## endif&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TARGET_KERNEL_ARCH :&lt;span class="o">=&lt;/span> arm64
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">TARGET_KERNEL_HEADER_ARCH :&lt;span class="o">=&lt;/span> arm64
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>修改device/google/marlin/device-common.mk&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">lz4-&amp;gt;gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LOCAL_KERNEL :&lt;span class="o">=&lt;/span> device/google/marlin-kernel/Image.gz-dtb
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>新的问题&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">error: out/target/product/sailfish/boot-debug.img too large
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>解决方法：将BoardConfig.mk的&lt;code>BOARD_BOOTIMAGE_PARTITION_SIZE&lt;/code>的值改大。&lt;/p>
+&lt;p>重新编译aosp启动镜像 再刷入手机。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x03-开启fuzzing">0x03 开启fuzzing&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">./bin/syz-manager -config&lt;span class="o">=&lt;/span>android.cfg
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200916163028.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>fuzz&lt;/p>
+&lt;p>手机不断重启。。。。&lt;/p>
+&lt;p>查看msg:&lt;code>adb shell dmesg -w&lt;/code>&lt;/p>
+&lt;p>&lt;code>syz-manager -debug&lt;/code> 查看syz的相关问题。&lt;/p>
+&lt;h3 id="参考">参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>[1]https://source.android.google.cn/setup/build?hl=zh-cn&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>[2]https://source.android.google.cn/setup/build/building-kernels?hl=zh-cn&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>[3]https://source.android.com/devices/tech/debug/kasan-kcov&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>[4]https://github.com/google/syzkaller/blob/master/docs/linux/setup_linux-host_android-device_arm-kernel.md&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>ARM汇编基础(待补充)</title><link>https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 10 Aug 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/arm%E6%B1%87%E7%BC%96%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="arm汇编基础待补充">ARM汇编基础(待补充)&lt;/h1>
+&lt;h2 id="arm汇编基础简">ARM汇编基础(简)&lt;/h2>
+&lt;p>经常忘记，做个笔记，好作复习。。&lt;/p>
+&lt;p>内容主要来源于《Android软件安全与逆向分析》和《逆向工程权威指南》以及 &lt;a class="link" href="https://www.anquanke.com/post/id/86383" target="_blank" rel="noopener"
+>ARM 汇编&lt;/a> 和&lt;a class="link" href="https://azeria-labs.com/writing-arm-assembly-part-1/" target="_blank" rel="noopener"
+>Azeria-labs&lt;/a>&lt;/p>
+&lt;h3 id="arm架构">ARM架构&lt;/h3>
+&lt;p>ARM属于RISC CPU，&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>ARM模式 4个字节opcode 32位&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Thumb模式 2个字节opcode 16位&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Thumb-2模式 同上（只是有部分4个字节的opcode)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>64位ARM 4个字节opcode&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>ARM机器码在版本3之前是小端。但是之后默认采用大端格式，但可以设置切换到小端。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810112415.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="数据类型">数据类型&lt;/h3>
+&lt;p>数据类型在汇编语言中的扩展后缀为**-h&lt;strong>或者&lt;/strong>-sh&lt;strong>对应着半字，&lt;/strong>-b&lt;strong>或者&lt;/strong>-sb**对应着字节，但是对于字并没有对应的扩展&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810113108.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">ldr = 加载字，宽度四字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ldrh = 加载无符号的半字，宽度两字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ldrsh = 加载有符号的半字，宽度两字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ldrb = 加载无符号的字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ldrsb = 加载有符号的字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">str = 存储字，宽度四字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">strh = 存储无符号的半字，宽度两字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">strsh = 存储有符号的半字，宽度两字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">strb = 存储无符号的字节
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">strsb = 存储有符号的字节
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="字节序">字节序&lt;/h3>
+&lt;p>在内存中有两种字节排布顺序，大端序(BE)或者小端序(LE)。两者的主要不同是对象中的每个字节在内存中的存储顺序存在差异。一般X86中是小端序，最低的字节存储在最低的地址上。在大端机中最高的字节存储在最低的地址上。&lt;/p>
+&lt;p>&lt;img src="https://p0.ssl.qhimg.com/t01b6d7f41b02b0a58d.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>数据访问时采取大端序还是小端序使用程序状态寄存器(CPSR)的第9比特位来决定的。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810120701.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="寄存器">寄存器&lt;/h3>
+&lt;p>37个32位寄存器，其中31个为基础寄存器，6个为状态寄存器。&lt;/p>
+&lt;p>用户模式下有&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>不分组寄存器（R0-R7） R7一般存放系统调用号&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>分组寄存器（R8-R14）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>程序计数器（R15）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>单前程序状态寄存器（CPSR）&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>两种状态：&lt;/p>
+&lt;table>
+&lt;tr>
+&lt;th>ARM状态（32位对齐）&lt;/th>
+&lt;th>Thumb状态(16位对齐)&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>R0-R7&lt;/th>
+&lt;th>R0-R7(相同)&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>CPSR&lt;/th>
+&lt;th>CPSR（同）&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>R11&lt;/th>
+&lt;th>FP（栈帧指针）&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>R12&lt;/th>
+&lt;th>IP（内部程序调用）&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>R13&lt;/th>
+&lt;th>SP（栈指针）&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>R14&lt;/th>
+&lt;th>LR（链接寄存器）一般存放函数返回地址&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>R15&lt;/th>
+&lt;th>PC（程序计数器）&lt;/th>
+&lt;/tr>&lt;/table>
+&lt;p>和x86对比：&lt;/p>
+&lt;p>&lt;img src="https://p5.ssl.qhimg.com/t01a8e5d24fa91f9f0f.jpg"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>CSPR:&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810122226.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>32位的CPSR寄存器的比特位含义，左边是最大比特位，右边是最小比特位。每个单元代表一个比特。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810122258.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;table>
+&lt;tr>
+&lt;th>条件码&lt;/th>
+&lt;th>助记符后缀&lt;/th>
+&lt;th>标志&lt;/th>
+&lt;th>含义&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0000&lt;/th>
+&lt;th>EQ&lt;/th>
+&lt;th>Z置位&lt;/th>
+&lt;th>相等&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0001&lt;/th>
+&lt;th>NE&lt;/th>
+&lt;th>Z清零&lt;/th>
+&lt;th>不相等&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0010&lt;/th>
+&lt;th>CS&lt;/th>
+&lt;th>C置位&lt;/th>
+&lt;th>无符号数大于或等于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0011&lt;/th>
+&lt;th>CC&lt;/th>
+&lt;th>C清零&lt;/th>
+&lt;th>无符号数小于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0100&lt;/th>
+&lt;th>MI&lt;/th>
+&lt;th>N置位&lt;/th>
+&lt;th>负数&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0101&lt;/th>
+&lt;th>PL&lt;/th>
+&lt;th>N清零&lt;/th>
+&lt;th>正数或零&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0110&lt;/th>
+&lt;th>VS&lt;/th>
+&lt;th>V置位&lt;/th>
+&lt;th>溢出&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>0111&lt;/th>
+&lt;th>VC&lt;/th>
+&lt;th>V清零&lt;/th>
+&lt;th>未溢出&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>1000&lt;/th>
+&lt;th>HI&lt;/th>
+&lt;th>C置位Z清零&lt;/th>
+&lt;th>无符号数大于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>1001&lt;/th>
+&lt;th>LS&lt;/th>
+&lt;th>C清零Z置位&lt;/th>
+&lt;th>无符号数小于或等于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>1010&lt;/th>
+&lt;th>GE&lt;/th>
+&lt;th>N等于V&lt;/th>
+&lt;th>带符号数大于或等于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>1011&lt;/th>
+&lt;th>LT&lt;/th>
+&lt;th>N不等于V&lt;/th>
+&lt;th>带符号数小于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>1100&lt;/th>
+&lt;th>GT&lt;/th>
+&lt;th>Z清零且（N等于V）&lt;/th>
+&lt;th>带符号数大于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>1101&lt;/th>
+&lt;th>LE&lt;/th>
+&lt;th>Z置位或（N不等于V）&lt;/th>
+&lt;th>带符号数小于或等于&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>1110&lt;/th>
+&lt;th>AL&lt;/th>
+&lt;th>忽略&lt;/th>
+&lt;th>无条件执行&lt;/th>
+&lt;/tr>&lt;/table>
+&lt;h3 id="程序结构">程序结构&lt;/h3>
+&lt;p>Android平台采用的是GUN ARM汇编格式，汇编器为GAS&lt;/p>
+&lt;p>参数传递：R0-R3这4个寄存器用来传递函数调用的第1到4个参数，超出的参数通过堆栈来传递。R0还用来存放函数调用的返回值。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810112712.gif"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="汇编器指令">汇编器指令&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;code>.file&lt;/code>:源文件名&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.align&lt;/code>:代码对齐方式&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.ascii&lt;/code>:声明字符串&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.global&lt;/code>:声明全局符号&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.type&lt;/code>：指定符号的类型&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.word&lt;/code>：存放地址值&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.size&lt;/code>：设置指定符号的大小&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>.ident&lt;/code>：编译器标识&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="寻址方式">寻址方式&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>立即寻址&lt;/p>
+&lt;p>&lt;code>MOV R0, #1234&lt;/code> -&amp;gt;R0=1234&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>寄存器寻址&lt;/p>
+&lt;p>&lt;code>MOV R1 = R2&lt;/code> -&amp;gt;R0=R1&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>寄存器移位寻址&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>LSL ：逻辑左移，移位后寄存器空出的低位补0&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>LSR：逻辑右移，移位后寄存器空出的高位补0&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>ASR：算术右移，移位过程中符号位保持不变，若源操作数为正数，则移位后空出的高位补0，否则补1。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>ROR：循环右移，移位后移出的低位填入移位空出的高位。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>RRX：带扩展的循环右移，操作数右移一位，移出的空位用C标志的值填充。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>MOV R0, R1, LSL #2&lt;/code> -&amp;gt;R1左移两位（R1&amp;laquo;2）赋值给R0,相当于R0 = R1*4&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>寄存器间接寻址&lt;/p>
+&lt;p>&lt;code>LDR RO, [R1]&lt;/code> -&amp;gt;将R1寄存器的数值作为地址，取出此地址中的值赋给R0寄存器&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>基址寻址&lt;/p>
+&lt;p>多用于查表、数组访问操作。&lt;/p>
+&lt;p>&lt;code>LDR R0, [R1,#-4]&lt;/code> -&amp;gt;将R1寄存器的数值减4作为地址，取出此地址的值赋给R0寄存器。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>多寄存器寻址&lt;/p>
+&lt;p>一条指令最多完成16个通用寄存器值的传送。&lt;/p>
+&lt;p>&lt;code>LDMIA R0,{R1,R2,R3,R4}&lt;/code> -&amp;gt;LDM为数据加载指令，指令的后缀IA表示每次执行完加载操作后R0寄存器的值自增1个字，ARM指令集中，子表示的是一个32位数值。这条指令作用为：R1 = [R0],R2 = [R0+#4],R3 = [R0+#8],R4 = [R0+#12]。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>堆栈寻址&lt;/p>
+&lt;p>特定的指令来完成：&lt;code>LDMFA/STMFA&lt;/code>、&lt;code>LDMEA/STMEA&lt;/code>、&lt;code>LDMFD/STMFD&lt;/code>、&lt;code>LDMED/STMED&lt;/code>。&lt;/p>
+&lt;p>LDM和STM为指令前缀，表示多寄存器寻址，即一次传送多个寄存器的值。后面的后缀为指令后缀。&lt;/p>
+&lt;p>&lt;code>STMFD SP!, {R1-R7,LR}&lt;/code> -&amp;gt;将R1~R7,LR入栈，多用于保存子程序的现场。&lt;/p>
+&lt;p>&lt;code>LDMFD SP!, {R1-R7,LR}&lt;/code> -&amp;gt;出栈，恢复现场。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>块拷贝寻址&lt;/p>
+&lt;p>实现从连续地址数据从存储器的某一位置拷贝到另外一个位置，指令有：&lt;code>LDMIA/STMIA&lt;/code>、&lt;code>LDMDA/STMDA&lt;/code>、&lt;code>LDMIB/STMIB&lt;/code>、&lt;code>LDMDB/STMDB&lt;/code>。&lt;/p>
+&lt;p>&lt;code>LDMIA R0! {R0-R3}&lt;/code> 从R0寄存器指向的存储单元中读取3个字到R1-R3寄存器&lt;/p>
+&lt;p>&lt;code>STMIA R0! {R0-R3}&lt;/code> 存储从R1-R3寄存器的内容到R0寄存器指向的存储单元&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>相对寻址&lt;/p>
+&lt;p>以程序计数器PC的当前值为基地址，指令中的地址标号作为偏移量，将两者相加之后得到操作数的有效地址。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">BL NEXT ····NEXT: ········
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;h3 id="arm和thumb指令集">ARM和Thumb指令集&lt;/h3>
+&lt;h3 id="基本指令简述">基本指令简述&lt;/h3>
+&lt;p>&lt;code>MNEMONIC{S}{condition} {Rd}, Operand1, Operand2&lt;/code>&lt;/p>
+&lt;p>&lt;code>助记符{是否使用CPSR}{是否条件执行以及条件} {目的寄存器}, 操作符1, 操作符2&lt;/code>&lt;/p>
+&lt;blockquote>
+&lt;p>MNEMONIC     - 指令的助记符如ADD&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>{S}           - 可选的扩展位，如果指令后加了S，则需要依据计算结果更新CPSR寄存器中的条件跳转相关 的FLAG
+{condition}   - 如果机器码要被条件执行，那它需要满足的条件标示
+{Rd}          - 存储结果的目的寄存器
+Operand1     - 第一个操作数，寄存器或者是一个立即数
+Operand2     - 第二个(可变的)操作数，可以是一个立即数或者寄存器或者有偏移量的寄存器
+&lt;/code>&lt;/pre>
+&lt;p>第二操作数还有如下操作：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">#123 - 立即数
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Rx - 寄存器比如R1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Rx, ASR n - 对寄存器中的值进行算术右移n位后的值
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Rx, LSL n - 对寄存器中的值进行逻辑左移n位后的值
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Rx, LSR n - 对寄存器中的值进行逻辑右移n位后的值
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Rx, ROR n - 对寄存器中的值进行循环右移n位后的值
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Rx, RRX - 对寄存器中的值进行带扩展的循环右移1位后的值
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">ADD R0, R1, R2 - 将第一操作数R1的内容与第二操作数R2的内容相加，将结果存储到R0中。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">ADD R0, R1, #2 - 将第一操作数R1的内容与第二操作数一个立即数相加，将结果存到R0中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">MOVLE R0, #5 - 当满足条件LE(Less and Equal,小于等于0)将第二操作数立即数5移动到R0中,注意这条指令与MOVLE R0, R0, #5相同
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">MOV R0, R1, LSL #1 - 将第二操作数R1寄存器中的值逻辑左移1位后存入R0
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810144732.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="内存访问相关指令">内存访问相关指令&lt;/h3>
+&lt;p>通常，LDR被用来从内存中加载数据到寄存器，STR被用作将寄存器的值存放到内存中。&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810145231.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>例子：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">.data /* 数据段是在内存中动态创建的，所以它的在内存中的地址不可预测*/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var1: .word 3 /* 内存中的第一个变量 */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var2: .word 4 /* 内存中的第二个变量 */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.text /* 代码段开始 */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.global _start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_start:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r0, adr_var1 @ 将存放var1值的地址adr_var1加载到寄存器R0中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r1, adr_var2 @ 将存放var2值的地址adr_var2加载到寄存器R1中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r2, [r0] @ 将R0所指向地址中存放的0x3加载到寄存器R2中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> str r2, [r1] @ 将R2中的值0x3存放到R1做指向的地址
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> bkpt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adr_var1: .word var1 /* var1的地址助记符 */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adr_var2: .word var2 /* var2的地址助记符 */
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810145711.gif"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810154906.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>第一种偏移形式：立即数作偏移&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">STR Ra, [Rb, imm]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LDR Ra, [Rc, imm]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">.data
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var1: .word 3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var2: .word 4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.text
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.global _start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_start:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r0, adr_var1 @ 将存放var1值的地址adr_var1加载到寄存器R0中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r1, adr_var2 @ 将存放var2值的地址adr_var2加载到寄存器R1中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r2, [r0] @ 将R0所指向地址中存放的0x3加载到寄存器R2中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> str r2, [r1, #2] @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加2所指向地址处。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> str r2, [r1, #4]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加4所指向地址处，之后R1寄存器中存储的值加4,也就是R1=R1+4。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r3, [r1], #4 @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中存储的值加4,也就是R1=R1+4。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> bkpt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adr_var1: .word var1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adr_var2: .word var2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ul>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810160844.gif"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>第二种偏移形式：寄存器作偏移&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">STR Ra, [Rb, Rc]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">LDR Ra, [Rb, Rc]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">.data
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var1: .word 3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var2: .word 4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.text
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.global _start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_start:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r0, adr_var1 @ 将存放var1值的地址adr_var1加载到寄存器R0中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r1, adr_var2 @ 将存放var2值的地址adr_var2加载到寄存器R1中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r2, [r0] @ 将R0所指向地址中存放的0x3加载到寄存器R2中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> str r2, [r1, r2] @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加R2寄存器的值所指向地址处。R1寄存器不会被修改。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> str r2, [r1, r2]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加R2寄存器的值所指向地址处，之后R1寄存器中的值被更新,也就是R1=R1+R2。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r3, [r1], r2 @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中的值被更新也就是R1=R1+R2。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> bx lr
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adr_var1: .word var1
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810162217.gif"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>第三种偏移形式：寄存器缩放值作偏移&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">LDR Ra, [Rb, Rc, &amp;lt;shifter&amp;gt;]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">STR Ra, [Rb, Rc, &amp;lt;shifter&amp;gt;]
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">.data
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var1: .word 3
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">var2: .word 4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.text
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.global _start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_start:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r0, adr_var1 @ 将存放var1值的地址adr_var1加载到寄存器R0中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r1, adr_var2 @ 将存放var2值的地址adr_var2加载到寄存器R1中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r2, [r0] @ 将R0所指向地址中存放的0x3加载到寄存器R2中
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> str r2, [r1, r2, LSL#2] @ 取址模式：基于偏移量。R2寄存器中的值0x3被存放到R1寄存器的值加(左移两位后的R2寄存器的值)所指向地址处。R1寄存器不会被修改。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> str r2, [r1, r2, LSL#2]! @ 取址模式：基于索引前置修改。R2寄存器中的值0x3被存放到R1寄存器的值加(左移两位后的R2寄存器的值)所指向地址处，之后R1寄存器中的值被更新,也就R1 = R1 + R2&amp;lt;&amp;lt;2。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r3, [r1], r2, LSL#2 @ 取址模式：基于索引后置修改。R3寄存器中的值是从R1寄存器的值所指向的地址中加载的，加载之后R1寄存器中的值被更新也就是R1 = R1 + R2&amp;lt;&amp;lt;2。
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> bkpt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adr_var1: .word var1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adr_var2: .word var2
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180810162414.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>如何区分取址模式：&lt;/p>
+&lt;p>如果有一个叹号!，那就是索引前置取址模式，即使用计算后的地址，之后更新基址寄存器。&lt;/p>
+&lt;p>如果在外有一个寄存器，那就是索引后置取址模式，即使用原有基址寄存器重的地址，之后再更新基址寄存器&lt;/p>
+&lt;p>除此之外，就都是偏移取址模式了&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>关于PC相对取址的LDR指令&lt;/strong>&lt;/p>
+&lt;p>有时候LDR并不仅仅被用来从内存中加载数据。还有如下这操作:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">.section .text
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.global _start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_start:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r0, =jump /* 加载jump标签所在的内存位置到R0 */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r1, =0x68DB00AD /* 加载立即数0x68DB00AD到R1 */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">jump:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r2, =511 /* 加载立即数511到R2 */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> bkpt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这些指令学术上被称作伪指令。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>在ARM中使用立即数的规律&lt;/strong>&lt;/p>
+&lt;p>在ARM中不能像X86那样直接将立即数加载到寄存器中。因为你使用的立即数是受限的。&lt;/p>
+&lt;p>立即数的值：v = n ror 2*r 有效的立即数都可以通过循环右移来得到&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">#256 // 1 循环右移 24位 --&amp;gt; 256
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#384 // 6 循环右移 26位 --&amp;gt; 384
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#484 // 121 循环右移 30位 --&amp;gt; 484
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#16384 // 1 循环右移 18位 --&amp;gt; 16384
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#2030043136 // 121 循环右移 8位 --&amp;gt; 2030043136
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#0x06000000 // 6 循环右移 8位 --&amp;gt; 100663296 (十六进制值0x06000000)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Invalid values:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#370 // 185 循环右移 31位 --&amp;gt; 31不在范围内 (0 – 30)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#511 // 1 1111 1111 --&amp;gt; 比特模型不符合
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#0x06010000 // 1 1000 0001.. --&amp;gt; 比特模型不符合
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这样并不能一次性加载所有的32位值。不过我们可以通过以下的两个选项来解决这个问题：&lt;/p>
+&lt;ul>
+&lt;li>用小部分去组成更大的值。 MOV r0, #511 将511分成两部分：MOV r0, #256, and ADD r0, #255&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">.section .text
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">.global _start
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">_start:
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> mov r0, &lt;span class="c1">#256 /* 1 ror 24 = 256, so it&amp;#39;s valid */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> add r0, &lt;span class="c1">#255 /* 255 ror 0 = 255, valid. r0 = 256 + 255 = 511 */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ldr r1, &lt;span class="o">=&lt;/span>&lt;span class="m">511&lt;/span> /* load &lt;span class="m">511&lt;/span> from the literal pool using LDR */
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> bkpt
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>计算立即数的有效值脚本：https://raw.githubusercontent.com/azeria-labs/rotator/master/rotator.py&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">azeria@labs:~$ python rotator.py
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Enter the value you want to check: &lt;span class="m">511&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Sorry, &lt;span class="m">511&lt;/span> cannot be used as an immediate number and has to be split.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">azeria@labs:~$ python rotator.py
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Enter the value you want to check: &lt;span class="m">256&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">The number &lt;span class="m">256&lt;/span> can be used as a valid immediate number.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">1&lt;/span> ror &lt;span class="m">24&lt;/span> --&amp;gt; &lt;span class="m">256&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下面的部分指令用到在详细查，记的话脑壳痛&lt;/p>
+&lt;h3 id="跳转指令">跳转指令&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;code>B&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>BL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>BX&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>BXL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="存储器操作指令">存储器操作指令&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;code>LDM&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>STM&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>PUSH&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>POP&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SWP&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="数据处理">数据处理&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;code>MOV&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>MVN&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>ADD&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>ADC&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SUB&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>RSB&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SBC&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>RSC&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>MUL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>MLS&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>MLA&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>UMULL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>UMLAL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SMUULL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SMLAL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SMLAD&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SMLSD&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>SDIV&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>UDIV&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>ASR&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>AND&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>ORR&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>EOR&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>BIC&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>LSL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>LSR&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>RRX&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>ROR&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>CMP&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>CMN&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>TSL&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>TEQ&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="其他指令">其他指令&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;code>SWI&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>NOP&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>MRS&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;code>MSR&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="heading">&lt;/h3>
+&lt;/li>
+&lt;/ul></description></item><item><title>ARM-PWN从入门到放弃0x00-环境准备</title><link>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</link><pubDate>Sat, 03 Aug 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/arm-pwn%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%830x00-%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87/</guid><description>&lt;h1 id="arm-pwn从入门到放弃0x00-环境准备">ARM-PWN从入门到放弃0x00-环境准备&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>学PWN也有一段时间了，x86/x86_64 下算是入了个门，平时接触ARM比较多，正好以ARM架构下再更加深入的学习PWN。&lt;/p>
+&lt;p>会用的工具、环境：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>在Ubuntu 18.04/WSL2&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Docker for wsl2&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>树莓派3B+&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>qemu&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>unicorn&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>IDA&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Radare2&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>GDB+gef+pwndbg+peda&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>pwntools&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-环境安装">0x01 环境安装&lt;/h3>
+&lt;p>这里选用的有两种环境&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>ARM设备 树莓派&lt;/p>
+&lt;p>之前618买了树莓派，派上用场了。&lt;/p>
+&lt;p>把PI的官方系统换成了Ubuntu 18.04。&lt;/p>
+&lt;p>安装了GCC 、gdb、gef（经测试只有gef能用），其他也没什么需要装的。&lt;/p>
+&lt;p>关闭地址随机化&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sudo cat /proc/sys/kernel/randomize_va_space &lt;span class="c1"># 状态查看&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">2&lt;/span> &lt;span class="c1"># 开启中&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo &lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">bash: /proc/sys/kernel/randomize_va_space: Permission denied
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">su
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">echo&lt;/span> &lt;span class="m">0&lt;/span> &amp;gt; /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cat /proc/sys/kernel/randomize_va_space
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="m">0&lt;/span> &lt;span class="c1">#这就OK&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>QEMU 模拟 (WSL2)&lt;/p>
+&lt;p>安装&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#防止又出什么乱七八糟的错误和需求，尽量都装上&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gdb gdb-multiarch &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install qemu &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">apt install gcc-arm-linux-gnueabi gcc-aarch64-linux-gnu &lt;span class="c1">##gcc arm 依赖库安装&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x02-启动和调试">0x02 启动和调试&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>树莓派&lt;/p>
+&lt;p>直接运行&lt;/p>
+&lt;p>进行socat绑定端口 就OK&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">socat tcp-listen:6666,fork exec:./binfile
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>QEMU&lt;/p>
+&lt;ul>
+&lt;li>32bit&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地GDB调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-arm -g &lt;span class="m">1234&lt;/span> -L /usr/arm-linux-gnueabi ./binfile
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gdb-multiarch
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote localhost:1234
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 绑定运行到指定端口 远程调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># + -g 方便调试 &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-arm -g 1234 -L /usr/arm-linux-gnueabi ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>64bit&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 本地调试 -g 等待GDB调试&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">qemu-aarch64 -g &lt;span class="m">1111&lt;/span> -L /usr/aarch64-linux-gnu ./file
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">socat tcp-l:10002,fork exec:&lt;span class="s2">&amp;#34;qemu-aarch64 -g 1234 -L /usr/aarch64-linux-gnu ./binfile&amp;#34;&lt;/span>,reuseaddr &lt;span class="p">&amp;amp;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x03-调试过程">0x03 调试过程&lt;/h3>
+&lt;p>在树莓派直接gdb调试就行。省略。。。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804221031.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>img&lt;/p>
+&lt;p>使用qemu+gdb-multiarch+插件进行调试步骤&lt;/p>
+&lt;p>&lt;code>qemu-aarch64 -g 10002 -L /usr/aarch64-linux-gnu ./baby_arm&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gdb-multiarch ./baby_arm -q
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">target remote:10002
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190804225625.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-题目搭建">0x04 题目搭建&lt;/h3>
+&lt;p>基于&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
+>ctf_xinetd&lt;/a>项目自己改了一个&lt;/p>
+&lt;p>地址：&lt;a class="link" href="https://github.com/Vorblock/CTF_arm_xinetd" target="_blank" rel="noopener"
+>CTF_ARM_xinetd&lt;/a>&lt;/p>
+&lt;h3 id="0x05-参考链接">0x05 参考链接&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/3154" target="_blank" rel="noopener"
+>https://xz.aliyun.com/t/3154&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/Eadom/ctf_xinetd" target="_blank" rel="noopener"
+>https://github.com/Eadom/ctf_xinetd&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/bkerler/exploit_me" target="_blank" rel="noopener"
+>https://github.com/bkerler/exploit_me&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>PWN-格式化字符串漏洞(FMT)</title><link>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</link><pubDate>Fri, 12 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9Efmt/</guid><description>&lt;h1 id="pwn-格式化字符串漏洞fmt">PWN-格式化字符串漏洞(FMT)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>Fuzzing基础(待补充)</title><link>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Wed, 10 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/fuzzing%E5%9F%BA%E7%A1%80%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="fuzzing基础待补充">Fuzzing基础(待补充)&lt;/h1>
+&lt;h2 id="0x00">0x00&lt;/h2></description></item><item><title>CTF-PWN刷题记录-CTFWiki_3堆利用（待补充）</title><link>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_3%E5%A0%86%E5%88%A9%E7%94%A8%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Thu, 04 Apr 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_3%E5%A0%86%E5%88%A9%E7%94%A8%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="ctf-pwn刷题记录-ctfwiki_3堆利用待补充">CTF-PWN刷题记录-CTFWiki_3堆利用（待补充）&lt;/h1>
+&lt;h2 id="简介">简介&lt;/h2></description></item><item><title>PWN-OOB(重写中)</title><link>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</link><pubDate>Mon, 25 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-oob%E9%87%8D%E5%86%99%E4%B8%AD/</guid><description>&lt;h1 id="pwn-oob重写中">PWN-OOB(重写中)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2></description></item><item><title>CTF-PWN刷题记录-CTFWiki_2格式化字符串漏洞（待补充）</title><link>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_2%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Fri, 22 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/ctf-pwn%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95-ctfwiki_2%E6%A0%BC%E5%BC%8F%E5%8C%96%E5%AD%97%E7%AC%A6%E4%B8%B2%E6%BC%8F%E6%B4%9E%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="ctf-pwn刷题记录-ctfwiki_2格式化字符串漏洞待补充">CTF-PWN刷题记录-CTFWiki_2格式化字符串漏洞（待补充）&lt;/h1>
+&lt;h2 id="简介">简介&lt;/h2></description></item><item><title>PWN-UAF_（重写）</title><link>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</link><pubDate>Wed, 20 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-uaf_%E9%87%8D%E5%86%99/</guid><description>&lt;h1 id="pwn-uaf_重写">PWN-UAF_（重写）&lt;/h1>
+&lt;h2 id="0x00-原理">0x00 原理&lt;/h2>
+&lt;p>堆内存在释放后被直接再次使用(释放了堆块之后，未将该指针值为NULL,导致指针处于悬空状态，被释放的内存能被恶意利用) 在浏览器中比较常见的漏洞&lt;/p>
+&lt;p>&lt;strong>根本原因是：&lt;/strong>&lt;/p>
+&lt;blockquote>
+&lt;p>应用程序调用free()释放内存时，如果内存块小于256kb，dlmalloc并不马上将内存块释放回内存，而是将内存块标记为空闲状态。这么做的原因有两个：一是内存块不一定能马上释放会内核（比如内存块不是位于堆顶端），二是供应用程序下次申请内存使用（这是主要原因）。当dlmalloc中空闲内存量达到一定值时dlmalloc才将空闲内存释放会内核。如果应用程序申请的内存大于256kb，dlmalloc调用mmap()向内核申请一块内存，返回返还给应用程序使用。如果应用程序释放的内存大于256kb，dlmalloc马上调用munmap()释放内存。dlmalloc不会缓存大于256kb的内存块，因为这样的内存块太大了，最好不要长期占用这么大的内存资源。&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="利用">利用&lt;/h3>
+&lt;h3 id="简单利用">简单利用&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdlib.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">typedef&lt;/span> &lt;span class="nf">void&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="p">)(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">evil_fuc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">command&lt;/span>&lt;span class="p">[])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">command&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">void&lt;/span> &lt;span class="nf">echo&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">char&lt;/span> &lt;span class="n">content&lt;/span>&lt;span class="p">[])&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;%s&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">content&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">echo&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello world&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">free&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//在这里free了p1,但并未将p1置空,导致后续可以再使用p1指针
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;hello again&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="c1">//p1指针未被置空,虽然free了,但仍可使用.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">func_ptr&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">func_ptr&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">malloc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span>&lt;span class="p">));&lt;/span>&lt;span class="c1">//malloc在free一块内存后,再次申请同样大小的指针会把刚刚释放的内存分配出来.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p2&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc addr: %p&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">p1&lt;/span>&lt;span class="p">);&lt;/span>&lt;span class="c1">//p2与p1指针指向的内存为同一地址
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p2&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">]&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">evil_fuc&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">//在这里将p1指针里面保存的echo函数指针覆盖成为了evil_func指针.
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">p1&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">3&lt;/span>&lt;span class="p">](&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912215411.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="pwnablekr-uaf">pwnable.kr uaf&lt;/h3>
+&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/20180912220453.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>先看看源码：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;span class="lnt">75
+&lt;/span>&lt;span class="lnt">76
+&lt;/span>&lt;span class="lnt">77
+&lt;/span>&lt;span class="lnt">78
+&lt;/span>&lt;span class="lnt">79
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c++" data-lang="c++">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;fcntl.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;iostream&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstring&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;cstdlib&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;unistd.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="k">using&lt;/span> &lt;span class="k">namespace&lt;/span> &lt;span class="n">std&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">private&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">give_shell&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;/bin/sh&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">protected&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="n">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;My name is &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">name&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am &amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">age&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34; years old&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Man&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a nice guy!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">Woman&lt;/span>&lt;span class="o">:&lt;/span> &lt;span class="k">public&lt;/span> &lt;span class="n">Human&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">public&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">string&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">name&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">this&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">age&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">age&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">virtual&lt;/span> &lt;span class="kt">void&lt;/span> &lt;span class="nf">introduce&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;I am a cute girl!&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">argc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">argv&lt;/span>&lt;span class="p">[]){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">m&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Man&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jack&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">25&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">Human&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">w&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="n">Woman&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Jill&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">21&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">size_t&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">char&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">unsigned&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;1. use&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">2. after&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">3. free&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cin&lt;/span> &lt;span class="o">&amp;gt;&amp;gt;&lt;/span> &lt;span class="n">op&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">switch&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">op&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">m&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">w&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">introduce&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">2&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">len&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">atoi&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">]);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">data&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="k">new&lt;/span> &lt;span class="kt">char&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="n">len&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">],&lt;/span> &lt;span class="n">O_RDONLY&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="n">data&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">len&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">cout&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="s">&amp;#34;your data is allocated&amp;#34;&lt;/span> &lt;span class="o">&amp;lt;&amp;lt;&lt;/span> &lt;span class="n">endl&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">case&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">m&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">delete&lt;/span> &lt;span class="n">w&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">default&lt;/span>&lt;span class="o">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">break&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="hcft2016-fheap">HCFt2016 fheap&lt;/h3>
+&lt;h3 id="网鼎杯ctf2018-第一场-pwn-babyheap">网鼎杯CTF2018 第一场 Pwn Babyheap&lt;/h3>
+&lt;p>参考资料：&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/Ox9A82/p/5320857.html" target="_blank" rel="noopener"
+>https://www.cnblogs.com/Ox9A82/p/5320857.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.cnblogs.com/alert123/p/4918041.html" target="_blank" rel="noopener"
+>https://www.cnblogs.com/alert123/p/4918041.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://blog.csdn.net/qq_31481187/article/details/73612451" target="_blank" rel="noopener"
+>https://blog.csdn.net/qq_31481187/article/details/73612451&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4" target="_blank" rel="noopener"
+>https://xz.aliyun.com/t/2609?accounttraceid=ce44f2b3-4957-4509-b7ba-f2bd6eed34d3#toc-4&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/85281" target="_blank" rel="noopener"
+>https://www.anquanke.com/post/id/85281&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>PWN-堆溢出_(待补充)</title><link>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 16 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E5%A0%86%E6%BA%A2%E5%87%BA_%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-堆溢出_待补充">PWN-堆溢出_(待补充)&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
+&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>PWN-栈溢出（待补充）</title><link>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sun, 10 Mar 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn-%E6%A0%88%E6%BA%A2%E5%87%BA%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="pwn-栈溢出待补充">PWN-栈溢出（待补充）&lt;/h1>
+&lt;h2 id="0x00-简介">0x00 简介&lt;/h2>
+&lt;h2 id="0x01-基础知识">0x01 基础知识&lt;/h2></description></item><item><title>Frida从入门到放弃_2(待补充)</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</link><pubDate>Sat, 02 Feb 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_2%E5%BE%85%E8%A1%A5%E5%85%85/</guid><description>&lt;h1 id="frida从入门到放弃_2待补充">Frida从入门到放弃_2(待补充)&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>复习一下Android安装frida命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">adb root
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb push frida-server /data/local/tmp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb shell &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">adb shell &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>常用Frida 命令&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida-ps -U &lt;span class="c1">#列出USB设备运行ing的进程&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -Ua &lt;span class="c1">#列出运行中的应用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -Uai &lt;span class="c1">#列出已安装的应用列表&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -D xxx &lt;span class="c1">#连接指定的设备&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-ps -R
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在Safari中跟踪recv*和send* API&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -i &lt;span class="s2">&amp;#34;recv*&amp;#34;&lt;/span> -i &lt;span class="s2">&amp;#34;send&amp;#34;&lt;/span> Safari
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在Safari中跟踪ObjC方法调用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -m &lt;span class="s2">&amp;#34;-[NSView drawRect:]&amp;#34;&lt;/span> Safari
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#在iPhone上启动SnapChat，跟踪加密API调用&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -U -f com.app.testing -I &lt;span class="s2">&amp;#34;libcommonCrypto*&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#当程序启动时，frida跟踪所有open function&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">frida-trace -U -i open com.app.testing
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>下面通过自己创建一个Android APP来学习Frida在Android上的一般用法。&lt;/p>
+&lt;h3 id="0x01-简单用例">0x01 简单用例&lt;/h3>
+&lt;p>Frida常用的两种启动方式：&lt;/p>
+&lt;ol>
+&lt;li>python 绑定启动&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">frida&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">sys&lt;/span>&lt;span class="o">,&lt;/span>&lt;span class="nn">os&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## package name&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pkg_name&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;com.example.xxx&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">js_hook_file&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;xxx.js&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">def&lt;/span> &lt;span class="nf">on_message&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">message&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;type&amp;#39;&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="s1">&amp;#39;send&amp;#39;&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;[*] &lt;/span>&lt;span class="si">{0}&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">format&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="s1">&amp;#39;payload&amp;#39;&lt;/span>&lt;span class="p">]))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">message&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 插入js代码 or 加载js文件&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">jscode&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">process&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">frida&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">get_usb_device&lt;/span>&lt;span class="p">()&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">attach&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pkg_name&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">with&lt;/span> &lt;span class="nb">open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">js_hook_file&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="s2">&amp;#34;r&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">as&lt;/span> &lt;span class="n">f&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">script&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">process&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">create_script&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">f&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">())&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">on&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;message&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">on_message&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">script&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sys&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">stdin&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">read&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">console.log(&amp;#34;Script loaded successfully &amp;#34;);
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Java.perform(function x() {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> //hook代码
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">});
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol>
+&lt;li>直接命令加载脚本启动&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida -U -l xxx.js com.example.xxx
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x02-app源码">0x02 App源码&lt;/h3>
+&lt;p>java层&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>native层&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x03-java层hook">0x03 Java层hook&lt;/h3>
+&lt;p>HOOK代码&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-java" data-lang="java">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x04-native层hook">0x04 Native层hook&lt;/h3>
+&lt;p>native层代码&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x05-总结">0x05 总结&lt;/h3>
+&lt;p>源代码地址：&lt;/p>
+&lt;h3 id="0x06-参考">0x06 参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.freebuf.com/articles/system/190565.html" target="_blank" rel="noopener"
+>https://www.freebuf.com/articles/system/190565.html&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://blog.csdn.net/jiangwei0910410003/article/details/80372118" target="_blank" rel="noopener"
+>https://blog.csdn.net/jiangwei0910410003/article/details/80372118&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/dweinstein/awesome-frida" target="_blank" rel="noopener"
+>https://github.com/dweinstein/awesome-frida&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>Frida从入门到放弃_1（重置）</title><link>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</link><pubDate>Tue, 22 Jan 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/frida%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E6%94%BE%E5%BC%83_1%E9%87%8D%E7%BD%AE/</guid><description>&lt;h1 id="frida从入门到放弃_1重置">Frida从入门到放弃_1（重置）&lt;/h1>
+&lt;h3 id="0x00-frida">0x00 Frida&lt;/h3>
+&lt;p>Frida 官网：https://www.frida.re/&lt;/p>
+&lt;p>github: &lt;a class="link" href="https://github.com/frida/frida" target="_blank" rel="noopener"
+>https://github.com/frida/frida&lt;/a>&lt;/p>
+&lt;p>Dynamic instrumentation toolkit for developers, reverse-engineers, and security researchers.&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Scriptable&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Portable&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Free&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Battle-tested&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-安装">0x01 安装&lt;/h3>
+&lt;h3 id="二进制安装-推荐">二进制安装 (推荐)&lt;/h3>
+&lt;p>pip install frida-tools 就一个命令搞定&lt;/p>
+&lt;blockquote>
+&lt;p>Failed to load the Frida native extension: DLL load failed: 找不到指定的模块&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>报了这个错 查了大半天 原来我用的版本是基于python3.7编译的。我现在用的3.6.。。。。
+&lt;/code>&lt;/pre>
+&lt;p>绑定：二选一就行&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">pip install frida &lt;span class="c1"># Python bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">npm install frida &lt;span class="c1"># Node.js bindings&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="手动编译">手动编译&lt;/h3>
+&lt;p>依赖：&lt;/p>
+&lt;p>&lt;code>pip3 install colorama prompt-toolkit pygments&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>Linux&lt;/li>
+&lt;/ul>
+&lt;p>&lt;code>make&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>MacOS and iOS&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">MAC_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">export&lt;/span> &lt;span class="nv">IOS_CERTID&lt;/span>&lt;span class="o">=&lt;/span>frida-cert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>Windows&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">frida.sln &lt;span class="c1">#VS2017&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x02-android环境">0x02 Android环境&lt;/h3>
+&lt;p>设备：小米mix2 运行Android9.0 MIUI10开发版已解锁root&lt;/p>
+&lt;p>frida-server: 用的arm64版本&lt;/p>
+&lt;p>&lt;a class="link" href="https://github.com/frida/frida/releases" target="_blank" rel="noopener"
+>server文件下载&lt;/a>&lt;/p>
+&lt;p>下载好对应的 frida-server 然后adb push 进去&lt;/p>
+&lt;p>&lt;code>adb push frida-server /data/local/tmp&lt;/code>&lt;/p>
+&lt;p>然后&lt;code>chomd 755 frida-server&lt;/code>修改权限&lt;/p>
+&lt;p>运行&lt;code>./frida-server&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133452.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>frida-server&lt;/p>
+&lt;p>这几个命令：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-powershell" data-lang="powershell">&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">root&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">push&lt;/span> &lt;span class="nb">frida-server&lt;/span> &lt;span class="p">/&lt;/span>&lt;span class="n">data&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">local&lt;/span>&lt;span class="p">/&lt;/span>&lt;span class="n">tmp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;chmod 755 /data/local/tmp/frida-server&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">adb&lt;/span> &lt;span class="n">shell&lt;/span> &lt;span class="s2">&amp;#34;/data/local/tmp/frida-server &amp;amp;&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>查看架构：&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616145105.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>aarch64&lt;/p>
+&lt;h3 id="0x03-简单测试">0x03 简单测试&lt;/h3>
+&lt;p>命令行运行&lt;code>frida-ps -U&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190112133604.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>frida-ps&lt;/p>
+&lt;p>有显示就是连接成功&lt;/p>
+&lt;p>接下来对浏览器进行简单测试&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150349.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i open com.android.browser&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150506.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>随便点一下浏览器&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616150623.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>测试Diva&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151039.jpg"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151307.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>&lt;code>frida-trace -U -i &amp;quot;open*&amp;quot; jakhar.aseem.diva&lt;/code>&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151432.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>进行Hook login.class checkout函数&lt;/p>
+&lt;p>逆向过程略&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616151826.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>HOOK脚本：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-javascript" data-lang="javascript">&lt;span class="line">&lt;span class="cl">&lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">perfrom&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;######&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kd">var&lt;/span> &lt;span class="nx">logActivity&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nx">Java&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">use&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;jakhar.aseem.diva.LogActivity&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">logActivity&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">checkout&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">implementation&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kd">function&lt;/span>&lt;span class="p">(){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nx">console&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nx">log&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Hook&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>命令行载入脚本运行&lt;/p>
+&lt;p>&lt;code>frida -U jakhar.aseem.diva -l diva1.js --no-pause&lt;/code>&lt;/p>
+&lt;p>进入logging关卡 点击check out，成功hook到checkout函数。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20190616153553.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;h3 id="0x04-总结">0x04 总结&lt;/h3>
+&lt;hr>
+&lt;p>算是简单的入门了frida。&lt;/p>
+&lt;p>frida还有很多厉害的功能。多读读官方文档，收货会更多。&lt;/p></description></item><item><title>IDA_动态调试.so_基本步骤</title><link>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</link><pubDate>Fri, 31 Aug 2018 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/ida_%E5%8A%A8%E6%80%81%E8%B0%83%E8%AF%95.so_%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4/</guid><description>&lt;h1 id="ida_动态调试so_基本步骤">IDA_动态调试.so_基本步骤&lt;/h1>
+&lt;h2 id="ida-动态调试so-基本步骤">IDA 动态调试.so 基本步骤&lt;/h2>
+&lt;ul>
+&lt;li>待补图&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x00-ida快捷键">0x00 IDA快捷键&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>Shirt+F12 字符串窗口&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>F5大法好 反汇编&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Ctrl+S 查看so对应段的信息（非调试），快速定位so文件的内存地址（Debug）&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>G 快速跳转到对应地址。s&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>调试-F7单步进入调试、F8单步、F9运行&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x01-方法一">0x01 方法一&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>获取运行Android_server。&lt;/p>
+&lt;p>android_server文件放在IDA安装目录下的注意版本的不同。&lt;/p>
+&lt;p>之后只需 &lt;code>push android_server /data/local/tmp/&lt;/code>。&lt;/p>
+&lt;p>之后&lt;code>adb shell&lt;/code>，&lt;code>su&lt;/code> ，&lt;code>cd /data/local/tmp/&lt;/code>。&lt;/p>
+&lt;p>可能还得&lt;code>chmod 755 android_server&lt;/code> 才有权限运行。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>建立通信、attach进程。&lt;/p>
+&lt;p>&lt;code>adb forward tcp:23946 tcp:23946&lt;/code>命令。&lt;/p>
+&lt;p>在IDA的Debugger选项中attach进程。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>加载so、找函数下断点&lt;/p>
+&lt;p>双开IDA ，Ctrl+S找到so文件的基地址，另外一个IDA找到函数的相对地址。相加得到绝对地址。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x02-方法二">0x02 方法二&lt;/h3>
+&lt;p>无法加载so文件需要在加载之前断点。反调试之类&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>Debug方式启动app。需要应用可调试开启&lt;/p>
+&lt;p>&lt;code>adb shell am start -D -n 包名/.MainActivity&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>方法一的1，2两步 勾选选项。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>jdb attach程序&lt;/p>
+&lt;p>&lt;code>jdb -connect com.sun.jdi.SocketAttach:hostname=127.0.0.1,port=8700&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>开始调试 同上&lt;/p>
+&lt;/li>
+&lt;/ol></description></item></channel></rss>

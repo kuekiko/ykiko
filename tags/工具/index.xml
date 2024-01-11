@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>工具 on ykikoqAq</title><link>https://ykiko.top/tags/%E5%B7%A5%E5%85%B7/</link><description>Recent content in 工具 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 17 Apr 2020 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/%E5%B7%A5%E5%85%B7/index.xml" rel="self" type="application/rss+xml"/><item><title>Unicorn简单学习使用记录</title><link>https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/</link><pubDate>Fri, 17 Apr 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/</guid><description>&lt;h1 id="unicorn简单学习使用记录">Unicorn简单学习使用记录&lt;/h1>
+&lt;h3 id="0x00-介绍">0x00 介绍&lt;/h3>
+&lt;p>Unicorn是一个轻量级, 多平台, 多架构的CPU模拟器框架，基于qemu开发，它可以代替CPU模拟代码的执行，常用于恶意代码分析，Fuzz等。&lt;/p>
+&lt;h3 id="0x01-安装">0x01 安装&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>官网有编译好不同平台的&lt;a class="link" href="http://www.unicorn-engine.org/download/" target="_blank" rel="noopener"
+>二进制包&lt;/a>，直接安装就行。但是看了一下时间2017年的，qemu已经升级好几个版本了。api也比较老旧。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>去github看了一下是否有在更新，发现一直有在更新，不过好像也没更新啥，只是修复一些bug，下载git源码，自己编译。目前最新1.0.2rc&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">git clone https://github.com/unicorn-engine/unicorn.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> unicorn
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># UNICORN_ARCHS=&amp;#34;arm aarch64 x86&amp;#34; ./make.sh # 设置要编译的架构 可选 默认6种全编译 (Arm, Arm64, M68K, Mips, Sparc, &amp;amp; X86)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">./make.sh
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo ./make.sh install
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># python 绑定&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> bindings/python
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo python3 setup.py install
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>还有更多交叉编译选项参考 &lt;a class="link" href="https://github.com/unicorn-engine/unicorn/blob/master/docs/COMPILE-NIX.md" target="_blank" rel="noopener"
+>文档&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x02-简单使用">0x02 简单使用&lt;/h3>
+&lt;p>C :&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;unicorn/unicorn.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 要模拟的指令
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="cp">#define X86_CODE32 &amp;#34;\x41\x4a&amp;#34; &lt;/span>&lt;span class="c1">// INC ecx; DEC edx
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 起始地址
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="cp">#define ADDRESS 0x1000000
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">argc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="kt">char&lt;/span> &lt;span class="k">const&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">argv&lt;/span>&lt;span class="p">[]){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 设置engine
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">uc_engine&lt;/span> &lt;span class="o">*&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">uc_err&lt;/span> &lt;span class="n">err&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//设置寄存器
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="kt">int&lt;/span> &lt;span class="n">r_ecx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1234&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="kt">int&lt;/span> &lt;span class="n">r_edx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x5678&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Emulate i386 code&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// x86 32bit 初始化
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">err&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">uc_open&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_ARCH_X86&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_MODE_32&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">err&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">UC_ERR_OK&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Failed on uc_open() with error returned: %u&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">err&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 给模拟器申请 2MB 内存
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">uc_mem_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ADDRESS&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">1024&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="mi">1024&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_PROT_ALL&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 将要模拟的指令写入内存
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">uc_mem_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ADDRESS&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">X86_CODE32&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">X86_CODE32&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">)){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Failed to write emulation code to memory, quit!&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 初始化寄存器
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">uc_reg_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_X86_REG_ECX&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">r_ecx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">uc_reg_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_X86_REG_EDX&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">r_edx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&amp;gt;&amp;gt;&amp;gt; ECX = 0x%x&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">r_ecx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&amp;gt;&amp;gt;&amp;gt; EDX = 0x%x&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">r_edx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 模拟代码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">err&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">uc_emu_start&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ADDRESS&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ADDRESS&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="k">sizeof&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">X86_CODE32&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">err&lt;/span>&lt;span class="p">){&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Failed on uc_emu_start() with error returned %u: %s&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">err&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nf">uc_strerror&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">err&lt;/span>&lt;span class="p">));&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 打印寄存器值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Emulation done. Below is the CPU context&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">uc_reg_read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_X86_REG_ECX&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">r_ecx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">uc_reg_read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_X86_REG_EDX&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">r_edx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&amp;gt;&amp;gt;&amp;gt; ECX = 0x%x&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">r_ecx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;&amp;gt;&amp;gt;&amp;gt; EDX = 0x%x&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">r_edx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">uc_close&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">uc&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200411000429.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>官方给了很多测试&lt;a class="link" href="https://github.com/unicorn-engine/unicorn/tree/master/samples" target="_blank" rel="noopener"
+>案例&lt;/a>&lt;/p>
+&lt;p>python3:&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">__future__&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">print_function&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">unicorn&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="o">*&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">unicorn.x86_const&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="o">*&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">X86_CODE32&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="sa">b&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="se">\x41\x4a&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="c1">#INC ecx; DEC edx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ADDRESS&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0x1000000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Emulate i386 code&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">try&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## 初始化模拟器为x86 32bit&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mu&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Uc&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_ARCH_X86&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">UC_MODE_32&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># mu = Uc(UC_ARCH_ARM64,UC_MODE_64)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## 2MB 的memory&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">mem_map&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ADDRESS&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="mi">1024&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="mi">1024&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">mem_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ADDRESS&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">X86_CODE32&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">reg_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_X86_REG_ECX&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mh">0x1234&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">reg_write&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_X86_REG_EDX&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="mh">0x7890&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">##&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">emu_start&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ADDRESS&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">ADDRESS&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="nb">len&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">X86_CODE32&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Emulation done. Below is the CPU context&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">r_ecx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">reg_read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_X86_REG_ECX&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">r_edx&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">reg_read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_X86_REG_EDX&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;&amp;gt;&amp;gt;&amp;gt; ECX = 0x&lt;/span>&lt;span class="si">%x&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">%&lt;/span>&lt;span class="n">r_ecx&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;&amp;gt;&amp;gt;&amp;gt; EDX = 0x&lt;/span>&lt;span class="si">%x&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">%&lt;/span>&lt;span class="n">r_edx&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">except&lt;/span> &lt;span class="n">UcError&lt;/span> &lt;span class="k">as&lt;/span> &lt;span class="n">e&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;ERROR: &lt;/span>&lt;span class="si">%s&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">%&lt;/span>&lt;span class="n">e&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="0x03-一些基于unicorn的项目简单使用">0x03 一些基于unicorn的项目简单使用&lt;/h3>
+&lt;h3 id="androidnativeemuhttpsgithubcomp4nda0sandroidnativeemu">&lt;a class="link" href="https://github.com/P4nda0s/AndroidNativeEmu" target="_blank" rel="noopener"
+>AndroidNativeEmu&lt;/a>&lt;/h3>
+&lt;p>AndroidNativeEmu 让你能够跨平台模拟Android Native库函数，比如JNI_OnLoad、Java_XXX_XX等函数&lt;/p>
+&lt;p>这是看雪无名侠大佬二次修改一个版本，真的太强了。&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>安装报错解决&lt;/p>
+&lt;p>安装有些坑。。&lt;/p>
+&lt;p>首先要求使用python3.7。之后&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">git https://github.com/AeonLucid/AndroidNativeEmu.git
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pip install -r requirements.txt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> samples
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># 运行python example.py开始报错。。&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在win上先搞定&lt;code>keystone-engine&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">git clone https://github.com/keystone-engine/keystonecd keystone/bindings/pythonpython setup.py install
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;a class="link" href="http://www.keystone-engine.org/download/" target="_blank" rel="noopener"
+>下载&lt;/a> &lt;code>Windows - Core engine&lt;/code> x64&lt;/p>
+&lt;p>解压找到&lt;code>keystone.dll&lt;/code> 放到&lt;code>X:\location_to_python\Lib\site-packages\keystone\&lt;/code>&lt;/p>
+&lt;p>还有可能报&lt;code>fail to load the dynamic library.&lt;/code>&lt;/p>
+&lt;p>下载 &lt;a class="link" href="https://www.microsoft.com/en-gb/download/details.aspx?id=40784" target="_blank" rel="noopener"
+>vcredist_x64&lt;/a> 安装。&lt;/p>
+&lt;p>之后直接&lt;code>python example.py&lt;/code> 继续报&lt;code>ModuleNotFoundError: No module named 'androidemu'&lt;/code>&lt;/p>
+&lt;p>加入代码&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">sys&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sys&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">append&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;../&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>又报&lt;code>FileNotFoundError: [Errno 2] No such file or directory: 'samples/example_binaries/libc.so'&lt;/code>&lt;/p>
+&lt;p>删掉代码里的 &lt;code>samples/example_binaries/libc.so&lt;/code>的&lt;code>samples/&lt;/code>&lt;/p>
+&lt;p>能跑起来但是报错&lt;code>unicorn.unicorn.UcError: Invalid instruction (UC_ERR_INSN_INVALID)&lt;/code>&lt;/p>
+&lt;p>改成&lt;code>emulator.load_library(&amp;quot;example_binaries/libc.so&amp;quot;, do_init=False)&lt;/code>&lt;/p>
+&lt;p>就成功运行&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200413002530.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>使用&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;span class="lnt">62
+&lt;/span>&lt;span class="lnt">63
+&lt;/span>&lt;span class="lnt">64
+&lt;/span>&lt;span class="lnt">65
+&lt;/span>&lt;span class="lnt">66
+&lt;/span>&lt;span class="lnt">67
+&lt;/span>&lt;span class="lnt">68
+&lt;/span>&lt;span class="lnt">69
+&lt;/span>&lt;span class="lnt">70
+&lt;/span>&lt;span class="lnt">71
+&lt;/span>&lt;span class="lnt">72
+&lt;/span>&lt;span class="lnt">73
+&lt;/span>&lt;span class="lnt">74
+&lt;/span>&lt;span class="lnt">75
+&lt;/span>&lt;span class="lnt">76
+&lt;/span>&lt;span class="lnt">77
+&lt;/span>&lt;span class="lnt">78
+&lt;/span>&lt;span class="lnt">79
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-python" data-lang="python">&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">logging&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">posixpath&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">sys&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">sys&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">path&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">append&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s1">&amp;#39;../&amp;#39;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">unicorn&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">UcError&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_HOOK_CODE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">UC_HOOK_MEM_UNMAPPED&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">unicorn.arm_const&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="o">*&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">androidemu.emulator&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">Emulator&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">androidemu.java.java_class_def&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">JavaClassDef&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">from&lt;/span> &lt;span class="nn">androidemu.java.java_method_def&lt;/span> &lt;span class="kn">import&lt;/span> &lt;span class="n">java_method_def&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kn">import&lt;/span> &lt;span class="nn">debug_utils&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">class&lt;/span> &lt;span class="nc">MainActivity&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">metaclass&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">JavaClassDef&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">jvm_name&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;com/example/debugdemo/MainActivity&amp;#39;&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="fm">__init__&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nd">@java_method_def&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;stringFromJNI&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">signature&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s1">&amp;#39;()Ljava/lang/String;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">native&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="kc">True&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">string_from_jni&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">mu&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">def&lt;/span> &lt;span class="nf">test&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="bp">self&lt;/span>&lt;span class="p">):&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">pass&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Configure logging&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">logging&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">basicConfig&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">stream&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">sys&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">stdout&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">level&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">logging&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">DEBUG&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">format&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>&lt;span class="si">%(asctime)s&lt;/span>&lt;span class="s2"> &lt;/span>&lt;span class="si">%(levelname)7s&lt;/span>&lt;span class="s2"> &lt;/span>&lt;span class="si">%(name)34s&lt;/span>&lt;span class="s2"> | &lt;/span>&lt;span class="si">%(message)s&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">logger&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">logging&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">getLogger&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="vm">__name__&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 先创建java class&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 初始化emulater&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">emulator&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">Emulator&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">vfs_root&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="n">posixpath&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">join&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">posixpath&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">dirname&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="vm">__file__&lt;/span>&lt;span class="p">),&lt;/span>&lt;span class="s2">&amp;#34;vfs&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">vfp_inst_set&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="kc">True&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## 注册 java class&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">java_classloader&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">add_class&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">MainActivity&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## load libraries&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load_library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;example_binaries/libdl.so&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load_library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;example_binaries/libc.so&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load_library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;example_binaries/libstdc++.so&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load_library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;example_binaries/libm.so&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">tar_lib&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">load_library&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;example_binaries/libtest.so&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Show loaded modules.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">logger&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Loaded modules:&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="n">module&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">modules&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">logger&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;=&amp;gt; 0x&lt;/span>&lt;span class="si">%08x&lt;/span>&lt;span class="s2"> - &lt;/span>&lt;span class="si">%s&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">%&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">module&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">base&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">module&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">filename&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">try&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## Run JNI_OnLoad.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">call_symbol&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">tar_lib&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="s1">&amp;#39;JNI_OnLoad&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">java_vm&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">address_ptr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mh">0x00&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">hook_add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_HOOK_MEM_UNMAPPED&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">debug_utils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">hook_unmapped&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># Do native stuff.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">hook_add&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_HOOK_CODE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">debug_utils&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">hook_code&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">main_activity&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">MainActivity&lt;/span>&lt;span class="p">()&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">logger&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Response from JNI call: &lt;/span>&lt;span class="si">%s&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">%&lt;/span> &lt;span class="n">main_activity&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">string_from_jni&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">emulator&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1"># Dump natives found.&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">logger&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Exited EMU.&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">logger&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Native methods registered to MainActivity:&amp;#34;&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">for&lt;/span> &lt;span class="n">method&lt;/span> &lt;span class="ow">in&lt;/span> &lt;span class="n">MainActivity&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">jvm_methods&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">values&lt;/span>&lt;span class="p">():&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="n">method&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">native&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">logger&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">info&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;- [0x&lt;/span>&lt;span class="si">%08x&lt;/span>&lt;span class="s2">] &lt;/span>&lt;span class="si">%s&lt;/span>&lt;span class="s2"> - &lt;/span>&lt;span class="si">%s&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">%&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">method&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">native_addr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">method&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">name&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">method&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">signature&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">except&lt;/span> &lt;span class="n">UcError&lt;/span> &lt;span class="k">as&lt;/span> &lt;span class="n">e&lt;/span>&lt;span class="p">:&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">print&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s2">&amp;#34;Exit at &lt;/span>&lt;span class="si">%x&lt;/span>&lt;span class="s2">&amp;#34;&lt;/span> &lt;span class="o">%&lt;/span> &lt;span class="n">emulator&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">mu&lt;/span>&lt;span class="o">.&lt;/span>&lt;span class="n">reg_read&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">UC_ARM_REG_PC&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">raise&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>samples 文件夹下几个具体的实例&lt;/li>
+&lt;/ul>
+&lt;h3 id="unicorefuzzhttpsgithubcomfgsectunicorefuzz">&lt;a class="link" href="https://github.com/fgsect/unicorefuzz" target="_blank" rel="noopener"
+>unicorefuzz&lt;/a>&lt;/h3>
+&lt;p>合并到AFL系列总结&lt;/p>
+&lt;h3 id="参考">参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>中文文档https://github.com/kabeor/Micro-Unicorn-Engine-API-Documentation&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/unicorn-engine/unicorn" target="_blank" rel="noopener"
+>https://github.com/unicorn-engine/unicorn&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/P4nda0s/AndroidNativeEmu" target="_blank" rel="noopener"
+>https://github.com/P4nda0s/AndroidNativeEmu&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://app.yinxiang.com/fx/a6cc6633-a93f-4111-a06a-cccd5fa39e0f" target="_blank" rel="noopener"
+>https://app.yinxiang.com/fx/a6cc6633-a93f-4111-a06a-cccd5fa39e0f&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/fgsect/unicorefuzz" target="_blank" rel="noopener"
+>https://github.com/fgsect/unicorefuzz&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>MobSecVM</title><link>https://ykiko.top/p/mobsecvm/</link><pubDate>Sun, 16 Jun 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/mobsecvm/</guid><description>&lt;h1 id="mobsecvm">MobSecVM&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>最近不知为何VM-Ubuntu炸了，试了各种方法，折腾了很久之后，终于恢复了。又浪费时间和环境斗志斗勇。自此打算自己弄一个包含了Android安全所需各种工具的环境，做个备份。防止哪天又出各种各样的问题。&lt;/p>
+&lt;p>项目地址：MobSecVM&lt;/p>
+&lt;p>下载地址：baiduyun、google_yun&lt;/p>
+&lt;h3 id="0x01-环境准备">0x01 环境准备&lt;/h3>
+&lt;ul>
+&lt;li>Ubuntu 18.04 LTS&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>Username：mobsec&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>Password：mobsec
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>Vmware 15&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-tools-不断补充">0x02 Tools （不断补充）&lt;/h3>
+&lt;p>[x] &lt;a class="link" href="http://developer.android.com/tools/studio/index.html" target="_blank" rel="noopener"
+>AndroidStudio&lt;/a> 开发全家桶带模拟器&lt;/p>
+&lt;p>[x] &lt;a class="link" href="https://github.com/radare/radare2" target="_blank" rel="noopener"
+>Radare2&lt;/a> 逆向框架&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.frida.re/" target="_blank" rel="noopener"
+>Frida&lt;/a> Hook工具&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/mwrlabs/drozer" target="_blank" rel="noopener"
+>Drozer&lt;/a> Android应用程序安全评估框架&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/iBotPeaches/Apktool" target="_blank" rel="noopener"
+>APKtool&lt;/a> APK逆向工具&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://portswigger.net/burp" target="_blank" rel="noopener"
+>BurpSuite&lt;/a> 抓改包，安全检测&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.wireshark.org/" target="_blank" rel="noopener"
+>Wireshare&lt;/a> 抓包工具&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>[x] &lt;a class="link" href="https://github.com/MobSF/Mobile-Security-Framework-MobSF" target="_blank" rel="noopener"
+>MobSF&lt;/a> 应用程序自动化分析框架&lt;/p>
+&lt;p>[] &lt;a class="link" href="https://github.com/androguard/androguard" target="_blank" rel="noopener"
+>androguard&lt;/a> 一款基于python的逆向工程，恶意软件和软件分析Android应用程序的框架。&lt;/p>
+&lt;p>[x] &lt;a class="link" href="https://code.visualstudio.com/" target="_blank" rel="noopener"
+>VScode&lt;/a> 编辑器&lt;/p>
+&lt;p>[] &lt;a class="link" href="https://github.com/konloch/bytecode-viewer" target="_blank" rel="noopener"
+>bytecode-viewer&lt;/a>&lt;/p>
+&lt;p>[] &lt;a class="link" href="https://github.com/programa-stic/barf-project" target="_blank" rel="noopener"
+>barf–project&lt;/a>&lt;/p>
+&lt;p>[x] &lt;a class="link" href="https://github.com/skylot/jadx" target="_blank" rel="noopener"
+>jadx&lt;/a> Dex to Java decompiler&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/xtiankisutsa/MARA_Framework" target="_blank" rel="noopener"
+>MARA_Framework&lt;/a> Mobile Application Reverse engineering and Analysis Framework.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/AndroBugs/AndroBugs_Framework" target="_blank" rel="noopener"
+>AndroBugs Framework&lt;/a> Android vulnerability scanner&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/linkedin/qark" target="_blank" rel="noopener"
+>qark&lt;/a> Tool to look for several security related Android application vulnerabilities&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/payatu/diva-android" target="_blank" rel="noopener"
+>DIVA&lt;/a> Damn Insecure and vulnerable App for Android&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/dineshshetty/Android-InsecureBankv2" target="_blank" rel="noopener"
+>InsecureBankv2&lt;/a> Vulnerable Android application for developers and security enthusiasts to learn about Android insecurities&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/rafaeltoledo/android-security" target="_blank" rel="noopener"
+>Android Security Sandbox&lt;/a> An app showcase of some techniques to improve Android app security&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/jackMannino/OWASP-GoatDroid-Project" target="_blank" rel="noopener"
+>GoatDroid&lt;/a> A fully functional and self-contained training environment for educating developers and testers on Android security&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/tanprathan/sievePWN" target="_blank" rel="noopener"
+>sievePWN&lt;/a> An android application which exploits sieve through android components.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x03-小插件">0x03 小插件&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>on_my_zsh&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="http://plugins.jetbrains.com/plugin/3847-findbugs-idea" target="_blank" rel="noopener"
+>FindBugs-IDEA&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>docker&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x04-效果图">0x04 效果图&lt;/h3></description></item><item><title>PWN_小tools的使用</title><link>https://ykiko.top/p/pwn_%E5%B0%8Ftools%E7%9A%84%E4%BD%BF%E7%94%A8/</link><pubDate>Mon, 22 Oct 2018 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/pwn_%E5%B0%8Ftools%E7%9A%84%E4%BD%BF%E7%94%A8/</guid><description>&lt;h1 id="pwn_小tools的使用">PWN_小tools的使用&lt;/h1>
+&lt;h3 id="gcc-编译常用命令">GCC 编译常用命令&lt;/h3>
+&lt;table>
+&lt;tr>
+&lt;th>不带选项&lt;/th>
+&lt;th>&lt;/th>
+&lt;th>gcc test.c 将test.c预处理、汇编、编译并链接形成可执行文件。这里未指定输出文件，默认输出为a.out。&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>-o&lt;/th>
+&lt;th>指定生成的输出文件；&lt;/th>
+&lt;th>gcc test.c -o test 将test.c预处理、汇编、编译并链接形成可执行文件test。-o选项用来指定输出文件的文件名。&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>-E&lt;/th>
+&lt;th>仅执行编译预处理；&lt;/th>
+&lt;th>gcc -E test.c -o test.i 将test.c预处理输出test.i文件。&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>-S&lt;/th>
+&lt;th>将C代码转换为汇编代码；&lt;/th>
+&lt;th>gcc -S test.i 将预处理输出文件test.i汇编成test.s文件。&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>-c&lt;/th>
+&lt;th>仅执行编译操作，不进行连接操作。&lt;/th>
+&lt;th>gcc -c test.s 将汇编输出文件test.s编译输出test.o文件。&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>-wall&lt;/th>
+&lt;th>显示警告信息；&lt;/th>
+&lt;th>&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>**无选项链接**&lt;/th>
+&lt;th>&lt;/th>
+&lt;th>gcc test.o -o test 将编译输出文件test.o链接成最终可执行文件test。&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>-O&lt;/th>
+&lt;th>使用编译优化级别1编译程序。级别为1~3，级别越大优化效果越好，但编译时间越长&lt;/th>
+&lt;th>gcc -O1 test.c -o test&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>&lt;/th>
+&lt;th>关掉DEP/NX（堆栈不可执行）&lt;/th>
+&lt;th>gcc -z execstack -o level level.c&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>&lt;/th>
+&lt;th>关掉Stack Protector/Canary（栈保护）&lt;/th>
+&lt;th>gcc -fno-stack-protector -o level level.c&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>&lt;/th>
+&lt;th>关掉程序ASLR/PIE（程序随机化保护）&lt;/th>
+&lt;th>gcc -no-pie level level.c&lt;/th>
+&lt;/tr>&lt;tr>
+&lt;th>&lt;/th>
+&lt;th>64位linux下面的GCC编译出一个32位可执行程序&lt;/th>
+&lt;th>gcc -m32 -z execstack -fno-stack-protector -o level level.c&lt;/th>
+&lt;/tr>&lt;/table>
+&lt;h3 id="gdb常用调试命令">GDB常用调试命令&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">gcc&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">g&lt;/span> &lt;span class="n">main&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">c&lt;/span> &lt;span class="c1">//在目标文件加入源代码的信息
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">gdb&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">out&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">start&lt;/span> &lt;span class="c1">//开始调试
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">n&lt;/span> &lt;span class="c1">//一条一条执行
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">step&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">s&lt;/span> &lt;span class="c1">//执行下一条，如果函数进入函数
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">backtrace&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">bt&lt;/span> &lt;span class="c1">//查看函数调用栈帧
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">info&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="n">locals&lt;/span> &lt;span class="c1">//查看当前栈帧局部变量
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">frame&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">f&lt;/span> &lt;span class="c1">//选择栈帧，再查看局部变量
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">print&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">p&lt;/span> &lt;span class="c1">//打印变量的值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">finish&lt;/span> &lt;span class="c1">//运行到当前函数返回
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">set&lt;/span> &lt;span class="n">var&lt;/span> &lt;span class="n">sum&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="mi">0&lt;/span> &lt;span class="c1">//修改变量值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">list&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">l&lt;/span> &lt;span class="err">行号或函数名&lt;/span> &lt;span class="c1">//列出源码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">display&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">undisplay&lt;/span> &lt;span class="n">sum&lt;/span> &lt;span class="c1">//每次停下显示变量的值/取消跟踪
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">break&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">b&lt;/span> &lt;span class="err">行号或函数名&lt;/span> &lt;span class="c1">//设置断点
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">continue&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">c&lt;/span> &lt;span class="c1">//连续运行
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">info&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="n">breakpoints&lt;/span> &lt;span class="c1">//查看已经设置的断点
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">delete&lt;/span> &lt;span class="n">breakpoints&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="c1">//删除某个断点
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">disable&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">enable&lt;/span> &lt;span class="n">breakpoints&lt;/span> &lt;span class="mi">3&lt;/span> &lt;span class="c1">//禁用/启用某个断点
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="k">break&lt;/span> &lt;span class="mi">9&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="n">sum&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="c1">//满足条件才激活断点
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">run&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">r&lt;/span> &lt;span class="c1">//重新从程序开头连续执行
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">watch&lt;/span> &lt;span class="n">input&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="p">]&lt;/span> &lt;span class="c1">//设置观察点
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">info&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="n">i&lt;/span> &lt;span class="n">watchpoints&lt;/span> &lt;span class="c1">//查看设置的观察点
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="mi">7&lt;/span>&lt;span class="n">b&lt;/span> &lt;span class="n">input&lt;/span> &lt;span class="c1">//打印存储器内容，b--每个字节一组，7--7组
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">disassemble&lt;/span> &lt;span class="c1">//反汇编当前函数或指定函数
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">si&lt;/span> &lt;span class="c1">// 一条指令一条指令调试 而 s 是一行一行代码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">info&lt;/span> &lt;span class="n">registers&lt;/span> &lt;span class="c1">// 显示所有寄存器的当前值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">gdb&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="n">x&lt;/span>&lt;span class="o">/&lt;/span>&lt;span class="mi">20&lt;/span> &lt;span class="err">$&lt;/span>&lt;span class="n">esp&lt;/span> &lt;span class="c1">//查看内存中开始的20个数
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">ni&lt;/span> &lt;span class="err">单步执行不进入&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">si&lt;/span> &lt;span class="err">单步执行并进入&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">disas&lt;/span> &lt;span class="n">addr&lt;/span> &lt;span class="err">对地址&lt;/span>&lt;span class="n">addr处的指令进行反汇编&lt;/span>&lt;span class="err">，&lt;/span>&lt;span class="n">addr可以是函数名&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">checksec&lt;/span> &lt;span class="err">查看&lt;/span>&lt;span class="n">elf编译的保护选项&lt;/span>&lt;span class="err">。&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="查壳">查壳&lt;/h3>
+&lt;blockquote>
+&lt;p>upx -d file&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="objjump">objjump&lt;/h3>
+&lt;blockquote>
+&lt;p>objdump是二进制文件快速查看工具。 常用命令：&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>1. `objdump -d [file]` 查看文件的所有汇编代码
+1. `objdump -f [file]` 查看文件的每个文件的整体头部摘要
+&lt;/code>&lt;/pre>
+&lt;p>####python&lt;/p>
+&lt;blockquote>
+&lt;p>python -c &amp;ldquo;&amp;hellip;&amp;rdquo; | ./file python以命令方式执行并把结果传递给filepython -c &amp;ldquo;&amp;hellip;&amp;rdquo; | xargs ./file python以命令方式执行并当作命令行参数传递给file，具体的是：“它的作用是将参数列表转换成小块分段传递给其他命令，以避免参数列表过长的问题。”存在这个命令是因为很多的参数不支持以管道的方式传递。os.system() 创建一个子进程os.putenv(&amp;ldquo;name&amp;rdquo;, &amp;ldquo;value&amp;rdquo;) 添加一个环境变量&lt;/p>
+&lt;/blockquote>
+&lt;h3 id="pwntools">pwntools&lt;/h3>
+&lt;blockquote>
+&lt;p>参考 &lt;a class="link" href="http://pwntools.readthedocs.io/en/stable/" target="_blank" rel="noopener"
+>http://pwntools.readthedocs.io/en/stable/&lt;/a> （官网介绍）&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>[http://brieflyx.me/2015/python-module/pwntools-intro/](http://brieflyx.me/2015/python-module/pwntools-intro/)
+[http://brieflyx.me/2015/python-module/pwntools-advanced/](http://brieflyx.me/2015/python-module/pwntools-advanced/)
+&lt;/code>&lt;/pre>
+&lt;blockquote>
+&lt;p>一般直接用from pwn import * 或者import pwn将所有模块导入到当前命名空间，这条语句还会把os、sys等常用的系统库一并导入。&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>常用的模块有下面几个： - ==asm==:汇编与反汇编 - ==dynelf==:用于远程符号泄露，需要提供leak方法 - ==elf==:对elf文件进行操作 - ==gdb==:配合gdb进行调试 - ==memleak==:用于内存泄漏 - ==shellcraft==: shellcode的生成器 - ==tubes==:包括tubes: 包括tubes.sock, tubes.process, tubes.ssh, tubes.serialtube，分别适用于不同场景的PIPE - ==utils==:一些实用的小功能，例如CRC计算，cyclic pattern等
+&lt;/code>&lt;/pre>
+&lt;h3 id="pwndbg">pwndbg&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>arena 堆检查&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>mp 显示堆&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>bins,fastbins,unsorted,smallbins,largebins&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>heap&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>top_chunk&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>procinfo 查看当前进程状态&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>rop &lt;code>rop --grep &amp;quot;pop rdi&amp;quot; -- --nojop --nosys --depth 2&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>search &lt;code>search -s “/bin/sh”&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>vvmap 虚拟内存映射&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>telescope 检查内存转储&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>

@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>杂项 on ykikoqAq</title><link>https://ykiko.top/categories/%E6%9D%82%E9%A1%B9/</link><description>Recent content in 杂项 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 01 Dec 2023 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/categories/%E6%9D%82%E9%A1%B9/index.xml" rel="self" type="application/rss+xml"/><item><title>WSL2使用技巧</title><link>https://ykiko.top/p/wsl2%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/</link><pubDate>Fri, 01 Dec 2023 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/wsl2%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/</guid><description>&lt;h1 id="wsl2使用技巧">WSL2使用技巧&lt;/h1>
+&lt;h3 id="0x00-常用配置">0x00 常用配置&lt;/h3>
+&lt;p>&lt;strong>配置.wslconfig（比较常用）&lt;/strong>&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>.wslconfig&lt;/strong> 用于在 WSL 2 上运行的所有已安装发行版中配置&lt;strong>全局设置&lt;/strong>。&lt;/p>
+&lt;/blockquote>
+&lt;p>存放在目录 C:\Users[username] 下&lt;/p>
+&lt;p>示例文件&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Settings apply across all Linux distros running on WSL 2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>wsl2&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Limits VM memory to use no more than 4 GB, this can be set as whole numbers using GB or MB&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">memory&lt;/span>&lt;span class="o">=&lt;/span>4GB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Sets the VM to use two virtual processors&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">processors&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">2&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Specify a custom Linux kernel to use with your installed distros. The default kernel used can be found at https://github.com/microsoft/WSL2-Linux-Kernel&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">kernel&lt;/span>&lt;span class="o">=&lt;/span>C:&lt;span class="se">\\&lt;/span>temp&lt;span class="se">\\&lt;/span>myCustomKernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Sets additional kernel parameters, in this case enabling older Linux base images such as Centos 6&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">kernelCommandLine&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nv">vsyscall&lt;/span>&lt;span class="o">=&lt;/span>emulate
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Sets amount of swap storage space to 8GB, default is 25% of available RAM&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">swap&lt;/span>&lt;span class="o">=&lt;/span>8GB
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Sets swapfile path location, default is %USERPROFILE%\AppData\Local\Temp\swap.vhdx&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">swapfile&lt;/span>&lt;span class="o">=&lt;/span>C:&lt;span class="se">\\&lt;/span>temp&lt;span class="se">\\&lt;/span>wsl-swap.vhdx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Disable page reporting so WSL retains all allocated memory claimed from Windows and releases none back when free&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">pageReporting&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Turn on default connection to bind WSL 2 localhost to Windows localhost&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">localhostforwarding&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Disables nested virtualization&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">nestedVirtualization&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">false&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Turns on output console showing contents of dmesg when opening a WSL 2 distro for debugging&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">debugConsole&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1"># Enable experimental features&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>experimental&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sparseVhd&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="nb">true&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;strong>配置wsl.conf&lt;/strong>&lt;/p>
+&lt;blockquote>
+&lt;p>• &lt;strong>wsl.conf&lt;/strong> 用于为在 WSL 1 或 WSL 2 上运行的每个 Linux 发行版按各个发行版配置&lt;strong>本地设置&lt;/strong>。&lt;/p>
+&lt;/blockquote>
+&lt;p>放在发行版的/etc/下&lt;/p>
+&lt;h3 id="0x01-自编译内核">0x01 自编译内核&lt;/h3>
+&lt;p>WSL2支持使用自编译的内核运行&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>下载Kernel → &lt;a class="link" href="https://github.com/microsoft/WSL2-Linux-Kernel" target="_blank" rel="noopener"
+>microsoft/WSL2-Linux-Kernel: The source for the Linux kernel used in Windows Subsystem for Linux 2 (WSL2) (github.com)&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>安装依赖&lt;/p>
+&lt;p>&lt;code>$ sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>修改需要的配置&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>编译安装&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="0x02-使用usbip连接usb设备">0x02 使用USBIP连接USB设备&lt;/h3>
+&lt;ul>
+&lt;li>&lt;a class="link" href="https://github.com/dorssel/usbipd-win" target="_blank" rel="noopener"
+>dorssel/usbipd-win: Windows software for sharing locally connected USB devices to other machines, including Hyper-V guests and WSL 2. (github.com)&lt;/a>&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x03-使用vhd解决卡顿问题">0x03 使用VHD解决卡顿问题&lt;/h3>
+&lt;h3 id="0x04-在wsl2上编译aosp">0x04 在WSL2上编译AOSP&lt;/h3>
+&lt;h3 id="0x05-使用wslg图形界面">0x05 使用WSLg图形界面&lt;/h3>
+&lt;h3 id="0x06-使用cancanfd协议">0x06 使用CAN/CANFD协议&lt;/h3>
+&lt;h3 id="0x07-wsl常用命令">0x07 WSL常用命令&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">~ &amp;gt; wsl --version 01/11/2024 01:45:41 PM
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">WSL 版本： 2.0.9.0
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">内核版本： 5.15.133.1-1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">WSLg 版本： 1.0.59
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">MSRDC 版本： 1.2.4677
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Direct3D 版本： 1.611.1-81528511
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">DXCore 版本： 10.0.25131.1002-220531-1700.rs-onecore-base2-hyp
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Windows 版本： 10.0.19045.2965
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>使用root作为默认用户&lt;/p>
+&lt;p>wsl —&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>升级WSL2/降级为WSL&lt;/p>
+&lt;ul>
+&lt;li>&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>WSL2备份/恢复&lt;/p>
+&lt;p>导出：&lt;code>wsl -export &amp;lt;Distro&amp;gt; &amp;lt;FileName&amp;gt;&lt;/code> [选项] → &lt;code>wsl -export Ubuntu D:/bak/wslUbuntu.tar&lt;/code>&lt;/p>
+&lt;pre>&lt;code> 选项为 -vhd 可以将指定应将分发版导出为 .vhdx 文件
+&lt;/code>&lt;/pre>
+&lt;p>导入：&lt;code>wsl -import &amp;lt;Distro&amp;gt; &amp;lt;InstallLocation&amp;gt; &amp;lt;FileName&amp;gt;&lt;/code> → &lt;code>wsl -import Ubuntu D:/wsl2/ubuntu D:/bak/wslUbuntu.tar&lt;/code>&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x08-wsl2上使用cuda">0x08 WSL2上使用CUDA&lt;/h3></description></item><item><title>博客正常运行中</title><link>https://ykiko.top/p/%E5%8D%9A%E5%AE%A2%E6%AD%A3%E5%B8%B8%E8%BF%90%E8%A1%8C%E4%B8%AD/</link><pubDate>Fri, 01 Sep 2023 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/%E5%8D%9A%E5%AE%A2%E6%AD%A3%E5%B8%B8%E8%BF%90%E8%A1%8C%E4%B8%AD/</guid><description>&lt;h1 id="博客正常运行中">博客正常运行中&lt;/h1>
+&lt;h1 id="h1">H1&lt;/h1>
+&lt;p>本博客基于Notion页面自动生成&lt;/p>
+&lt;p>Publish地址：&lt;a class="link" href="https://kuekiko.notion.site/14acc4eb33a24554a9224b2eafb61140?v=e0b848538c0c43108feebfcb8107f9c5" target="_blank" rel="noopener"
+>https://kuekiko.notion.site/14acc4eb33a24554a9224b2eafb61140?v=e0b848538c0c43108feebfcb8107f9c5&amp;amp;pvs=4&lt;/a>&lt;/p>
+&lt;p>转发地址：notion.ykiko.top&lt;/p>
+&lt;h1 id="特性">特性&lt;/h1>
+&lt;ul>
+&lt;li>
+&lt;p>在Notion编写的文档自动更新到博客&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>可定制更新频率，可实时更新也可定期更新&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>自动备份相关文档&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>Notion自动生成测试&lt;/p>
+&lt;p>本文的Notion链接为：&lt;a class="link" href="https://kuekiko.notion.site/6e834359fd8445b7b5005bc7c58d6c57" target="_blank" rel="noopener"
+>https://kuekiko.notion.site/6e834359fd8445b7b5005bc7c58d6c57?pvs=4&lt;/a>&lt;/p>
+&lt;p>每10分钟更新一次&lt;/p></description></item><item><title>WSL2开启kvm</title><link>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</link><pubDate>Fri, 24 Jul 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</guid><description>&lt;h1 id="wsl2开启kvm">WSL2开启kvm&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>之前想着用wsl2去跑qemu，发现很多内核pwn题给的环境需要开启&lt;code>-enable-kvm&lt;/code>选项，还有自己编译的内核也没法，然而wsl2没法开启kvm，解决办法就是去把hype-v给关了，老老实实用vmware/vmbox开个虚拟机，这样每次都要切来切去很麻烦。&lt;/p>
+&lt;p>直到看到vmware和vmbox都可以与hype-v并存，以为看到了曙光，没想到是没法开启虚拟化选项的。&lt;/p>
+&lt;p>后来看到WSL上这个&lt;a class="link" href="https://github.com/microsoft/WSL/issues/4193" target="_blank" rel="noopener"
+>Issues&lt;/a>，当时也没这么多评论，不过暂且能用&lt;a class="link" href="https://gist.github.com/offlinehacker/b1d96515f87a47bd0b0bea574eab5583" target="_blank" rel="noopener"
+>脚本&lt;/a>实现。不过还是很麻烦。&lt;/p>
+&lt;p>最后看了这篇&lt;a class="link" href="https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/" target="_blank" rel="noopener"
+>文章&lt;/a>，跟着试了一遍，一直没报错，最后还是不行。某天又去看了看issuse，发现这个办法要最新阅览版。更新后一个新的发现就是wsl2速度明显变快了。。&lt;/p>
+&lt;h3 id="0x01-环境">0x01 环境&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>Windows 10 2004 20175.1000&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Windows Feature Experience Pack 120.18201.0.0&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>wsl2 - Ubuntu 20&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Intel i7-8550U&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>WSL-Linux-kernel: &lt;a class="link" href="https://github.com/microsoft/WSL2-Linux-Kernel/releases/tag/4.19.121-microsoft-standard" target="_blank" rel="noopener"
+>4.19.121-microsoft-standard&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>qemu 5.0&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-编译kernel">0x02 编译Kernel&lt;/h3>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sudo apt -y install build-essential libncurses-dev bison flex libssl-dev libelf-dev cpu-checker qemu-kvm
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">tar -xf WSL2-Linux-Kernel-4.19.121-microsoft-standard.tar.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> WSL2-Linux-Kernel-4.19.104-microsoft-standard/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">## cp Microsoft/config-wsl .config 有bug 使用最新版commit已修复&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make menuconfig
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>.config&lt;/code>文件用&lt;a class="link" href="https://github.com/microsoft/WSL/files/4830946/config.txt" target="_blank" rel="noopener"
+>这个&lt;/a> 或者&lt;a class="link" href="https://github.com/microhobby/WSL2-Linux-Kernel/blob/5e3fa9a98ea1ac05b397e0acd5bf08ce0e60bd3e/Microsoft/config-wsl" target="_blank" rel="noopener"
+>这个&lt;/a>&lt;/p>
+&lt;p>确保里面的选项kvm的选项。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200724222001.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>这里可选的编译为&amp;lt; M &amp;gt; 模块或者&amp;lt; * &amp;gt; 内置，建议内置吗模块的话后续每次重启都得自己加载一次。&lt;/p>
+&lt;p>确保Linux guest support enable选项。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200724221933.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>退出保存。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">make -j8
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>waitting…………&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">cp arch/x86/boot/bzImage /mnt/c/Users/&amp;lt;username&amp;gt;/bzImage
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nano /mnt/c/Users/&amp;lt;username&amp;gt;/.wslconfig
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">### 如果是 &amp;lt;M&amp;gt; 模块编译&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sudo make modules_install
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-toml" data-lang="toml">&lt;span class="line">&lt;span class="cl">&lt;span class="p">[&lt;/span>&lt;span class="nx">wsl2&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">nestedVirtualization&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="kc">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">kernel&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="nx">C&lt;/span>&lt;span class="err">:\\&lt;/span>&lt;span class="nx">Users&lt;/span>&lt;span class="err">\\&amp;lt;&lt;/span>&lt;span class="nx">username&lt;/span>&lt;span class="err">&amp;gt;\\&lt;/span>&lt;span class="nx">bzImage&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">debugConsole&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="kc">true&lt;/span> &lt;span class="c">##可选&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nx">pageReporting&lt;/span>&lt;span class="p">=&lt;/span>&lt;span class="kc">true&lt;/span> &lt;span class="c">##可选&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">wsl.exe --shutdown Ubuntu
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">wsl.exe -d Ubuntu
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nano /etc/modprobe.d/kvm-nested.conf
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>mod加载的话还要写入：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">options kvm-intel &lt;span class="nv">nested&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">options kvm-intel &lt;span class="nv">enable_shadow_vmcs&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">options kvm-intel &lt;span class="nv">enable_apicv&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">options kvm-intel &lt;span class="nv">ept&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>之前模块编译的有bug版本的图 mount无法挂载。&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200724214713.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>成功的图 可以挂载。。无需手动加载mod&lt;/p>
+&lt;p>&lt;img src="https://my-md-1253484710.file.myqcloud.com/20200724223913.png"
+loading="lazy"
+alt="img"
+>&lt;/p>
+&lt;p>要先配置界面以及GPU支持可以参考这篇&lt;a class="link" href="https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/" target="_blank" rel="noopener"
+>文章&lt;/a>后续的部分，没这个需求。。&lt;/p>
+&lt;h3 id="issuse">issuse&lt;/h3>
+&lt;p>还是会遇到奇奇怪怪的坑。&lt;/p>
+&lt;p>&lt;code>An error occurred mounting one of your file systems. Please run 'dmesg' for more details.&lt;/code>&lt;/p>
+&lt;p>报错信息：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.268879&lt;span class="o">]&lt;/span> init: &lt;span class="o">(&lt;/span>1&lt;span class="o">)&lt;/span> ERROR: MountPlan9WithRetry:282: mount drvfs on /mnt/c &lt;span class="o">(&lt;/span>&lt;span class="nv">cache&lt;/span>&lt;span class="o">=&lt;/span>mmap,noatime,msize&lt;span class="o">=&lt;/span>262144,trans&lt;span class="o">=&lt;/span>virtio,aname&lt;span class="o">=&lt;/span>drvfs&lt;span class="p">;&lt;/span>&lt;span class="nv">path&lt;/span>&lt;span class="o">=&lt;/span>C:&lt;span class="se">\;&lt;/span>&lt;span class="nv">uid&lt;/span>&lt;span class="o">=&lt;/span>0&lt;span class="p">;&lt;/span>&lt;span class="nv">gid&lt;/span>&lt;span class="o">=&lt;/span>0&lt;span class="p">;&lt;/span>&lt;span class="nv">symlinkroot&lt;/span>&lt;span class="o">=&lt;/span>/mnt/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.268880&lt;span class="o">]&lt;/span> &lt;span class="o">)&lt;/span> failed: &lt;span class="m">22&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.277772&lt;span class="o">]&lt;/span> 9pnet: Could not find request transport: virtio
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.280962&lt;span class="o">]&lt;/span> init: &lt;span class="o">(&lt;/span>1&lt;span class="o">)&lt;/span> ERROR: MountPlan9WithRetry:282: mount drvfs on /mnt/d &lt;span class="o">(&lt;/span>&lt;span class="nv">cache&lt;/span>&lt;span class="o">=&lt;/span>mmap,noatime,msize&lt;span class="o">=&lt;/span>262144,trans&lt;span class="o">=&lt;/span>virtio,aname&lt;span class="o">=&lt;/span>drvfs&lt;span class="p">;&lt;/span>&lt;span class="nv">path&lt;/span>&lt;span class="o">=&lt;/span>D:&lt;span class="se">\;&lt;/span>&lt;span class="nv">uid&lt;/span>&lt;span class="o">=&lt;/span>0&lt;span class="p">;&lt;/span>&lt;span class="nv">gid&lt;/span>&lt;span class="o">=&lt;/span>0&lt;span class="p">;&lt;/span>&lt;span class="nv">symlinkroot&lt;/span>&lt;span class="o">=&lt;/span>/mnt/
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.280964&lt;span class="o">]&lt;/span> &lt;span class="o">)&lt;/span> failed: &lt;span class="m">22&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.305491&lt;span class="o">]&lt;/span> init: &lt;span class="o">(&lt;/span>8&lt;span class="o">)&lt;/span> ERROR: CreateProcessParseCommon:874: Failed to translate D:&lt;span class="se">\o&lt;/span>penSRC&lt;span class="se">\W&lt;/span>SL2-Linux-Kernel-4.19.121-microsoft-standard
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.312584&lt;span class="o">]&lt;/span> init: &lt;span class="o">(&lt;/span>8&lt;span class="o">)&lt;/span> ERROR: UtilTranslatePathList:2624: Failed to translate D:&lt;span class="se">\L&lt;/span>ife_Tools&lt;span class="se">\S&lt;/span>ys_Tools&lt;span class="se">\c&lt;/span>mder&lt;span class="se">\b&lt;/span>in
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span> 2.319445&lt;span class="o">]&lt;/span> init: &lt;span class="o">(&lt;/span>8&lt;span class="o">)&lt;/span> ERROR: UtilTranslatePathList:2624: Failed to translate D:&lt;span class="se">\L&lt;/span>ife_Tools&lt;span class="se">\S&lt;/span>ys_Tools&lt;span class="se">\c&lt;/span>mder&lt;span class="se">\v&lt;/span>endor&lt;span class="se">\b&lt;/span>in
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>这是内核的问题，很坑的地方。是官网没切换新的config文件造成的，换成新的重新编译即可。具体看着这个&lt;a class="link" href="https://github.com/microsoft/WSL/issues/5481" target="_blank" rel="noopener"
+>issuse&lt;/a> &lt;a class="link" href="https://github.com/microsoft/WSL2-Linux-Kernel/pull/146/commits/5e3fa9a98ea1ac05b397e0acd5bf08ce0e60bd3e" target="_blank" rel="noopener"
+>修复&lt;/a>&lt;/p>
+&lt;p>重新编译内核。&lt;/p>
+&lt;h3 id="参考">参考&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/" target="_blank" rel="noopener"
+>https://boxofcables.dev/accelerated-kvm-guests-on-wsl-2/&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/microsoft/WSL/issues/4193" target="_blank" rel="noopener"
+>https://github.com/microsoft/WSL/issues/4193&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item><item><title>碎碎念</title><link>https://ykiko.top/p/%E7%A2%8E%E7%A2%8E%E5%BF%B5/</link><pubDate>Sat, 22 Jan 2000 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/%E7%A2%8E%E7%A2%8E%E5%BF%B5/</guid><description>&lt;h1 id="碎碎念">碎碎念&lt;/h1>
+&lt;p>有时候想说点什么，但是不知道该如何表达。不知道是不是语言能力下降了，脑中词汇量越来越少。&lt;/p>
+&lt;p>2021-12-15 最近身心俱疲，应该是因为熬夜的原因。&lt;/p>
+&lt;p>记得了不等于学会了。&lt;/p>
+&lt;p>&lt;em>&amp;ldquo;Knowledge is so precious thing, that it is not shameful to extract it from any source.&amp;rdquo; ——St. Thomas Aquinas, c. 1270.&lt;/em>&lt;/p>
+&lt;p>我明明有很多空余时间来学自己想学的内容的，但是时间都去哪儿了呢？&lt;/p>
+&lt;p>我没有了“独立思考”的能力？很奇怪。&lt;/p>
+&lt;p>记住知识和了解知识之间有什么区别？&lt;/p>
+&lt;p>是应该从基础学习还是边选定目标深入研究边补充基础知识？&lt;/p>
+&lt;p>是记忆里的问题的还是不够专一的问题，学过一遍过几天还是忘记。&lt;/p>
+&lt;p>费曼学习法的一些小的备注&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>确立目标&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>理解月标&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>输出&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>回顾&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>简化|&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;p>思维模式的转变&lt;/p>
+&lt;ul>
+&lt;li>需要更多正反馈&lt;/li>
+&lt;/ul>
+&lt;p>尝试近期的一些目标&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>完全深入了解ebpf&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Rust开发学习&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>山地自行车和跑步训练&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>2022-07-12 心里难受&lt;/p>
+&lt;p>2023-02-28 最近总是心不在焉的思考很多现实问题，&lt;/p>
+&lt;p>接受现实&lt;/p>
+&lt;p>很多问题一直以来自己的&lt;/p>
+&lt;p>很多一直难以免得现实问题&lt;/p>
+&lt;p>2023-08-26 | 想起了花，从小就爱花🌸。好久没买花了，今天路过花店，看到几束还未开放的。我想了想，直到现在，一共收到过三次花，第一次是和某人第一次见面时她带的一大捧全红的花(不记得花名)，她说这代表热烈的爱，第二次是1024某人淘宝给我买的干花。第三次是某人在我生日时给我送的亲手织的装饰花当做生日礼物。我记忆中就送过别人一次花，去见某人时，路过花店就挑了几支不同的花装成一束带了过去。&lt;/p>
+&lt;p>2023-08-01 | 关于猫。这是我养的第三只猫，我叫它八条(现在听到我喊八条就喵喵叫)。&lt;/p>
+&lt;p>2023-08-27 | 没日没夜的打博德之门3。&lt;/p>
+&lt;p>2023-09-04 应该翻篇了吧！&lt;/p>
+&lt;p>2023-09-10 我感觉我失去了创造力！&lt;/p>
+&lt;p>2023-09-12 回忆录——去书店读书。回想起上次去书店读书，还是在北京的圣熙八号，店名叫什么已经记不清了。时常在这个书店等人一等就是三四个小时，能读完一本短篇小说，我记得读了好几本东野圭吾的推理小说，后来周末两人闲着没事也会直接在这里坐上一整天。&lt;/p>
+&lt;p>2023-10-18 间接性有点动力。&lt;/p>
+&lt;p>2023-12-20 最近工作麻木了，做的内容乱七八糟，完全学不到任何东西。&lt;/p></description></item></channel></rss>

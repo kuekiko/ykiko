@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>虚拟机 on ykikoqAq</title><link>https://ykiko.top/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/</link><description>Recent content in 虚拟机 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 16 Jun 2019 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/%E8%99%9A%E6%8B%9F%E6%9C%BA/index.xml" rel="self" type="application/rss+xml"/><item><title>MobSecVM</title><link>https://ykiko.top/p/mobsecvm/</link><pubDate>Sun, 16 Jun 2019 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/mobsecvm/</guid><description>&lt;h1 id="mobsecvm">MobSecVM&lt;/h1>
+&lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
+&lt;p>最近不知为何VM-Ubuntu炸了，试了各种方法，折腾了很久之后，终于恢复了。又浪费时间和环境斗志斗勇。自此打算自己弄一个包含了Android安全所需各种工具的环境，做个备份。防止哪天又出各种各样的问题。&lt;/p>
+&lt;p>项目地址：MobSecVM&lt;/p>
+&lt;p>下载地址：baiduyun、google_yun&lt;/p>
+&lt;h3 id="0x01-环境准备">0x01 环境准备&lt;/h3>
+&lt;ul>
+&lt;li>Ubuntu 18.04 LTS&lt;/li>
+&lt;/ul>
+&lt;blockquote>
+&lt;p>Username：mobsec&lt;/p>
+&lt;/blockquote>
+&lt;pre>&lt;code>Password：mobsec
+&lt;/code>&lt;/pre>
+&lt;ul>
+&lt;li>Vmware 15&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x02-tools-不断补充">0x02 Tools （不断补充）&lt;/h3>
+&lt;p>[x] &lt;a class="link" href="http://developer.android.com/tools/studio/index.html" target="_blank" rel="noopener"
+>AndroidStudio&lt;/a> 开发全家桶带模拟器&lt;/p>
+&lt;p>[x] &lt;a class="link" href="https://github.com/radare/radare2" target="_blank" rel="noopener"
+>Radare2&lt;/a> 逆向框架&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.frida.re/" target="_blank" rel="noopener"
+>Frida&lt;/a> Hook工具&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/mwrlabs/drozer" target="_blank" rel="noopener"
+>Drozer&lt;/a> Android应用程序安全评估框架&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/iBotPeaches/Apktool" target="_blank" rel="noopener"
+>APKtool&lt;/a> APK逆向工具&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://portswigger.net/burp" target="_blank" rel="noopener"
+>BurpSuite&lt;/a> 抓改包，安全检测&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.wireshark.org/" target="_blank" rel="noopener"
+>Wireshare&lt;/a> 抓包工具&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>[x] &lt;a class="link" href="https://github.com/MobSF/Mobile-Security-Framework-MobSF" target="_blank" rel="noopener"
+>MobSF&lt;/a> 应用程序自动化分析框架&lt;/p>
+&lt;p>[] &lt;a class="link" href="https://github.com/androguard/androguard" target="_blank" rel="noopener"
+>androguard&lt;/a> 一款基于python的逆向工程，恶意软件和软件分析Android应用程序的框架。&lt;/p>
+&lt;p>[x] &lt;a class="link" href="https://code.visualstudio.com/" target="_blank" rel="noopener"
+>VScode&lt;/a> 编辑器&lt;/p>
+&lt;p>[] &lt;a class="link" href="https://github.com/konloch/bytecode-viewer" target="_blank" rel="noopener"
+>bytecode-viewer&lt;/a>&lt;/p>
+&lt;p>[] &lt;a class="link" href="https://github.com/programa-stic/barf-project" target="_blank" rel="noopener"
+>barf–project&lt;/a>&lt;/p>
+&lt;p>[x] &lt;a class="link" href="https://github.com/skylot/jadx" target="_blank" rel="noopener"
+>jadx&lt;/a> Dex to Java decompiler&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/xtiankisutsa/MARA_Framework" target="_blank" rel="noopener"
+>MARA_Framework&lt;/a> Mobile Application Reverse engineering and Analysis Framework.&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/AndroBugs/AndroBugs_Framework" target="_blank" rel="noopener"
+>AndroBugs Framework&lt;/a> Android vulnerability scanner&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/linkedin/qark" target="_blank" rel="noopener"
+>qark&lt;/a> Tool to look for several security related Android application vulnerabilities&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/payatu/diva-android" target="_blank" rel="noopener"
+>DIVA&lt;/a> Damn Insecure and vulnerable App for Android&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/dineshshetty/Android-InsecureBankv2" target="_blank" rel="noopener"
+>InsecureBankv2&lt;/a> Vulnerable Android application for developers and security enthusiasts to learn about Android insecurities&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/rafaeltoledo/android-security" target="_blank" rel="noopener"
+>Android Security Sandbox&lt;/a> An app showcase of some techniques to improve Android app security&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/jackMannino/OWASP-GoatDroid-Project" target="_blank" rel="noopener"
+>GoatDroid&lt;/a> A fully functional and self-contained training environment for educating developers and testers on Android security&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://github.com/tanprathan/sievePWN" target="_blank" rel="noopener"
+>sievePWN&lt;/a> An android application which exploits sieve through android components.&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x03-小插件">0x03 小插件&lt;/h3>
+&lt;ul>
+&lt;li>
+&lt;p>on_my_zsh&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="http://plugins.jetbrains.com/plugin/3847-findbugs-idea" target="_blank" rel="noopener"
+>FindBugs-IDEA&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>docker&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="0x04-效果图">0x04 效果图&lt;/h3></description></item></channel></rss>

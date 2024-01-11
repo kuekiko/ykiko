@@ -1,0 +1,828 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Windows on ykikoqAq</title><link>https://ykiko.top/tags/windows/</link><description>Recent content in Windows on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Sun, 22 Aug 2021 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/windows/index.xml" rel="self" type="application/rss+xml"/><item><title>Windows反调试总结</title><link>https://ykiko.top/p/windows%E5%8F%8D%E8%B0%83%E8%AF%95%E6%80%BB%E7%BB%93/</link><pubDate>Sun, 22 Aug 2021 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/windows%E5%8F%8D%E8%B0%83%E8%AF%95%E6%80%BB%E7%BB%93/</guid><description>&lt;h1 id="windows反调试总结">Windows反调试总结&lt;/h1>
+&lt;h2 id="0x00-前言">0x00 前言&lt;/h2>
+&lt;p>在对Windows程序进行分析时，会发现很多软件会加入反调试技术防止核心功能被破解，以及在进行恶意软件分析时也有很多样本无法直接进行调试。&lt;/p>
+&lt;p>本文介绍了常用的反破解和反逆向保护技术，也就是Windows平台中的反调试方法。攻和防其实是相对的，只有了解了调试的原理，才能更深入的进行对抗，&lt;/p>
+&lt;h2 id="0x01-peb反调试">0x01 PEB反调试&lt;/h2>
+&lt;h3 id="1-peb块">(1) PEB块&lt;/h3>
+&lt;p>PEB（环境进程块）是Windows操作系统中每个进程都有的一个数据结构，它包含了进程相关的信息。PEB是在用户模式下的一个结构，与在内核模式下的EPROCESS结构相对应。PEB为进程提供了关于其自身的信息，例如加载的模块列表、启动参数、程序的基地址等。&lt;/p>
+&lt;p>32位程序中在&lt;code>fs:[0x30]&lt;/code>处可以读取到PEB的指针，可以使用&lt;code>*PEB&lt;/code>指针进行读取。&lt;/p>
+&lt;p>64位程序中PEB定义在&lt;code>gs:[0x60]&lt;/code>处，但通常会有地址随机化，所以一般都是先读取TEB（&lt;strong>&lt;code>gs:[0x30]&lt;/code>&lt;/strong>）再读取PEB。&lt;/p>
+&lt;p>PEB中有一些字段（标志位）能够被用作检测是否被调试：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>**BeingDebugger：**bool字段，当进程被调试时，会被设置为&lt;code>true&lt;/code>。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 检测代码，常见
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">PEB&lt;/span>&lt;span class="o">*&lt;/span> &lt;span class="n">peb&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">PEB&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="nf">__readfsdword&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mh">0x30&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">peb&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">BeingDebugged&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ExitProcess&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 汇编中类似
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">mov&lt;/span> &lt;span class="n">eax&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="n">dword&lt;/span> &lt;span class="n">ptr&lt;/span> &lt;span class="nl">fs&lt;/span>&lt;span class="p">:[&lt;/span>&lt;span class="mh">0x30&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>NtGlobalFlag：&lt;strong>包含了与调试和堆相关的标志，当进程在调试器下运行时，某些标志（如&lt;/strong>&lt;code>FLG_HEAP_ENABLE_TAIL_CHECK&lt;/code>&lt;/strong>、&lt;strong>&lt;code>FLG_HEAP_ENABLE_FREE_CHECK&lt;/code>&lt;strong>和&lt;/strong>&lt;code>FLG_HEAP_VALIDATE_PARAMETERS&lt;/code>&lt;/strong>）可能会被设置。该字段在32位程序中位于&lt;code>PEB&lt;/code>的&lt;code>0x68&lt;/code>的偏移处，在64位程序中位于0xBC偏移处。&lt;/p>
+&lt;p>一般来说，在32位程序中&lt;code>(NtGlobalFlag &amp;amp; 0x70) == True&lt;/code> 则说明被调试状态。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="nf">FLG_HEAP_ENABLE_TAIL_CHECK&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mh">0x10&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">FLG_HEAP_ENABLE_FREE_CHECK&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mh">0x20&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">FLG_HEAP_VALIDATE_PARAMETERS&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="mh">0x40&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// 检测的汇编代码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">mov&lt;/span> &lt;span class="n">eax&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="nl">fs&lt;/span>&lt;span class="p">:[&lt;/span>&lt;span class="mi">30&lt;/span>&lt;span class="n">h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">mov&lt;/span> &lt;span class="n">al&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="p">[&lt;/span>&lt;span class="n">eax&lt;/span>&lt;span class="o">+&lt;/span>&lt;span class="mi">68&lt;/span>&lt;span class="n">h&lt;/span>&lt;span class="p">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">and&lt;/span> &lt;span class="n">al&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">70&lt;/span>&lt;span class="n">h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">cmp&lt;/span> &lt;span class="n">al&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">70&lt;/span>&lt;span class="n">h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">je&lt;/span> &lt;span class="n">being_debugged&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>**LoaderLock：**模块加载和卸载的锁。尝试在没有获取这个锁的情况下访问加载的模块列表可能会导致程序崩溃。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="2-isdebuggerpresent">(2) &lt;strong>IsDebuggerPresent&lt;/strong>&lt;/h3>
+&lt;p>除了直接读取PEB判断是否被调试以外，还可以通过使用kernel32.dll中的&lt;strong>IsDebuggerPresent&lt;/strong>这个API进行判断。这个API的实际原理也是读取PEB中的**&lt;code>BeingDebugged&lt;/code>**** **字段进行判断。&lt;/p>
+&lt;p>直接调用IsDebuggerPresent() 如果为返回值为True则为调试状态、如果为False则为没有被调试&lt;/p>
+&lt;p>&lt;code>bRet &lt;/code>&lt;strong>&lt;code>=&lt;/code>&lt;/strong>&lt;code> IsDebuggerPresent();&lt;/code>&lt;/p>
+&lt;h2 id="0x02-nt">0x02 &lt;strong>Nt&lt;/strong>&lt;/h2>
+&lt;h3 id="1-checkremotedebuggerpresent">(1) &lt;strong>CheckRemoteDebuggerPresent&lt;/strong>&lt;/h3>
+&lt;p>&lt;strong>&lt;code>CheckRemoteDebuggerPresent&lt;/code>&lt;/strong> 是Windows API中的一个函数，用于检测指定的进程是否由调试器调试。&lt;/p>
+&lt;p>实际是调用&lt;code>NtQueryInformationProcess&lt;/code>的&lt;code>ProcessDebugPort&lt;/code>参数来判断的。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">// debugapi.h
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">BOOL&lt;/span> &lt;span class="nf">CheckRemoteDebuggerPresent&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">hProcess&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PBOOL&lt;/span> &lt;span class="n">pbDebuggerPresent&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>参数&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>hProcess&lt;/code>&lt;/strong>: 这是一个句柄，指向要检查的进程。如果此句柄是当前进程的句柄，函数将检查当前进程。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>pbDebuggerPresent&lt;/code>&lt;/strong>: 这是一个指向变量的指针，该变量在函数返回时将被设置为 &lt;strong>&lt;code>TRUE&lt;/code>&lt;/strong>（如果进程正在被调试）或 &lt;strong>&lt;code>FALSE&lt;/code>&lt;/strong>（如果进程没有被调试）。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>如果函数成功，返回值为非零。如果函数失败，返回值为零。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="c1">//使用代码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="n">BOOL&lt;/span> &lt;span class="n">bIsDebugged&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">FALSE&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">CheckRemoteDebuggerPresent&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">GetCurrentProcess&lt;/span>&lt;span class="p">(),&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">bIsDebugged&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bIsDebugged&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;The process is being debugged.&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">ExitProcess&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="2-ntquerysysteminformation">(2) &lt;strong>NtQuerySystemInformation&lt;/strong>&lt;/h3>
+&lt;p>**&lt;code>NtQuerySystemInformation&lt;/code>&lt;strong>是Windows NT内核模式函数，用于查询各种系统信息。这个函数在&lt;/strong>&lt;code>ntdll.dll&lt;/code>**中定义，但它主要是为内部使用和驱动程序设计的。&lt;/p>
+&lt;p>实际是查询SystemKernelDebuggerInformation&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">NTSTATUS&lt;/span> &lt;span class="nf">NtQuerySystemInformation&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">SYSTEM_INFORMATION_CLASS&lt;/span> &lt;span class="n">SystemInformationClass&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PVOID&lt;/span> &lt;span class="n">SystemInformation&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ULONG&lt;/span> &lt;span class="n">SystemInformationLength&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PULONG&lt;/span> &lt;span class="n">ReturnLength&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>SystemInformationClass&lt;/code>&lt;/strong>：一个枚举值，指定要查询的系统信息的类型。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>SystemInformation&lt;/code>&lt;/strong>：一个指针，指向一个缓冲区，该缓冲区用于接收请求的系统信息。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>SystemInformationLength&lt;/code>&lt;/strong>：指定**&lt;code>SystemInformation&lt;/code>**缓冲区的大小（以字节为单位）。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ReturnLength&lt;/code>&lt;/strong>：一个可选的输出参数，如果提供，它将接收实际返回的信息的大小（以字节为单位）。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>如果函数成功，返回状态码**&lt;code>STATUS_SUCCESS&lt;/code>**。如果函数失败，返回一个NTSTATUS错误代码。&lt;/p>
+&lt;p>使用**&lt;code>NtQuerySystemInformation&lt;/code>**** **进行反调试，有以下方法：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>检查进程的父进程&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>SystemProcessInformation&lt;/code>**信息类，可以获取所有系统进程的列表。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>检查当前进程的父进程是否是调试器（例如：&lt;strong>&lt;code>Visual Studio&lt;/code>&lt;/strong>, &lt;strong>&lt;code>OllyDbg&lt;/code>&lt;/strong>, **&lt;code>WinDbg&lt;/code>**等）。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>检查调试对象句柄&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>SystemHandleInformation&lt;/code>**信息类，可以获取系统中所有打开的句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>检查是否有与调试相关的句柄（例如，调试对象句柄）。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>检查调试端口&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>SystemKernelDebuggerInformation&lt;/code>**信息类，可以检查系统是否有内核调试器连接。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>如果返回的结构中**&lt;code>KernelDebuggerEnabled&lt;/code>&lt;strong>字段为&lt;/strong>&lt;code>TRUE&lt;/code>**，则可能存在调试器。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>检查系统时间&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>SystemTimeOfDayInformation&lt;/code>**信息类，可以查询系统时间。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>通过比较两次查询之间的时间差，可以检测到调试器的存在，因为在单步执行或暂停执行时，时间差可能会异常地大。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>检查线程的上下文&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>SystemThreadInformation&lt;/code>**信息类，可以获取线程的上下文。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>检查线程的上下文中的某些标志，如**&lt;code>TrapFlag&lt;/code>**，以确定是否在单步模式下运行，这是调试的一个标志。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="3-ntclose">(3) &lt;strong>NtClose&lt;/strong>&lt;/h3>
+&lt;p>其实就是一个&lt;code>CloseHandle&lt;/code>、如果有调试器的情况下关闭一个无效的句柄则会触发一个异常、可以用&lt;code>VEH&lt;/code>进行接收并处理&lt;/p>
+&lt;p>如果有调试器存在的话&lt;code>NtClose&lt;/code>就会触发一个异常、则可以捕获这个异常
+来判断是否被调试器调试状态&lt;/p>
+&lt;h3 id="4-ntqueryinformationprocess">(4) &lt;strong>NtQueryInformationProcess&lt;/strong>&lt;/h3>
+&lt;p>**&lt;code>NtQueryInformationProcess&lt;/code>**是一个Windows Native API函数，它用于查询与指定进程相关的信息。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">NTSTATUS&lt;/span> &lt;span class="nf">NtQueryInformationProcess&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">ProcessHandle&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PROCESSINFOCLASS&lt;/span> &lt;span class="n">ProcessInformationClass&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PVOID&lt;/span> &lt;span class="n">ProcessInformation&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ULONG&lt;/span> &lt;span class="n">ProcessInformationLength&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PULONG&lt;/span> &lt;span class="n">ReturnLength&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ProcessHandle&lt;/code>&lt;/strong>：要查询的进程的句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ProcessInformationClass&lt;/code>&lt;/strong>：要查询的信息的类型。可以取值**&lt;code>ProcessDebugPort&lt;/code>&lt;strong>&lt;strong>、&lt;/strong>&lt;/strong>&lt;code>ProcessDebugObjectHandle&lt;/code>&lt;strong>&lt;strong>、&lt;/strong>&lt;/strong>&lt;code>ProcessDebugFlags&lt;/code>**等。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ProcessInformation&lt;/code>&lt;/strong>：一个指针，指向接收查询结果的缓冲区。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ProcessInformationLength&lt;/code>&lt;/strong>：缓冲区的大小。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ReturnLength&lt;/code>&lt;/strong>：如果非NULL，它是一个指针，指向一个变量，该变量接收返回的信息的实际大小。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>对于反调试，一般检查&lt;strong>ProcessInformationClass中的值&lt;/strong>：&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>检查&lt;/strong>**&lt;code>DebugPort&lt;/code>**:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>ProcessDebugPort&lt;/code>**信息类，可以检查进程是否被调试。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>如果返回的值不为0，那么进程可能正在被调试。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>检查&lt;/strong>**&lt;code>DebugFlags&lt;/code>**:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>ProcessDebugFlags&lt;/code>**信息类，可以检查进程的调试标志。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>如果返回的值为0，那么进程可能正在被调试。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>检查&lt;/strong>**&lt;code>DebugObject&lt;/code>**:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>ProcessDebugObjectHandle&lt;/code>**信息类，可以检查进程是否有调试对象句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>如果返回的句柄有效，那么进程可能正在被调试。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>检查父进程&lt;/strong>:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>使用**&lt;code>ProcessBasicInformation&lt;/code>**信息类，可以获取进程的基本信息，其中包括父进程的ID。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>检查父进程是否是调试器（例如：&lt;strong>&lt;code>Visual Studio&lt;/code>&lt;/strong>, &lt;strong>&lt;code>OllyDbg&lt;/code>&lt;/strong>, **&lt;code>WinDbg&lt;/code>**等）。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="5-ntsetinformationthread">(5) &lt;strong>NtSetInformationThread&lt;/strong>&lt;/h3>
+&lt;p>&lt;strong>&lt;code>NtSetInformationThread&lt;/code>&lt;/strong> 是 Windows 的一个 Native API 函数，它允许开发者设置关于指定线程的各种信息。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">NTSTATUS&lt;/span> &lt;span class="nf">NtSetInformationThread&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">ThreadHandle&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">THREADINFOCLASS&lt;/span> &lt;span class="n">ThreadInformationClass&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PVOID&lt;/span> &lt;span class="n">ThreadInformation&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ULONG&lt;/span> &lt;span class="n">ThreadInformationLength&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ThreadHandle&lt;/code>&lt;/strong>：要设置信息的线程的句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ThreadInformationClass&lt;/code>&lt;/strong>：要设置的信息的类型。常用&lt;strong>ThreadBasicInformation、ThreadHideFromDebugger。&lt;/strong>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ThreadInformation&lt;/code>&lt;/strong>：一个指针，指向包含要设置的信息的缓冲区。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ThreadInformationLength&lt;/code>&lt;/strong>：缓冲区的大小。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>返回**&lt;code>STATUS_SUCCESS&lt;/code>**** 则**操作成功，其他 &lt;strong>&lt;code>NTSTATUS&lt;/code>&lt;/strong> 值则操作失败。&lt;/p>
+&lt;p>在反调试中使用 &lt;strong>&lt;code>ThreadHideFromDebugger&lt;/code>&lt;/strong> 信息类。当一个线程使用这个信息类调用 &lt;strong>&lt;code>NtSetInformationThread&lt;/code>&lt;/strong> 时，该线程会变得对调试器不可见。这意味着，如果一个调试器试图暂停、检查或修改这个线程，它会失败。&lt;/p>
+&lt;h3 id="6-ntduplicateobject">(6) &lt;strong>NtDuplicateObject&lt;/strong>&lt;/h3>
+&lt;p>&lt;strong>&lt;code>NtDuplicateObject&lt;/code>&lt;/strong> 是 Windows 的一个 Native API 函数，用于复制对象句柄。这允许进程创建一个新的句柄，该句柄与原始句柄具有相同的访问权限，并指向相同的内核对象。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">NTSTATUS&lt;/span> &lt;span class="nf">NtDuplicateObject&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">SourceProcessHandle&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">SourceHandle&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">TargetProcessHandle&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PHANDLE&lt;/span> &lt;span class="n">TargetHandle&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ACCESS_MASK&lt;/span> &lt;span class="n">DesiredAccess&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ULONG&lt;/span> &lt;span class="n">HandleAttributes&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ULONG&lt;/span> &lt;span class="n">Options&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>SourceProcessHandle&lt;/code>&lt;/strong>：源进程的句柄，其中包含要复制的对象句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>SourceHandle&lt;/code>&lt;/strong>：要复制的对象的句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>TargetProcessHandle&lt;/code>&lt;/strong>：目标进程的句柄，其中将创建新的对象句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>TargetHandle&lt;/code>&lt;/strong>：指向新复制的对象句柄的指针。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>DesiredAccess&lt;/code>&lt;/strong>：新句柄的请求访问权限。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>HandleAttributes&lt;/code>&lt;/strong>：新句柄的属性。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>Options&lt;/code>&lt;/strong>：控制复制操作的选项。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>返回**&lt;code>STATUS_SUCCESS&lt;/code>**** 则**操作成功，其他 &lt;strong>&lt;code>NTSTATUS&lt;/code>&lt;/strong> 值则操作失败。&lt;/p>
+&lt;p>**&lt;code>NtDuplicateObject&lt;/code>**&lt;strong>在内核中内核会检测是否有调试器、有调试器则发出一个异常&lt;/strong>&lt;/p>
+&lt;h3 id="7-ntqueryobejct">(7) &lt;strong>NtQueryObejct&lt;/strong>&lt;/h3>
+&lt;p>&lt;strong>&lt;code>NtQueryObject&lt;/code>&lt;/strong> 是 Windows 的一个 Native API 函数，用于查询系统对象的信息。这个函数提供了一种方法来获取关于系统中对象（如文件、句柄、进程、线程等）的详细信息。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">NTSTATUS&lt;/span> &lt;span class="nf">NtQueryObject&lt;/span>&lt;span class="p">(&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">Handle&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">OBJECT_INFORMATION_CLASS&lt;/span> &lt;span class="n">ObjectInformationClass&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PVOID&lt;/span> &lt;span class="n">ObjectInformation&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ULONG&lt;/span> &lt;span class="n">ObjectInformationLength&lt;/span>&lt;span class="p">,&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PULONG&lt;/span> &lt;span class="n">ReturnLength&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ul>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>Handle&lt;/code>&lt;/strong>：要查询的对象的句柄。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ObjectInformationClass&lt;/code>&lt;/strong>：要查询的信息的类型。这是一个枚举值，可以是 &lt;strong>&lt;code>ObjectNameInformation&lt;/code>&lt;/strong>、&lt;strong>&lt;code>ObjectTypeInformation&lt;/code>&lt;/strong> 等。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ObjectInformation&lt;/code>&lt;/strong>：指向接收查询结果的缓冲区的指针。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ObjectInformationLength&lt;/code>&lt;/strong>：缓冲区的大小。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>&lt;code>ReturnLength&lt;/code>&lt;/strong>：实际返回的信息的大小。&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>返回**&lt;code>STATUS_SUCCESS&lt;/code>**** 则**操作成功，其他 &lt;strong>&lt;code>NTSTATUS&lt;/code>&lt;/strong> 值则操作失败。&lt;/p>
+&lt;p>反调试主要是使用该API查询调试器的句柄是否存在来确定是否被调试。&lt;/p>
+&lt;h2 id="0x03-tls反调试">0x03 TLS反调试&lt;/h2>
+&lt;p>TLS全称&lt;code>Thread Local Storage&lt;/code>，即&lt;strong>线程局部存储&lt;/strong>。TLS是一种&lt;strong>方法&lt;/strong>，通过这种方法，给定多线程进程中的每个线程可以分配位置来&lt;strong>存储特定于线程的数据&lt;/strong>。通过TLS API (TlsAlloc)支持**动态绑定(运行时)&lt;strong>特定于线程的数据。Win32和Microsoft c++编译器现在除了现有的API实现外，还支持&lt;/strong>静态绑定(加载时)**每个线程数据。&lt;/p>
+&lt;p>在PE (Portable Executable) 文件格式中，存在一个TLS目录，其中包含指向一系列回调函数的指针。当一个线程开始或结束时，这些回调函数会被调用。更重要的是，这些回调在程序的入口点 (&lt;strong>&lt;code>main&lt;/code>&lt;/strong> 或 &lt;strong>&lt;code>WinMain&lt;/code>&lt;/strong>) 之前就会被调用。&lt;/p>
+&lt;p>由于TLS回调在主程序入口点之前执行，因此它们可以用作反调试技术。调试器通常在主程序入口点上设置断点，但不会考虑TLS回调。因此，如果在TLS回调中放置反调试代码，那么在主程序开始执行之前，这些代码就会被执行。&lt;/p>
+&lt;p>知道了TLS的原理，实现反调试只需要将其他反调试代码在TLS中实现即可。比如将**&lt;code>IsDebuggerPresent&lt;/code>&lt;strong>&lt;strong>、&lt;/strong>&lt;/strong>&lt;code>NtQueryInformationProcess&lt;/code>**** **等调试检测放到TLS中实现。&lt;/p>
+&lt;h2 id="0x04-时间差反调试">0x04 时间差反调试&lt;/h2>
+&lt;p>调试的时候，程序运行的时间会比正常运行时间久，所以我们可以根据运行时间的长短来判断是否运行在调试环境中。&lt;/p>
+&lt;p>使用读取CPU时钟计数器、时间计数相关API，&lt;strong>时间API&lt;/strong>QueryPerformanceCounter、GetTickCount、GetSystemTime、GetLocalTime等&lt;/p>
+&lt;p>反调试的实现方式为使用&lt;strong>GetTickCount&lt;/strong>取启动时间，获得从系统启动到现在所有毫秒数。如果在中间进行单步调试、则时间差一定大于1000毫秒、即为调试&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;windows.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">DWORD&lt;/span> &lt;span class="n">start&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">end&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">elapsed&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">start&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">GetTickCount&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 一些可能会被调试的代码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">int&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="mi">1000000&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">end&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">GetTickCount&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">elapsed&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">end&lt;/span> &lt;span class="o">-&lt;/span> &lt;span class="n">start&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">elapsed&lt;/span> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">SOME_THRESHOLD&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Debugging detected!&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">// 正常的程序代码
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="0x05-其他一些反调试技巧">0x05 其他一些反调试技巧&lt;/h2>
+&lt;h3 id="1startupinfo">（1）&lt;strong>STARTUPINFO&lt;/strong>&lt;/h3>
+&lt;p>&lt;strong>&lt;code>STARTUPINFO&lt;/code>&lt;/strong> 是一个结构体，它用于指定新进程的主窗口的外观（如窗口大小和位置）和行为（如标准输入/输出句柄）。当使用 &lt;strong>&lt;code>CreateProcess()&lt;/code>&lt;/strong> 函数创建新进程时，可以通过 &lt;strong>&lt;code>STARTUPINFO&lt;/code>&lt;/strong> 结构体来指定新进程的启动参数。&lt;/p>
+&lt;p>程序正常启动时，大多数 &lt;strong>&lt;code>STARTUPINFO&lt;/code>&lt;/strong> 结构体的字段都会被设置为0或默认值。但是，当程序在调试器下启动时，某些字段可能会被设置为非零值，因为调试器可能会修改这些字段以控制被调试程序的行为。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;windows.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">STARTUPINFO&lt;/span> &lt;span class="n">si&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">GetStartupInfo&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">si&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">si&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">cbReserved2&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">si&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">lpReserved2&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;Debugging detected!&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">exit&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="mi">1&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;No debugging detected.&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="2sedebugprivilege">（2）&lt;strong>SedebugPrivilege&lt;/strong>&lt;/h3>
+&lt;p>&lt;strong>&lt;code>SeDebugPrivilege&lt;/code>&lt;/strong> 是一个特殊的权限，允许进程打开其他进程进行读写，即使这些进程是由其他用户创建的。这个权限通常只授予管理员和调试器，程序正常启动不会具备这个权限。&lt;/p>
+&lt;p>系统启动的时候会启动一个核心进程&lt;strong>csrss.exe&lt;/strong>，我们可以通过判断能否使用OpenProcess打开该进程来检查当前进程是否具有调试权限。有管理员权限和调试权限才打开这个 &lt;strong>csrss.exe&lt;/strong>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;windows.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#include&lt;/span> &lt;span class="cpf">&amp;lt;stdio.h&amp;gt;&lt;/span>&lt;span class="cp">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="nf">main&lt;/span>&lt;span class="p">()&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">DWORD&lt;/span> &lt;span class="n">csrssPID&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="c1">// 你需要获取到 csrss.exe 的 PID
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">HANDLE&lt;/span> &lt;span class="n">hProcess&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">OpenProcess&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">PROCESS_ALL_ACCESS&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">FALSE&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">csrssPID&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">hProcess&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;SeDebugPrivilege detected!&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">CloseHandle&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">hProcess&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span> &lt;span class="k">else&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;No SeDebugPrivilege detected.&lt;/span>&lt;span class="se">\n&lt;/span>&lt;span class="s">&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="3禁止键盘输入">（3）&lt;strong>禁止键盘输入&lt;/strong>&lt;/h3>
+&lt;p>在函数头部加上这个禁止键盘输入的函数、然后在函数尾部恢复这个键盘输入、函数执行非常快、所以感受不到键盘有时候被禁止输入！所以这个方法有利于反单步调试(单步单步跟着键盘就失灵了）这个可以与时间差反调试进行联合使用！&lt;/p>
+&lt;h3 id="4硬件断点检测">（4）&lt;strong>硬件断点检测&lt;/strong>&lt;/h3>
+&lt;p>可以获取当前线程的上下文、当前判断当前的调试寄存器DR0\DIR1\DR2\DIR3是否有值、如果这几个调试寄存器有值说明当前这个进程正在被调试&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">CONTEXT&lt;/span> &lt;span class="n">pContext&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">};&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pContext&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">EFlags&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">CONTEXT_ALL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">GetThreadContext&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">NtCurrentThread&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">pContext&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">pContext&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Dr0&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">pContext&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Dr1&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">pContext&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Dr2&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">pContext&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">Dr3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">OUTPRINTF&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;DR寄存器(检测硬件断点)&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">TRUE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="5检测硬件断点的地址">（5）&lt;strong>检测硬件断点的地址&lt;/strong>&lt;/h3>
+&lt;p>异常方式检测硬件断点&lt;/p>
+&lt;p>反抗硬件断点调试&lt;/p>
+&lt;p>HOOK之后首先把DR寄存器全部清0然后再调用VEH、所以别人用的是你的VEH&lt;/p>
+&lt;p>HOOK这个函数然后还原之前的硬件断点&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">PUCHAR&lt;/span> &lt;span class="n">dwEip&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">PUCHAR&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">ExceptionInfo&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ContextRecord&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Eip&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">//if (*dwEip == 0xCC)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="k">if&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ExceptionInfo&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ExceptionRecord&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ExceptionCode&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mh">0xC0000005&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="c1">//0xCC就是不可读
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span>&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">ExceptionInfo&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ContextRecord&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Dr0&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">ExceptionInfo&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ContextRecord&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Dr1&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">ExceptionInfo&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ContextRecord&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Dr2&lt;/span> &lt;span class="o">||&lt;/span> &lt;span class="n">ExceptionInfo&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ContextRecord&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Dr3&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">OUTPRINTF&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;DR寄存器(检测到的硬件地址)&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">TRUE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">else&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">OUTPRINTF&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;DR寄存器(检测到的硬件地址)&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">FALSE&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ExceptionInfo&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">ContextRecord&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Eip&lt;/span> &lt;span class="o">+=&lt;/span> &lt;span class="mi">3&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">EXCEPTION_CONTINUE_EXECUTION&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">return&lt;/span> &lt;span class="n">EXCEPTION_CONTINUE_SEARCH&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="6自内存crc">（6）&lt;strong>自内存CRC&lt;/strong>&lt;/h3>
+&lt;p>对抗CRC:下内存硬件断点、然后一步一步跟踪、Nop掉CRC即可&lt;/p>
+&lt;p>自内存CRC需要很早时期先计算一遍内存CRC校验和！然后后续在根据这个CRC校验值再来判断&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">using&lt;/span> &lt;span class="n">namespace&lt;/span> &lt;span class="n">std&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">typedef&lt;/span> &lt;span class="k">struct&lt;/span> &lt;span class="n">_CRC_HASHI&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">PVOID&lt;/span> &lt;span class="n">m_pAddr&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">DWORD&lt;/span> &lt;span class="n">m_dwSize&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">DWORD&lt;/span> &lt;span class="n">m_dwHashVal&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>&lt;span class="n">CRC_HASHI&lt;/span>&lt;span class="p">,&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="n">PCRC_HASHI&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">vector&lt;/span>&lt;span class="o">&amp;lt;&lt;/span>&lt;span class="n">CRC_HASHI&lt;/span>&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">g_crc_vtr&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>反附加之前要先获取一次代码段的页面CRC校验和算出CRC、比如某些壳在链接的时候就已经算好了、这是最早的计算方式、越早越好&lt;/p>
+&lt;p>以下是代码、获取页面CRC&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">HMODULE&lt;/span> &lt;span class="n">ImageBase&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">ImageBase&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">GetModuleHandle&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nb">NULL&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">PIMAGE_DOS_HEADER&lt;/span> &lt;span class="n">pDos&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">PIMAGE_NT_HEADERS&lt;/span> &lt;span class="n">pNt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">PIMAGE_SECTION_HEADER&lt;/span> &lt;span class="n">pSection&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">DWORD&lt;/span> &lt;span class="n">dwStartAdr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">dwSize&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pDos&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">PIMAGE_DOS_HEADER&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="n">ULONG_PTR&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">ImageBase&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">pDos&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">e_magic&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">IMAGE_DOS_SIGNATURE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pNt&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">PIMAGE_NT_HEADERS&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="n">ULONG_PTR&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">ImageBase&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="n">pDos&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">e_lfanew&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">pNt&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Signature&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">IMAGE_NT_SIGNATURE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">pSection&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">IMAGE_FIRST_SECTION&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">pNt&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">g_crc_vtr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">clear&lt;/span>&lt;span class="p">();&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">for&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="kt">size_t&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span> &lt;span class="o">&amp;lt;&lt;/span> &lt;span class="n">pNt&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">FileHeader&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">NumberOfSections&lt;/span>&lt;span class="p">;&lt;/span> &lt;span class="n">i&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">pSection&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Characteristics&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="n">IMAGE_SCN_MEM_EXECUTE&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">CRC_HASHI&lt;/span> &lt;span class="n">ctx&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">//这里计算CRC值
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="n">dwStartAdr&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">pSection&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">VirtualAddress&lt;/span> &lt;span class="o">+&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">ULONG_PTR&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">ImageBase&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">dwSize&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">pSection&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">Misc&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">VirtualSize&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ctx&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">m_pAddr&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">PVOID&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">dwStartAdr&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ctx&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">m_dwSize&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">dwSize&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">ctx&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">m_dwHashVal&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">crc32&lt;/span>&lt;span class="p">((&lt;/span>&lt;span class="k">const&lt;/span> &lt;span class="kt">void&lt;/span>&lt;span class="o">*&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="n">ctx&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="n">m_pAddr&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">dwSize&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">g_crc_vtr&lt;/span>&lt;span class="p">.&lt;/span>&lt;span class="nf">push_back&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">ctx&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">pSection&lt;/span>&lt;span class="o">++&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>循环校验CRC&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">PVOID&lt;/span> &lt;span class="n">pDbg&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">GetProcAddress&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">GetModuleHandle&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">L&lt;/span>&lt;span class="s">&amp;#34;ntdll.dll&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="s">&amp;#34;DbgBreakPoint&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">byte&lt;/span> &lt;span class="n">bRet&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0xC3&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">WriteProcessMemory&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">NtCurrentProcess&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">pDbg&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">bRet&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="7dbgbreakpoint">（7）&lt;strong>DbgBreakPoint&lt;/strong>&lt;/h3>
+&lt;p>调试器在附加的时候会走DbgBreakPoint函数、所以HOOK这个函数就可以改变调试器运转流程、从而达到反附加！&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">PVOID&lt;/span> &lt;span class="n">pDbg&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">GetProcAddress&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="nf">GetModuleHandle&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="sa">L&lt;/span>&lt;span class="s">&amp;#34;ntdll.dll&amp;#34;&lt;/span>&lt;span class="p">),&lt;/span> &lt;span class="s">&amp;#34;DbgBreakPoint&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">byte&lt;/span> &lt;span class="n">bRet&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mh">0xC3&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">WriteProcessMemory&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="n">NtCurrentProcess&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">pDbg&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="o">&amp;amp;&lt;/span>&lt;span class="n">bRet&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">1&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="8注册表检测">（8）&lt;strong>注册表检测&lt;/strong>&lt;/h3>
+&lt;p>当程序利用调试器时，程序的注册表中的 JIT 值会被修改我们可以检查注册表里面是否有对应字符串。&lt;/p>
+&lt;p>解决 把 对应的字符串 修改为 0&lt;/p>
+&lt;h3 id="9窗口检测">（9）&lt;strong>窗口检测&lt;/strong>&lt;/h3>
+&lt;p>&lt;code>FindWindow&lt;/code>、&lt;code>EnumWindows&lt;/code> 这两个函数 可以得到窗口的句柄。 判断窗口名称是否时对应的 字符串。&lt;/p>
+&lt;p>解决 把 对应的字符串 修改为 0&lt;/p>
+&lt;h3 id="10父进程检测">（10）&lt;strong>父进程检测&lt;/strong>&lt;/h3>
+&lt;p>正常启动 父进程为 **exeplorer.exe 。**调试启动 父进程为 调试器。&lt;/p>
+&lt;p>利用 &lt;code>NtQueryInformationProcess&lt;/code> 获得父进程的 PID&lt;/p>
+&lt;p>可能只检查程序的父进程名字，可以把调试器名字改为 &lt;strong>exeplorer.exe&lt;/strong>&lt;/p>
+&lt;h3 id="11异常处理">（11）异常处理&lt;/h3>
+&lt;p>正常运行的进程发生异常时，在SEH(Structured Exception Handling)机制的作用下，OS会接收异常，然后调用进程中注册的SEH处理。但是，若进程正被调试器调试，那么调试器就会先于SEH接收处理。利用该特征可判断进程是正常运行还是调试运行，然后根据不同的结果执行不同的操作，这就是利用异常处理机制不同的反调试原理。&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>INT3 异常 EXCEPTION_BREAKPOINT&lt;/strong>&lt;/p>
+&lt;p>正常运行状态，则自动调用已经注册过的SEH; 若程序处于调试运行状态，则系统会停止运行程序将控制权转给调试器。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>SetUnhandledExceptionFilter()&lt;/strong>&lt;/p>
+&lt;p>该函数会检查进程是否处于调试状态，若是，就把异常传递给调试器，否则就弹个错误对话框，然后结束程序&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>INT 2D&lt;/strong>&lt;/p>
+&lt;p>原为内核模式中用来触发断点异常的，也可以在用户模式下正常运行时触发异常.&lt;/p>
+&lt;p>① 不会触发异常，只是忽略&lt;/p>
+&lt;p>② INT 2D的下一条指令的第一个字节会被忽略。&lt;/p>
+&lt;p>③ F7/F8单步命令跟踪INT 2D时，程序不会停在下条指令开始的地方，而是一直运行，直到遇到断点。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h3 id="120xcc探测-__-对应-int-3">（12）0xCC探测 __ 对应 INT 3&lt;/h3>
+&lt;p>若是关键位置检测到该指令，即可判断进程处于调试状态。检测时要注意不是所有的位置都可以，因为0xCC既可以是INT 3指令，也可以是其他指令的操作数&lt;code>API断点&lt;/code> &lt;code>校验和&lt;/code> → 采用比较特殊代码区域(易被下断点的区域)的校验和的值&lt;/p>
+&lt;h3 id="13单步检测">（13）单步检测&lt;/h3>
+&lt;p>检测TF或0xCC实现反调试。&lt;/p>
+&lt;p>&lt;code>TF检测&lt;/code> → 当EFLAGS的TF标志位被置1时，CPU将进入单步执行模式CPU执行1条指令后即触发一个EXCEPTION_SINGLE_STEP异常，然后TF会自动清零 第1种：主动触发TF异常、与SEH结合使用探测调试器。&lt;/p>
+&lt;h3 id="14-自调试">（14） 自调试&lt;/h3>
+&lt;p>和linux 一样程序不允许同时被两个调试器调试。可以自己先调试运行自己，防止被另一个调试器继续调试。&lt;/p>
+&lt;ol>
+&lt;li>
+&lt;p>&lt;strong>CreateProcess&lt;/strong>&lt;/p>
+&lt;p>进程第1次运行时会尝试访问同步内核对象，如果不存在，则说明当前进程第1次运行，创建一个内核对象，并以调试方式创建进程打开“自己”。这时若调试器首次调试运行进程则相当于在调试一个调试器，由于第2次运行的进程是被第1次运行的调试打开的，所以调试器也无法继续调试第2次运行的进程。&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;strong>DebugActiveProcess&lt;/strong>&lt;/p>
+&lt;p>自调试除上节讲的CreateProcess()以调试方式打开进程外，还可以选择正常创建自身，然后马上附加创建进程的操作来实现。DebugActiveProcess()就可以做到这一点。&lt;/p>
+&lt;/li>
+&lt;/ol>
+&lt;h2 id="参考文档">参考文档&lt;/h2>
+&lt;ul>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://bbs.kanxue.com/thread-262200.htm#msg_header_h1_6" target="_blank" rel="noopener"
+>[原创]Windows最全反调试知识汇总-附实现代码-软件逆向-看雪-安全社区|安全招聘|kanxue.com&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.52pojie.cn/thread-1490663-1-1.html" target="_blank" rel="noopener"
+>【原创】反调试实战系列二 TLS反调试+CheckRemoteDebuggerPresent原理 - 『软件调试区』 - 吾爱破解 - LCG - LSG |安卓破解|病毒分析|www.52pojie.cn&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/179709#h3-3" target="_blank" rel="noopener"
+>Windows平台常见反调试技术梳理（上）-安全客 - 安全资讯平台 (anquanke.com)&lt;/a>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>&lt;a class="link" href="https://www.anquanke.com/post/id/179710#h3-5" target="_blank" rel="noopener"
+>Windows平台常见反调试技术梳理（下）-安全客 - 安全资讯平台 (anquanke.com)&lt;/a>&lt;/p>
+&lt;/li>
+&lt;/ul></description></item></channel></rss>
