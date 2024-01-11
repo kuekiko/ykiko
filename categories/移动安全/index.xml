@@ -2234,52 +2234,7 @@ alt="img"
 &lt;/li>
 &lt;/ul>
 &lt;h3 id="总结">总结&lt;/h3>
-&lt;p>这两章讲的还是挺详细的，可以留着备用查阅，这两个文件都能加以混淆来保护应用，所以还是挺重要的。&lt;/p></description></item><item><title>Android应用安全防护和逆向分析-基础篇4</title><link>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%874/</link><pubDate>Wed, 22 Aug 2018 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%874/</guid><description>&lt;h1 id="android应用安全防护和逆向分析-基础篇4">Android应用安全防护和逆向分析-基础篇4&lt;/h1>
-&lt;h2 id="一-基础篇">一、 基础篇④&lt;/h2>
-&lt;h3 id="第四章-so文件格式解析">第四章 so文件格式解析&lt;/h3>
-&lt;ol>
-&lt;li>
-&lt;p>ELF文件格式&lt;/p>
-&lt;p>so文件-&amp;gt;elf文件，文件格式看图（引用自@非虫）：&lt;/p>
-&lt;p>&lt;img src="http://my-md-1253484710.coscd.myqcloud.com/elf_feichong.png"
-loading="lazy"
-alt="img"
->&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>解析工具&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>readelf 常用命令&lt;/p>
-&lt;ul>
-&lt;li>
-&lt;p>readelf -h xxx.so 查头部信息&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>readelf -S xxx.so 查节（Section）信息&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>readelf -l xxx.so 查段（Program）信息&lt;/p>
-&lt;/li>
-&lt;li>
-&lt;p>readelf -a xxx.so 查全部信息&lt;/p>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;/ul>
-&lt;/li>
-&lt;li>
-&lt;p>解析ELF文件&lt;/p>
-&lt;p>动手解析一个elf文件 。。。&lt;/p>
-&lt;p>太水 这里的内容&lt;/p>
-&lt;p>直接去看源码实现用java解析elf文件信息https://github.com/fourbrother/parse_androidso&lt;/p>
-&lt;p>ELF 相关内容还是单独详细分析 单独写一篇吧&lt;/p>
-&lt;p>ELF书籍《&lt;a class="link" href="https://item.jd.com/12240585.html" target="_blank" rel="noopener"
->Linux二进制分析&lt;/a>》&lt;/p>
-&lt;h3 id="总结">总结&lt;/h3>
-&lt;p>加固脱壳必须掌握的知识点。&lt;/p>
-&lt;/li>
-&lt;/ol></description></item><item><title>Android应用安全防护和逆向分析-基础篇1</title><link>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%871/</link><pubDate>Mon, 02 Jul 2018 17:33:00 +0800</pubDate><guid>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%871/</guid><description>&lt;h1 id="android应用安全防护和逆向分析-基础篇1">Android应用安全防护和逆向分析-基础篇1&lt;/h1>
+&lt;p>这两章讲的还是挺详细的，可以留着备用查阅，这两个文件都能加以混淆来保护应用，所以还是挺重要的。&lt;/p></description></item><item><title>Android应用安全防护和逆向分析-基础篇1</title><link>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%871/</link><pubDate>Mon, 02 Jul 2018 17:33:00 +0800</pubDate><guid>https://ykiko.top/p/android%E5%BA%94%E7%94%A8%E5%AE%89%E5%85%A8%E9%98%B2%E6%8A%A4%E5%92%8C%E9%80%86%E5%90%91%E5%88%86%E6%9E%90-%E5%9F%BA%E7%A1%80%E7%AF%871/</guid><description>&lt;h1 id="android应用安全防护和逆向分析-基础篇1">Android应用安全防护和逆向分析-基础篇1&lt;/h1>
 &lt;h2 id="第一章-android中锁屏密码加密算法分析">第一章 Android中锁屏密码加密算法分析&lt;/h2>
 &lt;h3 id="1-锁屏密码方式">1. 锁屏密码方式：&lt;/h3>
 &lt;ul>
