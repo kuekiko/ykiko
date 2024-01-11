@@ -1,4 +1,11 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WSL2 on ykikoqAq</title><link>https://ykiko.top/tags/wsl2/</link><description>Recent content in WSL2 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 24 Jul 2020 00:00:00 +0800</lastBuildDate><atom:link href="https://ykiko.top/tags/wsl2/index.xml" rel="self" type="application/rss+xml"/><item><title>WSL2开启kvm</title><link>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</link><pubDate>Fri, 24 Jul 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</guid><description>&lt;h1 id="wsl2开启kvm">WSL2开启kvm&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>WSL2 on ykikoqAq</title><link>https://ykiko.top/tags/wsl2/</link><description>Recent content in WSL2 on ykikoqAq</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><lastBuildDate>Fri, 01 Dec 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://ykiko.top/tags/wsl2/index.xml" rel="self" type="application/rss+xml"/><item><title>WSL2使用技巧</title><link>https://ykiko.top/p/wsl2%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/</link><pubDate>Fri, 01 Dec 2023 00:00:00 +0000</pubDate><guid>https://ykiko.top/p/wsl2%E4%BD%BF%E7%94%A8%E6%8A%80%E5%B7%A7/</guid><description>&lt;h1 id="wsl2使用技巧">WSL2使用技巧&lt;/h1>
+&lt;h3 id="0x00-常用配置">0x00 常用配置&lt;/h3>
+&lt;h3 id="0x01-自编译内核">0x01 自编译内核&lt;/h3>
+&lt;h3 id="0x02-使用usbip连接usb设备">0x02 使用USBIP连接USB设备&lt;/h3>
+&lt;h3 id="0x03-使用vhd解决卡顿问题">0x03 使用VHD解决卡顿问题&lt;/h3>
+&lt;h3 id="0x04-在wsl2上编译aosp">0x04 在WSL2上编译AOSP&lt;/h3>
+&lt;h3 id="0x05-使用wslg图形界面">0x05 使用WSLg图形界面&lt;/h3>
+&lt;h3 id="0x06-使用cancanfd协议">0x06 使用CAN/CANFD协议&lt;/h3></description></item><item><title>WSL2开启kvm</title><link>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</link><pubDate>Fri, 24 Jul 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/wsl2%E5%BC%80%E5%90%AFkvm/</guid><description>&lt;h1 id="wsl2开启kvm">WSL2开启kvm&lt;/h1>
 &lt;h3 id="0x00-前言">0x00 前言&lt;/h3>
 &lt;p>之前想着用wsl2去跑qemu，发现很多内核pwn题给的环境需要开启&lt;code>-enable-kvm&lt;/code>选项，还有自己编译的内核也没法，然而wsl2没法开启kvm，解决办法就是去把hype-v给关了，老老实实用vmware/vmbox开个虚拟机，这样每次都要切来切去很麻烦。&lt;/p>
 &lt;p>直到看到vmware和vmbox都可以与hype-v并存，以为看到了曙光，没想到是没法开启虚拟化选项的。&lt;/p>
