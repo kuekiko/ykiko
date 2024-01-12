@@ -2,7 +2,7 @@
 &lt;h2 id="0x00-前言">0x00 前言&lt;/h2>
 &lt;h2 id="0x01-编译运行">0x01 编译运行&lt;/h2>
 &lt;h3 id="windows">Windows&lt;/h3>
-&lt;p>这里是Windows环境 + Visual Studio 2022&lt;/p>
+&lt;p>这里是Windows10环境 + Visual Studio 2022&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -107,6 +107,47 @@
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make: *** &lt;span class="o">[&lt;/span>Makefile:84: all&lt;span class="o">]&lt;/span> Error &lt;span class="m">2&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
+&lt;/div>&lt;p>解决办法：修改TinyInst\CMakeLists.txt文件，将末尾几行改成&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-makefile" data-lang="makefile">&lt;span class="line">&lt;span class="cl">&lt;span class="err">project(&lt;/span>&lt;span class="s2">&amp;#34;sslhook&amp;#34;&lt;/span>&lt;span class="err">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">add_executable(sslhook&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="err">sslhook-main.cpp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="err">sslhook.h&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="err">sslhook.cpp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">find_package(Threads&lt;/span> &lt;span class="err">REQUIRED)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">target_link_libraries(sslhook tinyinst rt Threads&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">Threads&lt;/span>)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">project(&lt;/span>&lt;span class="s2">&amp;#34;litecov&amp;#34;&lt;/span>&lt;span class="err">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">add_executable(litecov&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="err">tinyinst-coverage.cpp&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">find_package(Threads&lt;/span> &lt;span class="err">REQUIRED)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">target_link_libraries(litecov tinyinst rt Threads&lt;/span>&lt;span class="o">::&lt;/span>&lt;span class="n">Threads&lt;/span>)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
 &lt;/div>&lt;h3 id="android">Android&lt;/h3>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -122,7 +163,8 @@
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">cmake --build . --config Release
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div></description></item><item><title>Unicorn简单学习使用记录</title><link>https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/</link><pubDate>Fri, 17 Apr 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/</guid><description>&lt;h1 id="unicorn简单学习使用记录">Unicorn简单学习使用记录&lt;/h1>
+&lt;/div>&lt;h2 id="0x02-基础命令">0x02 基础命令&lt;/h2>
+&lt;h2 id="0x03-源码解读">0x03 源码解读&lt;/h2></description></item><item><title>Unicorn简单学习使用记录</title><link>https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/</link><pubDate>Fri, 17 Apr 2020 00:00:00 +0800</pubDate><guid>https://ykiko.top/p/unicorn%E7%AE%80%E5%8D%95%E5%AD%A6%E4%B9%A0%E4%BD%BF%E7%94%A8%E8%AE%B0%E5%BD%95/</guid><description>&lt;h1 id="unicorn简单学习使用记录">Unicorn简单学习使用记录&lt;/h1>
 &lt;h3 id="0x00-介绍">0x00 介绍&lt;/h3>
 &lt;p>Unicorn是一个轻量级, 多平台, 多架构的CPU模拟器框架，基于qemu开发，它可以代替CPU模拟代码的执行，常用于恶意代码分析，Fuzz等。&lt;/p>
 &lt;h3 id="0x01-安装">0x01 安装&lt;/h3>
