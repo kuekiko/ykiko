@@ -1,14 +1,14 @@
 ---
 title: "Jackalope使用和基本原理"
 created_Time: 2024-01-11 08:19:00 +0000 UTC
-lastmod: 2024-01-11 08:40:00 +0000 UTC
+lastmod: 2024-01-12 02:23:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+categories: [Fuzzing,基础原理,工具]
 description: ""
 tags: [Fuzzing]
 date: 2023-10-31T11:00:00.000+08:00
 draft: false
-categories: [Fuzzing,基础原理,工具]
 ---
 
 # Jackalope使用和基本原理
@@ -21,7 +21,7 @@ categories: [Fuzzing,基础原理,工具]
 
 ### Windows
 
-这里是Windows环境 + Visual Studio 2022
+这里是Windows10环境 + Visual Studio 2022
 
 ```bash
 git clone https://github.com/googleprojectzero/Jackalope.git
@@ -97,6 +97,28 @@ make[1]: *** [CMakeFiles/Makefile2:256: TinyInst/CMakeFiles/litecov.dir/all] Err
 make: *** [Makefile:84: all] Error 2
 ```
 
+解决办法：修改TinyInst\CMakeLists.txt文件，将末尾几行改成
+
+```makefile
+project("sslhook")
+
+add_executable(sslhook
+  sslhook-main.cpp
+  sslhook.h
+  sslhook.cpp
+)
+find_package(Threads REQUIRED)
+target_link_libraries(sslhook tinyinst rt Threads::Threads)
+
+project("litecov")
+
+add_executable(litecov
+  tinyinst-coverage.cpp
+)
+find_package(Threads REQUIRED)
+target_link_libraries(litecov tinyinst rt Threads::Threads)
+```
+
 
 
 ### Android
@@ -108,5 +130,13 @@ cmake -DCMAKE_TOOLCHAIN_FILE=/path/to/android/ndk/build/cmake/android.toolchain.
 cmake --build . --config Release
 ```
 
+## 0x02 基础命令
 
+
+
+
+
+
+
+## 0x03 源码解读
 
