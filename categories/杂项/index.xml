@@ -116,6 +116,217 @@
 &lt;h3 id="0x04-在wsl2上编译aosp">0x04 在WSL2上编译AOSP&lt;/h3>
 &lt;h3 id="0x05-使用wslg图形界面">0x05 使用WSLg图形界面&lt;/h3>
 &lt;h3 id="0x06-使用cancanfd协议">0x06 使用CAN/CANFD协议&lt;/h3>
+&lt;ol>
+&lt;li>
+&lt;p>下载内核：到https://github.com/microsoft/WSL2-Linux-Kernel下载需要的内核版本&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>安装编译内核需要的依赖&lt;/p>
+&lt;p>&lt;code>sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev ncurses-dev&lt;/code>&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>配置内核&lt;/p>
+&lt;p>cp Microsoft/config-wsl .config&lt;/p>
+&lt;p>&lt;code>make menuconfig&lt;/code> → Networking support&amp;mdash;&amp;gt;CAN BUS subsystem support 开启相关模块&lt;/p>
+&lt;p>也可以自己手动修改.config文件&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;span class="lnt">37
+&lt;/span>&lt;span class="lnt">38
+&lt;/span>&lt;span class="lnt">39
+&lt;/span>&lt;span class="lnt">40
+&lt;/span>&lt;span class="lnt">41
+&lt;/span>&lt;span class="lnt">42
+&lt;/span>&lt;span class="lnt">43
+&lt;/span>&lt;span class="lnt">44
+&lt;/span>&lt;span class="lnt">45
+&lt;/span>&lt;span class="lnt">46
+&lt;/span>&lt;span class="lnt">47
+&lt;/span>&lt;span class="lnt">48
+&lt;/span>&lt;span class="lnt">49
+&lt;/span>&lt;span class="lnt">50
+&lt;/span>&lt;span class="lnt">51
+&lt;/span>&lt;span class="lnt">52
+&lt;/span>&lt;span class="lnt">53
+&lt;/span>&lt;span class="lnt">54
+&lt;/span>&lt;span class="lnt">55
+&lt;/span>&lt;span class="lnt">56
+&lt;/span>&lt;span class="lnt">57
+&lt;/span>&lt;span class="lnt">58
+&lt;/span>&lt;span class="lnt">59
+&lt;/span>&lt;span class="lnt">60
+&lt;/span>&lt;span class="lnt">61
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl"># 编译时添加到config-wsl文件中的配置指令
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CC_CAN_LINK=y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CC_CAN_LINK_STATIC=y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_HAMRADIO is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_RAW=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_BCM=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_GW=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_J1939=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_ISOTP=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CAN Device Drivers
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_VCAN=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_VXCAN=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_SLCAN=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_DEV=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_CALC_BITTIMING=y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_KVASER_PCIEFD=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_C_CAN=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_C_CAN_PLATFORM is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_C_CAN_PCI is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_CC770=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_CC770_ISA is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_CC770_PLATFORM is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_IFI_CANFD=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_M_CAN=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_M_CAN_PCI is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_M_CAN_PLATFORM is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_PEAK_PCIEFD=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_SJA1000=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_EMS_PCI is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_EMS_PCMCIA is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_F81601 is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_KVASER_PCI is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_PEAK_PCI is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_PEAK_PCMCIA is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_PLX_PCI is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_SJA1000_ISA is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CONFIG_CAN_SJA1000_PLATFORM is not set
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_SOFTING=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_SOFTING_CS=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># CAN USB interfaces
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">#
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_8DEV_USB=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_EMS_USB=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_ESD_USB2=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_ETAS_ES58X=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_GS_USB=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_KVASER_USB=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_MCBA_USB=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_PEAK_USB=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_UCAN=m
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># end of CAN USB interfaces
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">CONFIG_CAN_DEBUG_DEVICES=y
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"># end of CAN Device Drivers
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>编译安装内核&lt;/p>
+&lt;p>&lt;code>make -j8&lt;/code>&lt;/p>
+&lt;p>&lt;code>sudo make modules_install&lt;/code> 如果是编译的M&lt;/p>
+&lt;p>&lt;code>sudo make install&lt;/code>&lt;/p>
+&lt;p>&lt;code>cp arch/x86/boot/bzImage /mnt/c/Users/&amp;lt;User&amp;gt;/&lt;/code>&lt;/p>
+&lt;p>在&lt;code>/mnt/c/Users/&amp;lt;User&amp;gt;/&lt;/code>下创建.wslconfig文件写入以下内容：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-plain" data-lang="plain">&lt;span class="line">&lt;span class="cl">[wsl2]
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">kernel=C:\\Users\\[username]\\bzImage
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;li>
+&lt;p>测试安装&lt;/p>
+&lt;p>重启wsl2 → &lt;code>wsl --shutdown [Ubuntu] &lt;/code> []中是虚拟机系统 可能是kali之类的&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-elm" data-lang="elm">&lt;span class="line">&lt;span class="cl">&lt;span class="err">#&lt;/span> &lt;span class="err">安装&lt;/span>&lt;span class="nv">can&lt;/span> &lt;span class="nv">utils&lt;/span> &lt;span class="err">工具&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sudo&lt;/span> &lt;span class="nv">apt&lt;/span> &lt;span class="nv">install&lt;/span> &lt;span class="nv">can&lt;/span>&lt;span class="nf">-&lt;/span>&lt;span class="nv">utils&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">#&lt;/span> &lt;span class="err">使能并创建&lt;/span>&lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sudo&lt;/span> &lt;span class="nv">modprobe&lt;/span> &lt;span class="nv">can&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sudo&lt;/span> &lt;span class="nv">modprobe&lt;/span> &lt;span class="nv">can_raw&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sudo&lt;/span> &lt;span class="nv">modprobe&lt;/span> &lt;span class="nv">vcan&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sudo&lt;/span> &lt;span class="nv">ip&lt;/span> &lt;span class="nv">link&lt;/span> &lt;span class="nv">add&lt;/span> &lt;span class="nv">dev&lt;/span> &lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span> &lt;span class="kr">type&lt;/span> &lt;span class="nv">vcan&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">sudo&lt;/span> &lt;span class="nv">ip&lt;/span> &lt;span class="nv">link&lt;/span> &lt;span class="nv">set&lt;/span> &lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span> &lt;span class="nv">up&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">#&lt;/span> &lt;span class="err">检查&lt;/span>&lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="err">是否存在，应该能看到&lt;/span>&lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="err">已经存在&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">ifconfig&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">#&lt;/span> &lt;span class="err">在一个窗口向&lt;/span>&lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="err">发送随机数据&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">cangen&lt;/span> &lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">#&lt;/span> &lt;span class="err">在另一个窗口查看&lt;/span>&lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="err">是否接收到数据&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">candump&lt;/span> &lt;span class="nv">vcan&lt;/span>&lt;span class="mi">0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">###能看到数据即安装正常&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;/li>
+&lt;/ol>
 &lt;h3 id="0x07-wsl常用命令">0x07 WSL常用命令&lt;/h3>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
