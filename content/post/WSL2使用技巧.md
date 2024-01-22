@@ -1,14 +1,14 @@
 ---
 title: "WSL2使用技巧"
 created_Time: 2024-01-11 03:28:00 +0000 UTC
-lastmod: 2024-01-11 08:22:00 +0000 UTC
+lastmod: 2024-01-22 08:11:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
+date: 2023-12-01T00:00:00.000+08:00
+draft: false
 categories: [杂项]
 description: "WSL2常用的一些配置、使用技巧"
 tags: [WSL2]
-date: 2023-12-01T00:00:00.000+08:00
-draft: false
 ---
 
 # WSL2使用技巧
@@ -105,6 +105,134 @@ WSL2支持使用自编译的内核运行
 
 
 ### 0x06 使用CAN/CANFD协议
+
+1. 下载内核：到https://github.com/microsoft/WSL2-Linux-Kernel下载需要的内核版本
+
+1. 安装编译内核需要的依赖
+
+	`sudo apt install build-essential flex bison dwarves libssl-dev libelf-dev ncurses-dev`
+
+
+
+1. 配置内核
+
+	cp Microsoft/config-wsl .config
+
+	`make menuconfig` → Networking support--->CAN BUS subsystem support 开启相关模块
+
+	也可以自己手动修改.config文件
+
+	```plain text
+	# 编译时添加到config-wsl文件中的配置指令
+	CONFIG_CC_CAN_LINK=y
+	CONFIG_CC_CAN_LINK_STATIC=y
+	
+	# CONFIG_HAMRADIO is not set
+	CONFIG_CAN=m
+	CONFIG_CAN_RAW=m
+	CONFIG_CAN_BCM=m
+	CONFIG_CAN_GW=m
+	CONFIG_CAN_J1939=m
+	CONFIG_CAN_ISOTP=m
+	
+	#
+	# CAN Device Drivers
+	#
+	CONFIG_CAN_VCAN=m
+	CONFIG_CAN_VXCAN=m
+	CONFIG_CAN_SLCAN=m
+	CONFIG_CAN_DEV=m
+	CONFIG_CAN_CALC_BITTIMING=y
+	CONFIG_CAN_KVASER_PCIEFD=m
+	CONFIG_CAN_C_CAN=m
+	# CONFIG_CAN_C_CAN_PLATFORM is not set
+	# CONFIG_CAN_C_CAN_PCI is not set
+	CONFIG_CAN_CC770=m
+	# CONFIG_CAN_CC770_ISA is not set
+	# CONFIG_CAN_CC770_PLATFORM is not set
+	CONFIG_CAN_IFI_CANFD=m
+	CONFIG_CAN_M_CAN=m
+	# CONFIG_CAN_M_CAN_PCI is not set
+	# CONFIG_CAN_M_CAN_PLATFORM is not set
+	CONFIG_CAN_PEAK_PCIEFD=m
+	CONFIG_CAN_SJA1000=m
+	# CONFIG_CAN_EMS_PCI is not set
+	# CONFIG_CAN_EMS_PCMCIA is not set
+	# CONFIG_CAN_F81601 is not set
+	# CONFIG_CAN_KVASER_PCI is not set
+	# CONFIG_CAN_PEAK_PCI is not set
+	# CONFIG_CAN_PEAK_PCMCIA is not set
+	# CONFIG_CAN_PLX_PCI is not set
+	# CONFIG_CAN_SJA1000_ISA is not set
+	# CONFIG_CAN_SJA1000_PLATFORM is not set
+	CONFIG_CAN_SOFTING=m
+	CONFIG_CAN_SOFTING_CS=m
+	
+	#
+	# CAN USB interfaces
+	#
+	CONFIG_CAN_8DEV_USB=m
+	CONFIG_CAN_EMS_USB=m
+	CONFIG_CAN_ESD_USB2=m
+	CONFIG_CAN_ETAS_ES58X=m
+	CONFIG_CAN_GS_USB=m
+	CONFIG_CAN_KVASER_USB=m
+	CONFIG_CAN_MCBA_USB=m
+	CONFIG_CAN_PEAK_USB=m
+	CONFIG_CAN_UCAN=m
+	# end of CAN USB interfaces
+	
+	CONFIG_CAN_DEBUG_DEVICES=y
+	# end of CAN Device Drivers
+	```
+
+
+
+1. 编译安装内核
+
+	`make -j8`
+
+	`sudo make modules_install`   如果是编译的M
+
+	`sudo make install`
+
+	`cp arch/x86/boot/bzImage /mnt/c/Users/<User>/`
+
+	在`/mnt/c/Users/<User>/`下创建.wslconfig文件写入以下内容：
+
+	```plain text
+	[wsl2]
+	kernel=C:\\Users\\[username]\\bzImage
+	```
+
+
+
+1. 测试安装
+
+	重启wsl2  → `wsl --shutdown [Ubuntu] ` []中是虚拟机系统 可能是kali之类的
+
+	```elm
+	# 安装can utils 工具
+	sudo apt install can-utils
+	
+	# 使能并创建vcan0
+	sudo modprobe can
+	sudo modprobe can_raw
+	sudo modprobe vcan 
+	sudo ip link add dev vcan0 type vcan
+	sudo ip link set vcan0 up
+	
+	# 检查vcan0是否存在，应该能看到vcan0已经存在
+	ifconfig
+	
+	# 在一个窗口向vcan0发送随机数据
+	cangen vcan0
+	
+	# 在另一个窗口查看vcan0是否接收到数据
+	candump vcan0
+	
+	###能看到数据即安装正常
+	```
 
 
 
