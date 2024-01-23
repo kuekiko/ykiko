@@ -1,7 +1,7 @@
 ---
 title: "WSL2使用技巧"
 created_Time: 2024-01-11 03:28:00 +0000 UTC
-lastmod: 2024-01-22 08:11:00 +0000 UTC
+lastmod: 2024-01-23 03:49:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
 date: 2023-12-01T00:00:00.000+08:00
@@ -94,6 +94,48 @@ WSL2支持使用自编译的内核运行
 
 ### 0x03 使用VHD解决卡顿问题
 
+一些文档
+
+- [How to manage WSL disk space | Microsoft Learn](https://learn.microsoft.com/en-us/windows/wsl/disk-space)
+
+1. 创建VHD
+
+	打开Windows磁盘管理工具。点击【操作】→ 【创建VHD】 → 选择自己需要的选项
+
+	![img](https://prod-files-secure.s3.us-west-2.amazonaws.com/9c7f1f5e-be9f-42de-8e14-4ff6785eb454/12e0497d-3615-471d-ad62-483168b09775/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45HZZMZUHI%2F20240123%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240123T035336Z&X-Amz-Expires=3600&X-Amz-Signature=f0df0b8f14faf2b671294e0b8e04ca335219eb6cab87883387be3f1681a38a12&X-Amz-SignedHeaders=host&x-id=GetObject)
+
+
+
+1. 格式化磁盘为ext4
+
+	- 在Windows使用
+
+	- 在WSL2中使用`mkfs.ext4`
+	
+		`sudo mkfs.ext4 /mnt/d/xxx/xxx.vhd`
+	
+	
+
+
+
+1. 挂载磁盘
+
+	- 直接挂载
+	
+		`mkdir workspace`
+	
+		`sudo mount -t auto /mnt/d/workspace.vhd workspace`
+	
+		`sudo chmod 755 -R workspace`
+	
+	
+
+	- 使用wsl命令挂载
+	
+		wsl --mount --vhd xxx
+	
+	
+
 
 
 ### 0x04 在WSL2上编译AOSP
@@ -118,9 +160,11 @@ WSL2支持使用自编译的内核运行
 
 	cp Microsoft/config-wsl .config
 
-	`make menuconfig` → Networking support--->CAN BUS subsystem support 开启相关模块
+	`make menuconfig` → Networking support--->CAN BUS subsystem support 开启相关模块 
 
-	也可以自己手动修改.config文件
+	对于SLCAN支持等依然需要自己手动修改.config文件开启
+
+	也可以自己手动修改.config文件  为m或者y
 
 	```plain text
 	# 编译时添加到config-wsl文件中的配置指令
@@ -192,7 +236,7 @@ WSL2支持使用自编译的内核运行
 
 	`make -j8`
 
-	`sudo make modules_install`   如果是编译的M
+	`sudo make modules_install`  
 
 	`sudo make install`
 
