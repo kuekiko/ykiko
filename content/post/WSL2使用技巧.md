@@ -1,14 +1,14 @@
 ---
 title: "WSL2使用技巧"
 created_Time: 2024-01-11 03:28:00 +0000 UTC
-lastmod: 2024-01-23 03:49:00 +0000 UTC
+lastmod: 2024-05-13 16:06:00 +0000 UTC
 author: "ukiko"
 last_edit_author: "ukiko"
-date: 2023-12-01T00:00:00.000+08:00
 draft: false
 categories: [杂项]
 description: "WSL2常用的一些配置、使用技巧"
 tags: [WSL2]
+date: 2023-12-01T00:00:00.000+08:00
 ---
 
 # WSL2使用技巧
@@ -102,7 +102,7 @@ WSL2支持使用自编译的内核运行
 
 	打开Windows磁盘管理工具。点击【操作】→ 【创建VHD】 → 选择自己需要的选项
 
-	![img](https://prod-files-secure.s3.us-west-2.amazonaws.com/9c7f1f5e-be9f-42de-8e14-4ff6785eb454/12e0497d-3615-471d-ad62-483168b09775/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45HZZMZUHI%2F20240123%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240123T035336Z&X-Amz-Expires=3600&X-Amz-Signature=f0df0b8f14faf2b671294e0b8e04ca335219eb6cab87883387be3f1681a38a12&X-Amz-SignedHeaders=host&x-id=GetObject)
+	![img](https://prod-files-secure.s3.us-west-2.amazonaws.com/9c7f1f5e-be9f-42de-8e14-4ff6785eb454/12e0497d-3615-471d-ad62-483168b09775/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45HZZMZUHI%2F20240513%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20240513T161117Z&X-Amz-Expires=3600&X-Amz-Signature=0f75f5d019572b2b353fcd4f17dfe62fbe9380c80d9e4fcf8f11bc87f6be88d0&X-Amz-SignedHeaders=host&x-id=GetObject)
 
 
 
@@ -134,7 +134,40 @@ WSL2支持使用自编译的内核运行
 	
 		wsl --mount --vhd xxx
 	
+		
 	
+	
+
+	挂载脚本  自己切换<VHDPATH>
+
+	```powershell
+	@echo off
+	:: 检查管理员权限
+	net session >nul 2>&1
+	if %errorlevel% == 0 (
+	    echo Running with administrative privileges
+	) else (
+	    echo This script needs to be run as an Administrator
+	    exit
+	)
+	
+	:: 挂载 VHD 并获取磁盘号
+	for /f "tokens=1" %%i in ('Powershell -Command "Mount-VHD -Path <VHDPATH> -PassThru | Get-Disk | Select -ExpandProperty Number"') do set diskNumber=%%i
+	
+	:: 检查磁盘号是否设置
+	if "%diskNumber%"=="" (
+	    echo Disk number not found.
+	    exit
+	)
+	
+	echo Disk number is %diskNumber%
+	
+	:: 在 WSL 中挂载 VHD
+	Powershell -Command "wsl --mount \\.\PhysicalDrive%diskNumber% --partition 1 --name vhd-data"
+	echo VHD mounted at \\.\PhysicalDrive%diskNumber%
+	
+	echo Done
+	```
 
 
 
